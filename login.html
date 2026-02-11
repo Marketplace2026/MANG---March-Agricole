@@ -1,0 +1,503 @@
+  <!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANG – Marché Agricole Nouvelle Génération</title>
+
+<style>
+/* =====================================================
+   VARIABLES
+===================================================== */
+:root{
+  --green:#1f8a5b;
+  --green-dark:#166b45;
+  --bg:#f4faf6;
+  --dark:#102a23;
+  --gray:#5f6f68;
+  --radius:22px;
+  --shadow:0 20px 50px rgba(0,0,0,.15);
+}
+
+/* =====================================================
+   RESET
+===================================================== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--dark);
+  overflow-x:hidden;
+}
+
+/* =====================================================
+   SPLASH SCREEN
+===================================================== */
+#splash{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#e8fff2,#d7f2e5);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  animation:fadeOut 1.2s ease forwards;
+  animation-delay:3.2s;
+}
+#splash img{width:300px;animation:logoPulse 1.8s infinite}
+#splash h1{
+  margin-top:15px;
+  font-size:2.2em;
+  font-weight:900;
+  color:var(--green-dark);
+  text-align:center;
+}
+@keyframes logoPulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}
+@keyframes fadeOut{to{opacity:0;visibility:hidden}}
+
+/* =====================================================
+   HEADER
+===================================================== */
+header{
+  background:
+    linear-gradient(rgba(16,42,35,.85),rgba(16,42,35,.92)),
+    url("assets/img/hero-people.jpg") center/cover no-repeat;
+  color:#fff;
+  padding:10px 10px 10px;
+}
+.nav{
+  
+  margin:0px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.nav img{height:230px;
+         width:100%;
+        }
+.hero{
+  max-width:900px;
+  margin:auto;
+  text-align:center;
+}
+.hero h2{
+  font-size:3rem;
+  font-weight:900;
+  margin-bottom:20px;
+}
+.hero p{
+  font-size:1.2em;
+  line-height:1.7;
+  margin-bottom:38px;
+}
+.hero-actions{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.hero-actions button{
+  padding:16px 48px;
+  border-radius:999px;
+  border:none;
+  font-weight:900;
+  font-size:1.05em;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+}
+#loginBtn{background:#fff;color:var(--green-dark)}
+#signupBtn{
+  background:linear-gradient(135deg,var(--green),var(--green-dark));
+  color:#fff;
+}
+.trust{
+  margin-top:45px;
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.trust span{
+  background:rgba(255,255,255,.15);
+  padding:12px 20px;
+  border-radius:999px;
+  font-weight:600;
+}
+
+/* =====================================================
+   MAIN
+===================================================== */
+main{
+  max-width:1200px;
+  margin:100px auto;
+  padding:0 20px;
+}
+section{margin-bottom:120px}
+section h3{
+  text-align:center;
+  font-size:2.4em;
+  font-weight:900;
+  margin-bottom:18px;
+}
+.subtitle{
+  text-align:center;
+  max-width:820px;
+  margin:0 auto 70px;
+  color:var(--gray);
+  font-size:1.1em;
+  line-height:1.8;
+}
+
+/* FEATURES */
+.features{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:32px;
+}
+.feature{
+  background:#fff;
+  padding:34px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  transition:.3s;
+}
+.feature:hover{transform:translateY(-10px)}
+.feature h4{
+  color:var(--green-dark);
+  margin-bottom:12px;
+}
+.feature p{color:var(--gray);line-height:1.7}
+
+/* IMAGE SECTIONS */
+.image-section{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:50px;
+  align-items:center;
+}
+.image-section img{
+  width:100%;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.image-section h4{font-size:2em;margin-bottom:14px}
+.image-section p{line-height:1.8;color:var(--gray)}
+
+/* =====================================================
+   SIDEBAR AUTH
+===================================================== */
+.sidebar{
+  position:fixed;
+  top:0;
+  right:-420px;
+  width:380px;
+  max-width:100%;
+  height:100vh;
+  background:#fff;
+  box-shadow:-10px 0 40px rgba(0,0,0,.2);
+  padding:30px;
+  transition:.35s;
+  z-index:9998;
+}
+.sidebar.open{right:0}
+.close-btn{
+  background:none;
+  border:none;
+  font-size:1.4em;
+  cursor:pointer;
+  float:right;
+}
+.sidebar h3{
+  margin:40px 0 20px;
+  font-size:1.6em;
+  color:var(--green-dark);
+}
+.sidebar input{
+  width:100%;
+  padding:14px;
+  margin-bottom:14px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  font-size:1em;
+}
+.password-wrapper{position:relative}
+.toggle-pass{
+  position:absolute;
+  right:15px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+}
+.action-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:999px;
+  font-weight:900;
+  background:linear-gradient(135deg,var(--green),var(--green-dark));
+  color:#fff;
+  cursor:pointer;
+  margin-top:10px;
+}
+.error{
+  color:red;
+  text-align:center;
+  margin-top:10px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+  .hero h2{font-size:2.2em}
+  .image-section{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <img src="assets/img/logos.png" alt="Logo MANG">
+  <h1>Marché Agricole<br>Nouvelle Génération</h1>
+</div>
+
+<header>
+  <div class="nav">
+    <img src="assets/img/logos.png" alt="MANG">
+  </div>
+
+  <div class="hero">
+    <h2>MANG – Le marché agricole nouvelle génération</h2>
+    <p>La plateforme qui connecte producteurs et acheteurs agricoles sans intermédiaires.</p>
+
+    <div class="hero-actions">
+      <button id="loginBtn">Se connecter</button>
+      <button id="signupBtn">S'inscrire</button>
+    </div>
+
+    <div class="trust">
+      <span>🌱 Agricole</span>
+      <span>💬 Messagerie</span>
+      <span>🏪 Boutiques</span>
+      <span>📈 Visibilité</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <h3>Pourquoi choisir MANG ?</h3>
+  <p class="subtitle">Une nouvelle façon de vendre et d’acheter localement.</p>
+
+  <div class="features">
+    <div class="feature"><h4>📦 Produits</h4><p>Publie facilement tes produits agricoles.</p></div>
+    <div class="feature"><h4>💬 Discussion</h4><p>Négocie directement avec les acheteurs.</p></div>
+    <div class="feature"><h4>🏪 Boutique</h4><p>Un profil crédible et visible.</p></div>
+  </div>
+</section>
+<section class="image-section">
+  <img src="assets/img/community.jpg" alt="Producteurs et acheteurs heureux">
+  <div>
+    <h4>Une communauté agricole unie</h4>
+    <p>
+      MANG rassemble producteurs, productrices et acheteurs
+      autour d’un objectif commun :
+      mieux vendre, mieux acheter et mieux collaborer.
+    </p>
+  </div>
+</section>
+
+<section class="image-section">
+  <div>
+    <h4>Ils parlent de MANG</h4>
+    <p>
+      Les utilisateurs recommandent MANG parce qu’ils y trouvent
+      des opportunités réelles, des contacts directs
+      et une nouvelle manière de faire du commerce agricole.
+    </p>
+  </div>
+  <img src="assets/img/testimonial.jpg" alt="Témoignage utilisateur">
+</section>
+</main>
+
+<!-- SIDEBAR AUTH -->
+<div class="sidebar" id="sidebar">
+  <button class="close-btn" id="closeSidebar">✖</button>
+  <h3 id="formTitle">Connexion</h3>
+  <input id="username" placeholder="Nom d'utilisateur" style="display:none">
+  <input id="email" type="email" placeholder="Email">
+  <div class="password-wrapper">
+    <input id="password" type="password" placeholder="Mot de passe">
+    <span class="toggle-pass" id="togglePass">👁</span>
+  </div>
+  <button id="actionBtn" class="action-btn">Se connecter</button>
+  <p id="forgotPassword" style="text-align:center;color:var(--green);cursor:pointer;margin-top:10px;">
+    Mot de passe oublié ?
+  </p>
+  <div class="error" id="errorMsg"></div>
+</div>
+
+<!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
+
+<script type="module">
+import { supabase } from './supabase.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+
+const sidebar = document.getElementById('sidebar');
+const closeSidebar = document.getElementById('closeSidebar');
+const loginBtn = document.getElementById('loginBtn');
+const signupBtn = document.getElementById('signupBtn');
+
+const formTitle = document.getElementById('formTitle');
+const actionBtn = document.getElementById('actionBtn');
+const errorMsg = document.getElementById('errorMsg');
+const usernameInput = document.getElementById('username');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const togglePass = document.getElementById('togglePass');
+
+/* ✅ AJOUT */
+const forgotPassword = document.getElementById('forgotPassword');
+
+let isLogin = true;
+
+/* ================= UI ================= */
+loginBtn.onclick = () => {
+  isLogin = true;
+  sidebar.classList.add('open');
+  usernameInput.style.display = 'none';
+  formTitle.textContent = "Connexion";
+  actionBtn.textContent = "Se connecter";
+  errorMsg.textContent = "";
+  forgotPassword.style.display = "block"; // ✅ AJOUT
+};
+
+signupBtn.onclick = () => {
+  isLogin = false;
+  sidebar.classList.add('open');
+  usernameInput.style.display = 'block';
+  formTitle.textContent = "Inscription";
+  actionBtn.textContent = "S'inscrire";
+  errorMsg.textContent = "";
+  forgotPassword.style.display = "none"; // ✅ AJOUT
+};
+
+closeSidebar.onclick = () => {
+  sidebar.classList.remove('open');
+  emailInput.value = "";
+  passwordInput.value = "";
+  usernameInput.value = "";
+  errorMsg.textContent = "";
+};
+
+togglePass.onclick = () => {
+  passwordInput.type =
+    passwordInput.type === "password" ? "text" : "password";
+};
+
+/* ================= MOT DE PASSE OUBLIÉ ================= */
+forgotPassword.onclick = async () => {
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    errorMsg.textContent = "Entre ton email pour réinitialiser le mot de passe";
+    return;
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: "https://fiacre06.github.io/Sell-live/reset-password.html"
+    });
+  if (error) {
+    errorMsg.textContent = error.message;
+    return;
+  }
+
+  alert("📩 Un email de réinitialisation a été envoyé !");
+};
+
+/* ================= AUTH ================= */
+actionBtn.onclick = async () => {
+  errorMsg.textContent = "";
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  const username = usernameInput.value.trim();
+
+  if (!email || !password || (!isLogin && !username)) {
+    errorMsg.textContent = "Remplis tous les champs";
+    return;
+  }
+
+  /* ===== LOGIN ===== */
+  if (isLogin) {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      errorMsg.textContent = error.message;
+      return;
+    }
+
+    window.location.href = "index.html";
+    return;
+  }
+
+  /* ===== SIGNUP ===== */
+  const { error: signUpError } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { username }
+    }
+  });
+
+  if (signUpError) {
+    errorMsg.textContent = signUpError.message;
+    return;
+  }
+
+  alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+  sidebar.classList.remove('open');
+};
+
+/* ================= PROFILE AUTO CREATE ================= */
+supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event !== "SIGNED_IN" || !session?.user) return;
+
+  const user = session.user;
+
+  const { data: existingProfile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", user.id)
+    .single();
+
+  if (existingProfile) return;
+
+  const { error } = await supabase.from("profiles").insert({
+    id: user.id,
+    email: user.email,
+    username: user.user_metadata?.username || "user",
+    is_acheteur: true,
+    is_vendeur: true,
+    is_premium: false
+  });
+
+  if (error) {
+    console.error("Impossible de créer le profil :", error);
+  }
+});
+
+});
+</script>
+</body>
+</html>
