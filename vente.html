@@ -855,7 +855,7 @@ header.topbar .top-actions button {
   <div class="top-actions">
     <button id="goToAchat">Acheter</button>
     <button id="premiumMenuBtn" class="premiumHeaderBtn">Premium</button>
-    <button class="logout" id="logoutBtn">Déconnexion</button>
+    
   </div>
 </header>
 
@@ -1151,11 +1151,7 @@ function renderUserIdentity() {
     <span style="color:gold">${stars}</span>
   `;
 }
- // Bouton logout
-  document.getElementById('logoutBtn').onclick = async () => {
-    await supabase.auth.signOut();
-    location.href = 'login.html';
-  };
+ 
    // Redirection du bouton "Acheter"
   document.getElementById('goToAchat').addEventListener('click', () => {
     window.location.href = 'index.html';
