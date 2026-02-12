@@ -879,7 +879,7 @@ header.topbar .top-actions button {
 </div>
     
   
-  <button id="logoutBtn">Déconnexion</button>
+  
     <button id="sellBtn">Vendre</button>
   </div>
 </header>
@@ -1168,19 +1168,7 @@ async function loadCurrentUser() {
 
 // Lancer
 await loadCurrentUser();
-  // ====== BOUTON DÉCONNEXION ======
-const logoutBtn = document.getElementById("logoutBtn");
-logoutBtn.onclick = async () => {
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    // Rediriger vers la page login
-    location.href = "login.html";
-  } catch (err) {
-    console.error("Erreur lors de la déconnexion :", err);
-    alert("Impossible de se déconnecter pour le moment");
-  }
-};
+  
 
   // ====== BOUTON VENDRE ======
 const sellBtn = document.getElementById("sellBtn");
