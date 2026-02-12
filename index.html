@@ -756,7 +756,34 @@ header.topbar .top-actions button {
   margin-top: 6px;
   font-size: 0.95rem;
    }
+.user-header-bar{
+  display:flex;
+  align-items:center;   /* 🔥 centre verticalement */
+  gap:10px;
+}
 
+.profile-circle{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  cursor:pointer;
+      margin-bottom: 8px;
+  flex-shrink:0; /* empêche déformation */
+}
+
+#userEmail{
+  background:rgba(255,255,255,0.15);
+  padding:12px 18px;
+  border-radius:30px;
+  display:flex;
+  align-items:center; /* centre le texte */
+  font-weight:600;
+}
 </style>
 
 <script type="application/ld+json">
@@ -782,8 +809,13 @@ header.topbar .top-actions button {
       
     </div>
  
-<div id="userHeader">
-   <span id="userEmail"></span>
+<div class="user-header-bar">
+  
+  <div class="profile-circle" onclick="goProfile()">👤</div>
+
+
+  <span id="userEmail"></span>
+
 </div>
   <div class="top-actions">
     <button id="messageBtn">
@@ -1156,7 +1188,9 @@ sellBtn.onclick = () => {
   // Rediriger vers la page vente.html
   location.href = "vente.html";
 };
-  
+  window.goProfile = function(){
+  window.location.href = "profile.html";
+ }
   // Mettre à jour le statut en ligne de l'utilisateur
 async function setUserOnline() {
   if (!currentUser) return;
