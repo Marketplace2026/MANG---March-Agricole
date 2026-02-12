@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Profil - MANG</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  min-height:100vh;
+  color:white;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(20px);
+  border-radius:20px;
+  padding:25px;
+  margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+.user-box{
+  text-align:center;
+}
+
+.user-circle{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:white;
+  color:#203a43;
+  font-size:35px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 15px;
+  font-weight:700;
+}
+
+.email{
+  opacity:0.8;
+  font-size:14px;
+}
+
+.stat{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,0.2);
+}
+
+.stat:last-child{
+  border:none;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  margin-top:10px;
+  font-size:14px;
+  transition:0.3s;
+}
+
+.wallet{ background:#00c853; color:white; }
+.password{ background:#ffb300; }
+.logout{ background:#ff5252; color:white; }
+
+button:hover{
+  transform:translateY(-2px);
+  opacity:0.9;
+}
+
+button:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.back{
+  padding:20px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.message{
+  margin-top:15px;
+  font-size:13px;
+  text-align:center;
+  opacity:0.9;
+}
+</style>
+</head>
+
+<body>
+
+<div class="back" onclick="window.location.href='index.html'">⬅ Retour</div>
+
+<div class="container">
+
+<div class="card user-box">
+  <div class="user-circle" id="initialLetter">U</div>
+  <h3 id="displayName">Utilisateur</h3>
+  <div class="email" id="userEmail"></div>
+</div>
+
+<div class="card">
+  <div class="stat">
+    <span>Solde actuel</span>
+    <span id="walletBalance">0 FCFA</span>
+  </div>
+
+  <div class="stat">
+    <span>Transactions</span>
+    <span id="totalTransactions">0</span>
+  </div>
+
+  <div class="stat">
+    <span>Date d'inscription</span>
+    <span id="createdAt"></span>
+  </div>
+</div>
+
+<div class="card">
+  <button class="wallet" onclick="goWallet()">💳 Mon Portefeuille</button>
+  <button class="password" id="changePassBtn" onclick="goChangePassword()">🔒 Modifier mon mot de passe</button>
+  <button class="logout" onclick="logout()">🚪 Déconnexion</button>
+  <div class="message" id="msgBox"></div>
+</div>
+
+</div>
+
+<script type="module">
+import { supabase } from './supabase.js';
+
+let currentUser=null;
+
+async function loadProfile(){
+
+  const { data:{ user } } = await supabase.auth.getUser();
+
+  if(!user){
+    window.location.href="login.html";
+    return;
+  }
+
+  currentUser=user;
+
+  document.getElementById("userEmail").innerText=user.email;
+  document.getElementById("displayName").innerText=user.email.split("@")[0];
+  document.getElementById("initialLetter").innerText=user.email.charAt(0).toUpperCase();
+  document.getElementById("createdAt").innerText=new Date(user.created_at).toLocaleDateString();
+
+  const { data:profile } = await supabase
+  .from("profiles")
+  .select("wallet_balance")
+  .eq("id",user.id)
+  .single();
+
+  document.getElementById("walletBalance").innerText=(profile?.wallet_balance||0)+" FCFA";
+
+  const { count } = await supabase
+  .from("wallet_transactions")
+  .select("*",{count:"exact",head:true})
+  .eq("user_id",user.id);
+
+  document.getElementById("totalTransactions").innerText=count||0;
+}
+
+loadProfile();
+
+window.goWallet=function(){
+  window.location.href="dashboard.html";
+}
+
+/* 🔐 VERSION PRO RESET */
+window.goChangePassword=async function(){
+
+  const btn=document.getElementById("changePassBtn");
+  const msg=document.getElementById("msgBox");
+
+  btn.disabled=true;
+  btn.innerText="Envoi en cours...";
+
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    currentUser.email,
+    {
+      redirectTo: window.location.origin + "/reset-password.html"
+    }
+  );
+
+  if(error){
+    msg.innerText="❌ Erreur lors de l'envoi de l'email.";
+  }else{
+    msg.innerText="📩 Email de modification envoyé. Vérifiez votre boîte mail.";
+  }
+
+  btn.disabled=false;
+  btn.innerText="🔒 Modifier mon mot de passe";
+}
+
+window.logout=async function(){
+  await supabase.auth.signOut();
+  window.location.href="login.html";
+}
+</script>
+
+</body>
+</html>
