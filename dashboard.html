@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portefeuille - MANG</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:white;
+}
+
+/* HEADER */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px;
+}
+
+.profile{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.profile-circle{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:white;
+  color:#1f4d3a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.close-btn{
+  background:rgba(255,255,255,0.15);
+  border:none;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+  transition:0.3s;
+}
+.close-btn:hover{background:red;}
+
+/* CARD */
+.container{padding:20px;}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:25px;
+  margin-bottom:25px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.3);
+}
+
+.balance-title{opacity:0.7;font-size:14px;}
+.balance{font-size:34px;font-weight:700;margin-top:5px;}
+
+.actions{
+  margin-top:20px;
+  display:flex;
+  gap:15px;
+}
+
+button{
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+  flex:1;
+}
+
+.deposit{background:#00c853;color:white;}
+.deposit:hover{background:#00a844;}
+
+.withdraw{background:#ff5252;color:white;}
+.withdraw:hover{background:#e63e3e;}
+
+/* TRANSACTIONS */
+.transaction{
+  background:rgba(255,255,255,0.05);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.amount.plus{color:#00e676;font-weight:bold;}
+.amount.minus{color:#ff5252;font-weight:bold;}
+
+.empty{opacity:0.6;}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+.modal-content{
+  background:#ffffff;
+  color:#333;
+  width:90%;
+  max-width:400px;
+  padding:25px;
+  border-radius:20px;
+  animation:pop 0.3s ease;
+}
+
+@keyframes pop{
+  from{transform:scale(0.8);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+.modal h3{margin-bottom:15px;}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-bottom:15px;
+}
+
+.operator{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.operator div{
+  flex:1;
+  border:2px solid #ddd;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.operator div.active{
+  border-color:#1f4d3a;
+  background:#e8f5e9;
+}
+
+.modal button{
+  width:100%;
+  background:#1f4d3a;
+  color:white;
+}
+  
+  .back{
+  padding:20px;
+  cursor:pointer;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="profile">
+    <div class="profile-circle">👤</div>
+    <div>
+      <div>Mon Portefeuille</div>
+      <small id="userEmail"></small>
+    </div>
+  </div>
+  <div class="back" onclick="window.location.href='profile.html'">⬅ Retour</div>
+
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div class="balance-title">Solde disponible</div>
+    <div class="balance"><span id="balance">0</span> FCFA</div>
+
+    <div class="actions">
+      <button class="deposit" onclick="openDeposit()">Recharger</button>
+      <button class="withdraw" onclick="openWithdraw()">Retirer</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Historique</h3>
+    <div id="transactions"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="paymentModal">
+  <div class="modal-content">
+    <h3 id="modalTitle"></h3>
+
+    <input type="number" id="amountInput" placeholder="Montant (FCFA)">
+    <input type="text" id="phoneInput" placeholder="Numéro Mobile Money">
+
+    <div class="operator">
+      <div onclick="selectOperator(this,'MTN')">🟡 MTN</div>
+      <div onclick="selectOperator(this,'MOOV')">🔵 Moov</div>
+      <div onclick="selectOperator(this,'CELTIS')">🟢 Celtis</div>
+    </div>
+
+    <button onclick="submitTransaction()">Confirmer</button>
+  </div>
+</div>
+
+<script type="module">
+import { supabase } from './supabase.js';
+
+let currentUser=null;
+let actionType="";
+let selectedOperator="";
+
+/* ======================
+CONFIG FEDA (À REMPLACER)
+====================== */
+
+const BACKEND_URL="https://TON_BACKEND_API.com";
+
+/* ======================
+LOAD USER
+====================== */
+
+async function loadUser(){
+  const { data:{user} } = await supabase.auth.getUser();
+  if(!user){window.location.href="login.html";return;}
+  currentUser=user;
+  document.getElementById("userEmail").innerText=user.email;
+  loadWallet();
+}
+
+async function loadWallet(){
+  const { data:profile }=await supabase
+  .from("profiles")
+  .select("wallet_balance")
+  .eq("id",currentUser.id)
+  .single();
+
+  document.getElementById("balance").innerText=
+  profile?.wallet_balance||0;
+}
+
+/* ======================
+MODAL
+====================== */
+
+window.openDeposit=function(){
+  actionType="deposit";
+  document.getElementById("modalTitle").innerText="Recharger via Mobile Money";
+  document.getElementById("paymentModal").style.display="flex";
+}
+
+window.openWithdraw=function(){
+  actionType="withdraw";
+  document.getElementById("modalTitle").innerText="Retrait Mobile Money";
+  document.getElementById("paymentModal").style.display="flex";
+}
+
+window.selectOperator=function(el,operator){
+  document.querySelectorAll(".operator div")
+  .forEach(d=>d.classList.remove("active"));
+  el.classList.add("active");
+  selectedOperator=operator;
+}
+
+/* ======================
+SUBMIT (CONNECT FEDA API)
+====================== */
+
+window.submitTransaction=async function(){
+
+  const amount=document.getElementById("amountInput").value;
+  const phone=document.getElementById("phoneInput").value;
+
+  if(!amount||!phone||!selectedOperator){
+    alert("Veuillez remplir tous les champs");
+    return;
+  }
+
+  const response=await fetch(`${BACKEND_URL}/${actionType}`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      user_id:currentUser.id,
+      amount:amount,
+      phone:phone,
+      operator:selectedOperator
+    })
+  });
+
+  const data=await response.json();
+
+  if(data.payment_url){
+    window.location.href=data.payment_url;
+  }else{
+    alert(data.message||"Erreur");
+  }
+
+}
+
+loadUser();
+</script>
+
+</body>
+</html>
