@@ -205,7 +205,8 @@ window.goChangePassword=async function(){
   const { error } = await supabase.auth.resetPasswordForEmail(
     currentUser.email,
     {
-      redirectTo: window.location.origin + "/reset-password.html"
+      redirectTo: "https://marketplace2026.github.io/MANG---March-Agricole//reset-password.html"
+    
     }
   );
 
