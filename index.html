@@ -1123,52 +1123,76 @@ header.topbar .top-actions button {
 <script type="module">
 import { supabase } from './supabase.js';
 
-// ====== UTILISATEUR CONNECTÉ + BADGE PREMIUM ======
+// ====== UTILISATEUR CONNECTÉ + BADGE PREMIUM (MULTI NIVEAUX) ======
+
 let currentUser = null;
 let currentProfile = null;
-let currentShopId = null;
-async function loadCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !user) {
-    console.error("Erreur utilisateur :", error);
+async function loadCurrentUser() {
+
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
     location.href = "login.html";
     return;
   }
 
-  currentUser = user;
-  
+  currentUser = data.user;
 
-  // Récupérer le profil
-  const { data: profile, error: profileError } = await supabase
+  const emailElement = document.getElementById("userEmail");
+  if (!emailElement) return;
+
+  emailElement.textContent = currentUser.email;
+
+  const { data: profile } = await supabase
     .from('profiles')
-    .select('premium_level')
-    .eq('id', user.id)
-    .single();
+    .select('premium_level, premium_end')
+    .eq('id', currentUser.id)
+    .maybeSingle();
 
-  if (profileError) {
-    console.error("Erreur profil :", profileError);
-  } else {
-    currentProfile = profile;
-  }
+  if (!profile) return;
 
-  // Badge premium
+  currentProfile = profile;
+
+  const now = new Date();
+  const premiumEnd = profile.premium_end
+    ? new Date(profile.premium_end)
+    : null;
+
   let badge = '';
-  switch (currentProfile?.premium_level) {
-    case 'premium1': badge = ' ⭐'; break;
-    case 'premium2': badge = ' ⭐⭐'; break;
-    case 'premium3': badge = ' ⭐⭐⭐'; break;
-    default: badge = '';
+
+  // ===== PREMIUM ACTIF =====
+  if (profile.premium_level && premiumEnd && premiumEnd > now) {
+
+    switch (profile.premium_level) {
+      case 'premium1': badge = ' ⭐'; break;
+      case 'premium2': badge = ' ⭐⭐'; break;
+      case 'premium3': badge = ' ⭐⭐⭐'; break;
+    }
+
   }
 
-  // EMAIL + BADGE (même ligne)
-  document.getElementById("userEmail").textContent =
-    user.email + badge;
+  // ===== PREMIUM EXPIRÉ =====
+  else if (profile.premium_level && premiumEnd && premiumEnd <= now) {
+
+    await supabase
+      .from('profiles')
+      .update({
+        premium_level: null,
+        premium_start: null,
+        premium_end: null
+      })
+      .eq('id', currentUser.id);
+
+    badge = '';
+  }
+
+  emailElement.textContent = currentUser.email + badge;
 }
 
-// Lancer
-await loadCurrentUser();
-  
+document.addEventListener("DOMContentLoaded", () => {
+  loadCurrentUser();
+});
 
   // ====== BOUTON VENDRE ======
 const sellBtn = document.getElementById("sellBtn");
