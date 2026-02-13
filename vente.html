@@ -257,99 +257,47 @@ header.topbar .top-actions button {
 }
   #createShopBtn{background:#4caf50; width:200px; border-radius:20px; color:#fff; font-size: 15px; height:50px;}
   
-  /* Bouton header Premium */
-.premiumHeaderBtn {
-  background: #f39c12;
-  color: white;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.premiumHeaderBtn:hover {
-  background: #e67e22;
-}
-
-/* ===== SIDEBAR PREMIUM ===== */
-#premiumSidebar {
-  position: fixed;
-  top: 0; right: -400px;
-  width: 350px;
-  height: 100%;
-  background: #fff;
-  box-shadow: -4px 0 12px rgba(0,0,0,0.2);
-  padding: 20px;
-  transition: right 0.3s ease-in-out;
-  z-index: 2000;
-  overflow-y: auto;
-}
-
-#premiumSidebar.active {
-  right: 0;
-}
-
-#premiumSidebar span#closePremiumSidebar {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 28px;
-  cursor: pointer;
-  color: #333;
-}
-
-.premium-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.premium-card {
-  background: #f4f6f8;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.premium-card h4 {
-  margin-bottom: 8px;
-  color: #2e8b57;
-}
-
-.premium-card p {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 10px;
-}
-
-.premium-card button {
-  background: #2e8b57;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  width: 100%;
-  font-weight: bold;
-  transition: 0.2s;
-}
-
-.premium-card button:hover {
-  background: #27ae60;
-}
-
-/* Responsive */
-@media(max-width:600px){
-  #premiumSidebar { width: 90%; }
-}
   
+  .premium-sidebar{
+  position:fixed;
+  top:0;
+  right:-400px;
+  width:330px;
+  height:100%;
+  background:#fff;
+  box-shadow:-5px 0 15px rgba(0,0,0,0.2);
+  transition:0.3s;
+  padding:20px;
+  z-index:9999;
+  overflow-y:auto;
+}
+
+.premium-sidebar.active{
+  right:0;
+}
+
+.close-btn{
+  font-size:25px;
+  cursor:pointer;
+  float:right;
+}
+
+.premium-card{
+  background:#f9f9f9;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+  text-align:center;
+}
+
+.premium-card button{
+  background:#ff9800;
+  border:none;
+  padding:8px 15px;
+  color:#fff;
+  border-radius:5px;
+  cursor:pointer;
+}
 
   /* ===== MODALE ===== */
 .categoryModal {
@@ -852,37 +800,44 @@ header.topbar .top-actions button {
   <div id="userHeader">
   <span id="userName">Connecté : NomUtilisateur</span>
 </div>
+  <div id="premiumCounter" style="color:orange; font-weight:bold;"></div>
+  
   <div class="top-actions">
     <button id="goToAchat">Acheter</button>
     <button id="premiumMenuBtn" class="premiumHeaderBtn">Premium</button>
     
   </div>
 </header>
+<!-- ===== SIDEBAR PREMIUM ===== -->
+<div id="premiumSidebar" class="premium-sidebar">
+  <span id="closePremiumSidebar" class="close-btn">&times;</span>
 
-  <!-- ===== SIDEBAR PREMIUM ===== -->
-<div id="premiumSidebar">
-  <span id="closePremiumSidebar">&times;</span>
   <h3>🚀 Devenir Premium</h3>
   <p>Augmentez la visibilité de votre boutique et vos ventes !</p>
 
   <div class="premium-cards">
+
     <div class="premium-card" data-level="premium1" data-price="1000">
       <h4>Premium 1 ⭐</h4>
       <p>Jusqu'à 20 produits<br>Boutique affichée plus haut</p>
       <button class="premiumBtn">Payer 1 000 FCFA / mois</button>
     </div>
+
     <div class="premium-card" data-level="premium2" data-price="2000">
       <h4>Premium 2 ⭐⭐</h4>
       <p>Jusqu'à 30 produits<br>Boutique prioritaire</p>
       <button class="premiumBtn">Payer 2 000 FCFA / mois</button>
     </div>
+
     <div class="premium-card" data-level="premium3" data-price="3000">
       <h4>Premium 3 ⭐⭐⭐</h4>
       <p>Nombre illimité de produits<br>Boutique toujours en haut</p>
       <button class="premiumBtn">Payer 3 000 FCFA / mois</button>
     </div>
+
   </div>
 </div>
+  
 <!-- ===== MES BOUTIQUES ===== -->
 <h3>Mes boutiques</h3>
 <div class="container" id="myShops"></div>
@@ -1513,72 +1468,168 @@ validateBtn.addEventListener("click", (e) => {
 });
   
     
-  // ====== BOUTON PREMIUM / SIDEBAR ======
+  // ====== PREMIUM SYSTEM ULTRA PRO FINAL (COLS: premium_level / premium_start / premium_end) ======
+
 document.addEventListener('DOMContentLoaded', async () => {
+
   const premiumMenuBtn = document.getElementById('premiumMenuBtn');
   const closePremiumSidebar = document.getElementById('closePremiumSidebar');
   const premiumSidebar = document.getElementById('premiumSidebar');
-  const userNameEl = document.getElementById('userName'); // pour mettre à jour les étoiles après paiement
+  const userNameEl = document.getElementById('userName');
+  const premiumCounterEl = document.getElementById('premiumCounter');
 
   if (!premiumMenuBtn || !closePremiumSidebar || !premiumSidebar || !userNameEl) {
     console.error("❌ Éléments Premium manquants");
     return;
   }
 
-  // Ouvrir sidebar
+  // ==============================
+  // 1️⃣ RECUP USER
+  // ==============================
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  const currentUser = user;
+
+  // ==============================
+  // 2️⃣ CHARGEMENT PROFIL
+  // ==============================
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (error || !profile) {
+    console.error("Erreur profil");
+    return;
+  }
+
+  const now = new Date();
+  const expiry = profile.premium_end ? new Date(profile.premium_end) : null;
+  let premiumActive = false;
+
+  // ==============================
+  // 3️⃣ VERIFICATION EXPIRATION
+  // ==============================
+  if (profile.premium_level && expiry && expiry > now) {
+
+    premiumActive = true;
+
+    const diffTime = expiry - now;
+    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (premiumCounterEl) {
+      premiumCounterEl.innerHTML = `⏳ ${daysLeft} jour(s) restant(s)`;
+    }
+
+    let stars = '';
+    switch(profile.premium_level){
+      case 'premium1': stars = '⭐'; break;
+      case 'premium2': stars = '⭐⭐'; break;
+      case 'premium3': stars = '⭐⭐⭐'; break;
+    }
+
+    userNameEl.innerHTML = (profile.username || currentUser.email) + 
+                           `<span style="color:gold"> ${stars}</span>`;
+  } 
+  // ==============================
+  // 4️⃣ SUPPRESSION SI EXPIRÉ
+  // ==============================
+  else if (profile.premium_level && expiry && expiry <= now) {
+    await supabase
+      .from('profiles')
+      .update({
+        premium_level: null,
+        premium_start: null,
+        premium_end: null
+      })
+      .eq('id', currentUser.id);
+
+    if (premiumCounterEl) premiumCounterEl.innerHTML = "";
+    userNameEl.innerHTML = profile.username || currentUser.email;
+  } 
+  else {
+    userNameEl.innerHTML = profile.username || currentUser.email;
+  }
+
+  // ==============================
+  // 5️⃣ SIDEBAR OPEN / CLOSE
+  // ==============================
   premiumMenuBtn.addEventListener('click', () => {
     premiumSidebar.classList.add('active');
   });
 
-  // Fermer sidebar
   closePremiumSidebar.addEventListener('click', () => {
     premiumSidebar.classList.remove('active');
   });
 
-  // ===== CLIQUE SUR LES BOUTONS PREMIUM =====
+  // ==============================
+  // 6️⃣ ACHAT PREMIUM
+  // ==============================
   document.querySelectorAll('.premiumBtn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const card = e.target.closest('.premium-card');
-      if (!card) return;
+    btn.addEventListener('click', async (e) => {  
+      const card = e.target.closest('.premium-card');  
+      if (!card) return;  
 
-      const level = card.dataset.level; // premium1, premium2, premium3
-      const price = card.dataset.price; // prix à afficher
+      const level = card.dataset.level;  
+      const price = parseInt(card.dataset.price);  
 
-      if (!confirm(`Voulez-vous payer ${price} FCFA pour devenir ${level} ?`)) return;
+      if (premiumActive) {  
+        alert("⚠️ Vous avez déjà un Premium actif.");  
+        return;  
+      }  
 
-      // ===== API DE PAIEMENT =====
-      // TODO : remplacer par l'appel réel à l'API MoMo / MTN / Moov / Celtis
-      console.log(`Simulation paiement: ${price} FCFA pour ${level}`);
-      // await initPaymentAPI(level, price); // à insérer ici
+      const currentBalance = profile.wallet_balance || 0;  
 
-      // ===== MISE À JOUR SUPABASE =====
-      try {
-        const { data, error } = await supabase.from('profiles').update({
-          premium_level: level,
-          premium_start: new Date() // date de début du Premium
-        }).eq('id', currentUser.id);
+      if (currentBalance < price) {  
+        alert("❌ Solde insuffisant.");  
+        return;  
+      }  
 
-        if (error) {
-          alert("Erreur activation premium : " + error.message);
-          return;
-        }
+      if (!confirm(`Confirmer paiement ${price} FCFA pour ${level} (30 jours) ?`)) return;  
 
-        alert(`🎉 Félicitations ! Vous êtes maintenant ${level}`);
+      const newBalance = currentBalance - price;  
+      const startDate = new Date();  
+      const expiryDate = new Date();
+      expiryDate.setDate(startDate.getDate() + 30);  
 
-        // Mettre à jour le badge étoiles dans l'UI
-        let stars = '';
-        switch(level){
-          case 'premium1': stars = '⭐'; break;
-          case 'premium2': stars = '⭐⭐'; break;
-          case 'premium3': stars = '⭐⭐⭐'; break;
-        }
-        userNameEl.innerHTML = (currentProfile?.username || currentUser.email) + `<span style="color:gold">${stars}</span>`;
+      // Mise à jour profil  
+      const { error: updateError } = await supabase  
+        .from('profiles')  
+        .update({  
+          wallet_balance: newBalance,  
+          premium_level: level,  
+          premium_start: startDate,  
+          premium_end: expiryDate  
+        })  
+        .eq('id', currentUser.id);  
 
-        premiumSidebar.classList.remove('active'); // fermer sidebar
-      } catch(err){
-        console.error("Erreur activation premium:", err);
-        alert("Erreur lors de l'activation du premium.");
-      }
+      if (updateError) {  
+        alert("Erreur activation premium.");  
+        return;  
+      }  
+
+      // Transaction wallet  
+      await supabase.from('wallet_transactions').insert({  
+        user_id: currentUser.id,  
+        amount: -price,  
+        type: "premium_payment",  
+        description: `Paiement ${level}`,  
+        created_at: new Date()  
+      });  
+
+      // Historique premium  
+      await supabase.from('premium_history').insert({  
+        user_id: currentUser.id,  
+        level: level,  
+        amount: price,  
+        start_date: startDate,  
+        expiry_date: expiryDate,  
+        created_at: new Date()  
+      });  
+
+      alert(`🎉 Premium activé jusqu’au ${expiryDate.toLocaleDateString()}`);  
+      location.reload();  
     });
   });
 });
