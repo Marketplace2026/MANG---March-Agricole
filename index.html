@@ -1770,7 +1770,7 @@ async function redirectNotification(n) {
 
   switch (n.target_type) {
 
-    case "shop":
+    case "shop": {
       // 🔹 Ouvrir boutique via openShop
       const { data: shop, error: shopErr } = await supabase
         .from("shops")
@@ -1779,12 +1779,12 @@ async function redirectNotification(n) {
         .single();
 
       if (shopErr || !shop) return console.error("Boutique introuvable");
-
-      openShop(shop);
+      await openShop(shop); // attendre que la boutique se charge
       break;
+    }
 
-    case "product":
-      // 🔹 Ouvrir boutique du produit et scroll vers produit
+    case "product": {
+      // 🔹 Ouvrir boutique du produit
       const { data: product, error: prodErr } = await supabase
         .from("shop_products")
         .select("*, shops(*)")
@@ -1793,45 +1793,48 @@ async function redirectNotification(n) {
 
       if (prodErr || !product) return console.error("Produit introuvable");
 
-      openShop(product.shops);
+      await openShop(product.shops);
 
-      // Scroll vers produit après chargement
-      setTimeout(() => {
-        const productCard = document.querySelector(
-          `.favoriteProductBtn[data-id="${product.id}"]`
-        );
-        if (productCard) {
-          productCard.scrollIntoView({ behavior: "smooth", block: "center" });
-          productCard.closest(".productCard").style.boxShadow =
-            "0 0 0 3px #007bff";
+      // 🔹 Attendre que les produits soient dans le DOM
+      const tryScroll = () => {
+        const el = document.querySelector(`.favoriteProductBtn[data-id="${product.id}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.closest(".productCard").style.boxShadow = "0 0 0 3px #007bff";
           setTimeout(() => {
-            productCard.closest(".productCard").style.boxShadow =
-              "0 6px 18px rgba(0,0,0,0.12)";
+            el.closest(".productCard").style.boxShadow = "0 6px 18px rgba(0,0,0,0.12)";
           }, 2000);
+        } else {
+          // retry si l'élément n'existe pas encore
+          setTimeout(tryScroll, 300);
         }
-      }, 700);
+      };
+      tryScroll();
       break;
+    }
 
-    case "comment":
-      // 🔹 Ouvrir boutique + scroll vers commentaires
+    case "comment": {
       const { data: shopComment, error: commentErr } = await supabase
         .from("shops")
         .select("*")
         .eq("id", n.target_id)
         .single();
 
-      if (commentErr || !shopComment) return;
+      if (commentErr || !shopComment) return console.error("Boutique introuvable");
 
-      openShop(shopComment);
+      await openShop(shopComment);
 
-      setTimeout(() => {
+      // 🔹 Attendre que la section commentaires existe
+      const tryScrollComments = () => {
         const section = document.getElementById("commentsSection");
         if (section) section.scrollIntoView({ behavior: "smooth" });
-      }, 700);
+        else setTimeout(tryScrollComments, 300);
+      };
+      tryScrollComments();
       break;
+    }
 
     case "profile":
-      // 🔹 Ouvrir profil utilisateur (à adapter selon ton SPA)
       if (typeof loadProfile === "function") loadProfile(n.target_id);
       break;
 
@@ -1839,7 +1842,6 @@ async function redirectNotification(n) {
       console.warn("Type inconnu :", n.target_type);
   }
 }
-
 // ===================================
 // 🔹 BADGE
 // ===================================
