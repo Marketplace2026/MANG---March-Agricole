@@ -1622,17 +1622,17 @@ categorySearch.oninput = () => {
 };
     
     
-    
-    
-
-
-// ===============================
-// 🔔 NOTIFICATIONS GLOBALES
-// ===============================
+    // ===================================
+// 🔔 NOTIFICATIONS PREMIUM SYSTEM
+// ===================================
 
 let notifChannel = null;
+let notifPage = 0;
+const notifLimit = 20;
 
-// 🔹 Icônes par type
+// ===================================
+// 🔹 ICÔNES
+// ===================================
 function notifIcon(type) {
   switch (type) {
     case "favorite_shop": return "⭐";
@@ -1645,57 +1645,72 @@ function notifIcon(type) {
   }
 }
 
- // 🔹 Charger notifications
-async function loadNotifications() {
+// ===================================
+// 🔹 LOAD NOTIFICATIONS
+// ===================================
+async function loadNotifications(reset = true) {
   if (!currentUser) return;
 
+  if (reset) {
+    notifPage = 0;
+    document.getElementById("notifList").innerHTML = "";
+  }
+
+  const from = notifPage * notifLimit;
+  const to = from + notifLimit - 1;
+
   const { data, error } = await supabase
-  
-  .from("notif_market")
-.select("*")
-.eq("user_id", currentUser.id)
-.eq("is_deleted", false)  // <- important !
-.order("created_at", { ascending: false })
-     .limit(50);
+    .from("notif_market")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (error) {
     console.error("Erreur notifications:", error);
     return;
   }
 
-  const list = document.getElementById("notifList");
-  list.innerHTML = "";
-
   if (!data || data.length === 0) {
-    list.innerHTML = `<div style="padding:12px;text-align:center;color:#777">
-      Aucune notification
-    </div>`;
-    updateNotifBadge(0);
+    if (reset) {
+      document.getElementById("notifList").innerHTML = `
+        <div style="padding:20px;text-align:center;color:#777">
+          Aucune notification
+        </div>
+      `;
+    }
     return;
   }
 
-  let unreadCount = 0;
+  renderNotifications(data);
+  notifPage++;
+}
 
-  for (const n of data) {
-    if (!n.is_read) unreadCount++;
+// ===================================
+// 🔹 RENDER
+// ===================================
+function renderNotifications(data) {
+
+  const list = document.getElementById("notifList");
+
+  data.forEach(n => {
 
     const item = document.createElement("div");
-    item.className = "notifItem";
     item.style = `
-      padding:12px;
+      padding:14px;
       border-bottom:1px solid #eee;
-      background:${n.is_read ? "#fff" : "#f1f8ff"};
+      background:${n.is_read ? "#fff" : "#eef6ff"};
       display:flex;
       justify-content:space-between;
       align-items:center;
       cursor:pointer;
+      transition:0.2s ease;
+      animation:fadeIn 0.3s ease;
     `;
 
-    // Contenu notification
-    const contentDiv = document.createElement("div");
-    contentDiv.style.flex = "1";
-    contentDiv.innerHTML = `
-      <div style="display:flex;gap:10px;">
+    item.innerHTML = `
+      <div style="display:flex;gap:12px;flex:1;">
         <div style="font-size:22px">${notifIcon(n.type)}</div>
         <div>
           <strong>${n.title}</strong>
@@ -1705,243 +1720,197 @@ async function loadNotifications() {
           </div>
         </div>
       </div>
+      <button class="deleteNotif" style="
+        background:#e53935;
+        border:none;
+        color:white;
+        padding:5px 8px;
+        border-radius:6px;
+        cursor:pointer;">🗑️</button>
     `;
 
-    // Clic sur notification = marquer comme lu + action
-    contentDiv.onclick = async () => {
-  console.log("🔔 Notification cliquée :", n);
+    // CLICK NOTIFICATION
+    item.onclick = async (e) => {
 
-  if (!n.is_read) {
-    await supabase.from("notif_market")
-      .update({ is_read: true })
-      .eq("id", n.id);
-  }
+      if (e.target.classList.contains("deleteNotif")) return;
 
-  if (n.link) {
-    console.log("➡️ Lien notification :", n.link);
-    handleInternalLink(n.link);
-  }
-};
+      if (!n.is_read) {
+        await supabase
+          .from("notif_market")
+          .update({ is_read: true })
+          .eq("id", n.id);
 
-    // Bouton Supprimer (panier)
-    const deleteBtn = document.createElement("button");
-    deleteBtn.innerHTML = "🗑️";
-    deleteBtn.style = `
-      margin-left:10px;
-      padding:4px 8px;
-      font-size:14px;
-      border:none;
-      border-radius:6px;
-      background:#fff;
-      color:white;
-      cursor:pointer;
-      transition:0.2s;
-    `;
-    deleteBtn.onmouseover = () => deleteBtn.style.background = "#d32f2f";
-    deleteBtn.onmouseout = () => deleteBtn.style.background = "#e53935";
-
-    deleteBtn.onclick = async (e) => {
-      e.stopPropagation(); // très important pour ne pas déclencher click de la notif
-      if (!confirm("Supprimer cette notification ?")) return;
-
-      const { error } = await supabase
-  .from("notif_market")
-  .update({ is_deleted: true })
-  .eq("id", n.id);
-
-      if (error) {
-        console.error("Erreur suppression notif:", error);
-        return;
+        n.is_read = true;
+        item.style.background = "#fff";
+        updateNotifBadge();
       }
 
-      // Supprimer le div directement
-      item.remove();
-
-      // Mettre à jour le badge
-      if (!n.is_read) unreadCount--;
-      updateNotifBadge(unreadCount);
+      redirectNotification(n);
     };
 
-    item.appendChild(contentDiv);
-    item.appendChild(deleteBtn);
+    // DELETE
+    item.querySelector(".deleteNotif").onclick = async (e) => {
+      e.stopPropagation();
+
+      await supabase
+        .from("notif_market")
+        .update({ is_deleted: true })
+        .eq("id", n.id);
+
+      item.remove();
+      updateNotifBadge();
+    };
+
     list.appendChild(item);
-  }
+  });
 
-  updateNotifBadge(unreadCount);
+  updateNotifBadge();
 }
 
-  function handleInternalLink(link) {
-  if (!link) return;
+// ===================================
+// 🔹 REDIRECTION
+// ===================================
+function redirectNotification(n) {
 
-  try {
-    // Séparer le chemin et les paramètres
-    const url = new URL(link, window.location.origin);
-    const path = url.pathname;
-    const params = url.searchParams;
+  if (!n.target_type || !n.target_id) return;
 
-    /* =========================
-       🏪 BOUTIQUE
-    ========================= */
-    if (path === "/shop") {
-      const shopId = params.get("id");
-      if (shopId) {
-        window.location.href = `/shop?id=${shopId}`;
-      }
-      return;
-    }
+  switch (n.target_type) {
 
-    /* =========================
-       📦 PRODUIT
-    ========================= */
-    if (path === "/product") {
-      const productId = params.get("id");
-      if (productId) {
-        window.location.href = `/product?id=${productId}`;
-      }
-      return;
-    }
+    case "product":
+      window.location.href = `/product?id=${n.target_id}`;
+      break;
 
-    /* =========================
-       👤 PROFIL
-    ========================= */
-    if (path === "/profile") {
-      const userId = params.get("id");
-      if (userId) {
-        window.location.href = `/profile?id=${userId}`;
-      }
-      return;
-    }
+    case "shop":
+      window.location.href = `/shop?id=${n.target_id}`;
+      break;
 
-    /* =========================
-       💬 COMMENTAIRE (ancre)
-    ========================= */
-    if (path === "/shop" && url.hash) {
-      window.location.href = `/shop${url.search}${url.hash}`;
-      return;
-    }
+    case "profile":
+      window.location.href = `/profile?id=${n.target_id}`;
+      break;
 
-    /* =========================
-       🔗 AUTRES LIENS
-    ========================= */
-    window.location.href = link;
-
-  } catch (err) {
-    console.error("Erreur handleInternalLink :", err);
-    window.location.href = link;
+    case "comment":
+      window.location.href = `/shop?id=${n.target_id}#comments`;
+      break;
   }
 }
-// 🔹 Badge compteur
-function updateNotifBadge(count) {
+
+// ===================================
+// 🔹 BADGE
+// ===================================
+async function updateNotifBadge() {
+
+  if (!currentUser) return;
+
+  const { count } = await supabase
+    .from("notif_market")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", currentUser.id)
+    .eq("is_read", false)
+    .eq("is_deleted", false);
+
   const badge = document.getElementById("notifCount");
-  badge.textContent = count;
+
+  badge.textContent = count || 0;
   badge.style.display = count > 0 ? "inline-block" : "none";
 }
 
-// 🔹 Realtime Supabase
+// ===================================
+// 🔹 REALTIME
+// ===================================
 function initNotifRealtime() {
+
   if (!currentUser || notifChannel) return;
 
   notifChannel = supabase
-    .channel("notif-market")
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "notif_market",
-        filter: `user_id=eq.${currentUser.id}`
-      },
-      () => {
-        loadNotifications();
-      }
-    )
+    .channel("notif-live")
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "notif_market",
+      filter: `user_id=eq.${currentUser.id}`
+    }, () => {
+      loadNotifications(true);
+    })
     .subscribe();
 }
 
-// 🔹 Boutons UI
+// ===================================
+// 🔹 UI INIT
+// ===================================
 function initNotifUI() {
+
   const btn = document.getElementById("notifBtn");
   const overlay = document.getElementById("notifOverlay");
   const close = document.getElementById("closeNotif");
+  const loadMore = document.getElementById("loadMoreNotif");
 
   if (!btn || !overlay || !close) return;
 
   btn.onclick = () => {
     overlay.style.display = "flex";
-    loadNotifications();
+    loadNotifications(true);
   };
 
-  close.onclick = () => {
-    overlay.style.display = "none";
-  };
+  close.onclick = () => overlay.style.display = "none";
 
-  overlay.onclick = (e) => {
-    if (e.target === overlay) {
-      overlay.style.display = "none";
-    }
-  };
-}
-
-// 🔹 Notifications produits
-async function notifyNewProduct(shopId, productId, productName) {
-  if (!currentUser) return;
-
-  const { data: shop } = await supabase
-    .from("shops")
-    .select("owner_id, name")
-    .eq("id", shopId)
-    .single();
-
-  if (!shop || !shop.owner_id) return;
-
-  if (shop.owner_id !== currentUser.id) {
-    await supabase.from("notif_market").insert({
-      user_id: shop.owner_id,
-      actor_id: currentUser.id,
-      type: "new_product",
-      title: "🆕 Nouveau produit ajouté",
-      message: `${currentUser.username} a ajouté "${productName}" dans votre boutique "${shop.name}"`,
-      link: `#product-${productId}`, // ancre locale ou id produit
-      is_read: false
-    });
+  if (loadMore) {
+    loadMore.onclick = () => loadNotifications(false);
   }
 }
 
-async function notifyDeletedProduct(shopId, productName) {
-  if (!currentUser) return;
+// ===================================
+// 🔹 CREATE NOTIFICATION
+// ===================================
+async function createNotification({
+  user_id,
+  type,
+  title,
+  message,
+  target_type,
+  target_id
+}) {
 
-  const { data: shop } = await supabase
-    .from("shops")
-    .select("owner_id, name")
-    .eq("id", shopId)
-    .single();
+  if (!user_id || !type) return;
 
-  if (!shop || !shop.owner_id) return;
-
-  if (shop.owner_id !== currentUser.id) {
-    await supabase.from("notif_market").insert({
-      user_id: shop.owner_id,
-      actor_id: currentUser.id,
-      type: "deleted_product",
-      title: "❌ Produit supprimé",
-      message: `${currentUser.username} a supprimé "${productName}" dans votre boutique "${shop.name}"`,
-      is_read: false
-    });
-  }
+  await supabase.from("notif_market").insert({
+    user_id,
+    actor_id: currentUser.id,
+    type,
+    title,
+    message,
+    target_type,
+    target_id,
+    is_read: false,
+    is_deleted: false
+  });
 }
 
+// ===================================
+// 🔹 AUTO MARK AS READ (OPTIONAL)
+// ===================================
+async function markAllAsRead() {
+  if (!currentUser) return;
+
+  await supabase
+    .from("notif_market")
+    .update({ is_read: true })
+    .eq("user_id", currentUser.id)
+    .eq("is_read", false);
+
+  updateNotifBadge();
+}
+
+// ===================================
 // 🔹 INIT GLOBAL
+// ===================================
 function initNotifications() {
   if (!currentUser) return;
   initNotifUI();
-  loadNotifications();
+  updateNotifBadge();
   initNotifRealtime();
-}
+ }
+    
 
-// 🚀 Appel après login
-initNotifications();
-
-     
   
     const waitForTopBtn = setInterval(() => {
   const topBtn = document.getElementById("topShopsBtn");
