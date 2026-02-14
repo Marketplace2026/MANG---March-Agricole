@@ -1622,15 +1622,14 @@ categorySearch.oninput = () => {
 };
     
     
+            
     // ===================================
-// 🔔 NOTIFICATIONS SYSTEM (SPA VERSION COMPLET)
+// 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
 // ===================================
 
 let notifChannel = null;
 
-// ===================================
-// 🔹 ICÔNES
-// ===================================
+// 🔹 Icônes
 function notifIcon(type) {
   switch (type) {
     case "favorite_shop": return "⭐";
@@ -1643,9 +1642,7 @@ function notifIcon(type) {
   }
 }
 
-// ===================================
 // 🔹 LOAD NOTIFICATIONS
-// ===================================
 async function loadNotifications() {
   if (!currentUser) return;
 
@@ -1664,16 +1661,12 @@ async function loadNotifications() {
 
   const list = document.getElementById("notifList");
   if (!list) return;
-
   list.innerHTML = "";
+
   let unreadCount = 0;
 
   if (!data || data.length === 0) {
-    list.innerHTML = `
-      <div style="padding:20px;text-align:center;color:#777">
-        Aucune notification
-      </div>
-    `;
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:#777">Aucune notification</div>`;
     updateNotifBadge(0);
     return;
   }
@@ -1695,29 +1688,20 @@ async function loadNotifications() {
 
     const content = document.createElement("div");
     content.style = "flex:1; display:flex; gap:12px;";
-
     content.innerHTML = `
       <div style="font-size:22px">${notifIcon(n.type)}</div>
       <div>
         <strong>${n.title}</strong>
         <div style="font-size:14px;color:#555">${n.message}</div>
-        <div style="font-size:12px;color:#999">
-          ${new Date(n.created_at).toLocaleString()}
-        </div>
+        <div style="font-size:12px;color:#999">${new Date(n.created_at).toLocaleString()}</div>
       </div>
     `;
 
     // 🔥 CLICK NOTIFICATION
     content.addEventListener("click", async () => {
-      console.log("🔔 Notification cliquée :", n);
-
       // Marquer comme lu
       if (!n.is_read) {
-        await supabase
-          .from("notif_market")
-          .update({ is_read: true })
-          .eq("id", n.id);
-
+        await supabase.from("notif_market").update({ is_read: true }).eq("id", n.id);
         n.is_read = true;
         item.style.background = "#fff";
         updateNotifBadge();
@@ -1727,7 +1711,7 @@ async function loadNotifications() {
       const overlay = document.getElementById("notifOverlay");
       if (overlay) overlay.style.display = "none";
 
-      // 🔹 Redirection SPA
+      // Redirection SPA
       redirectNotification(n);
     });
 
@@ -1744,10 +1728,7 @@ async function loadNotifications() {
     `;
     deleteBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      await supabase
-        .from("notif_market")
-        .update({ is_deleted: true })
-        .eq("id", n.id);
+      await supabase.from("notif_market").update({ is_deleted: true }).eq("id", n.id);
       item.remove();
       updateNotifBadge();
     });
@@ -1760,9 +1741,7 @@ async function loadNotifications() {
   updateNotifBadge(unreadCount);
 }
 
-// ===================================
-// 🔹 REDIRECTION SPA (OPENSHOP)
-// ===================================
+// 🔹 REDIRECTION (SPA – ATTENTE DOM)
 async function redirectNotification(n) {
   if (!n || !n.target_type || !n.target_id) return;
 
@@ -1771,66 +1750,49 @@ async function redirectNotification(n) {
   switch (n.target_type) {
 
     case "shop": {
-      // 🔹 Ouvrir boutique via openShop
-      const { data: shop, error: shopErr } = await supabase
-        .from("shops")
-        .select("*")
-        .eq("id", n.target_id)
-        .single();
-
-      if (shopErr || !shop) return console.error("Boutique introuvable");
-      await openShop(shop); // attendre que la boutique se charge
+      const { data: shop, error } = await supabase.from("shops").select("*").eq("id", n.target_id).single();
+      if (!shop || error) return console.error("Boutique introuvable");
+      await openShop(shop);
       break;
     }
 
     case "product": {
-      // 🔹 Ouvrir boutique du produit
-      const { data: product, error: prodErr } = await supabase
+      const { data: product, error } = await supabase
         .from("shop_products")
         .select("*, shops(*)")
         .eq("id", n.target_id)
         .single();
 
-      if (prodErr || !product) return console.error("Produit introuvable");
-
+      if (!product || error) return console.error("Produit introuvable");
       await openShop(product.shops);
 
-      // 🔹 Attendre que les produits soient dans le DOM
-      const tryScroll = () => {
+      // 🔹 Scroll vers le produit une fois injecté
+      const waitForProduct = () => {
         const el = document.querySelector(`.favoriteProductBtn[data-id="${product.id}"]`);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
           el.closest(".productCard").style.boxShadow = "0 0 0 3px #007bff";
-          setTimeout(() => {
-            el.closest(".productCard").style.boxShadow = "0 6px 18px rgba(0,0,0,0.12)";
-          }, 2000);
+          setTimeout(() => el.closest(".productCard").style.boxShadow = "0 6px 18px rgba(0,0,0,0.12)", 2000);
         } else {
-          // retry si l'élément n'existe pas encore
-          setTimeout(tryScroll, 300);
+          setTimeout(waitForProduct, 200);
         }
       };
-      tryScroll();
+      waitForProduct();
       break;
     }
 
     case "comment": {
-      const { data: shopComment, error: commentErr } = await supabase
-        .from("shops")
-        .select("*")
-        .eq("id", n.target_id)
-        .single();
+      const { data: shop, error } = await supabase.from("shops").select("*").eq("id", n.target_id).single();
+      if (!shop || error) return console.error("Boutique introuvable pour commentaire");
+      await openShop(shop);
 
-      if (commentErr || !shopComment) return console.error("Boutique introuvable");
-
-      await openShop(shopComment);
-
-      // 🔹 Attendre que la section commentaires existe
-      const tryScrollComments = () => {
+      // 🔹 Scroll vers section commentaires
+      const waitForComments = () => {
         const section = document.getElementById("commentsSection");
         if (section) section.scrollIntoView({ behavior: "smooth" });
-        else setTimeout(tryScrollComments, 300);
+        else setTimeout(waitForComments, 200);
       };
-      tryScrollComments();
+      waitForComments();
       break;
     }
 
@@ -1842,9 +1804,8 @@ async function redirectNotification(n) {
       console.warn("Type inconnu :", n.target_type);
   }
 }
-// ===================================
+
 // 🔹 BADGE
-// ===================================
 function updateNotifBadge(count = null) {
   const badge = document.getElementById("notifCount");
   if (!badge) return;
@@ -1866,56 +1827,34 @@ function updateNotifBadge(count = null) {
   }
 }
 
-// ===================================
 // 🔹 REALTIME
-// ===================================
 function initNotifRealtime() {
   if (!currentUser || notifChannel) return;
 
   notifChannel = supabase
     .channel("notif-market")
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "notif_market",
-        filter: `user_id=eq.${currentUser.id}`
-      },
-      () => {
-        loadNotifications();
-      }
-    )
+    .on("postgres_changes", {
+      event: "INSERT",
+      schema: "public",
+      table: "notif_market",
+      filter: `user_id=eq.${currentUser.id}`
+    }, () => loadNotifications())
     .subscribe();
 }
 
-// ===================================
 // 🔹 UI OVERLAY
-// ===================================
 function initNotifUI() {
   const btn = document.getElementById("notifBtn");
   const overlay = document.getElementById("notifOverlay");
   const close = document.getElementById("closeNotif");
-
   if (!btn || !overlay || !close) return;
 
-  btn.onclick = () => {
-    overlay.style.display = "flex";
-    loadNotifications();
-  };
-
-  close.onclick = () => {
-    overlay.style.display = "none";
-  };
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.style.display = "none";
-  });
+  btn.onclick = () => { overlay.style.display = "flex"; loadNotifications(); };
+  close.onclick = () => overlay.style.display = "none";
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.style.display = "none"; });
 }
 
-// ===================================
-// 🔹 INIT GLOBAL
-// ===================================
+// 🔹 INIT
 function initNotifications() {
   if (!currentUser) return;
   initNotifUI();
@@ -1923,9 +1862,7 @@ function initNotifications() {
   initNotifRealtime();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  initNotifications();
-});
+document.addEventListener("DOMContentLoaded", () => initNotifications());
       
 
   
