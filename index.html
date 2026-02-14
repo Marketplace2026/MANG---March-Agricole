@@ -1623,12 +1623,10 @@ categorySearch.oninput = () => {
     
     
     // ===================================
-// 🔔 NOTIFICATIONS PREMIUM SYSTEM
+// 🔔 NOTIFICATIONS SYSTEM (SPA VERSION COMPLET)
 // ===================================
 
 let notifChannel = null;
-let notifPage = 0;
-const notifLimit = 20;
 
 // ===================================
 // 🔹 ICÔNES
@@ -1648,16 +1646,8 @@ function notifIcon(type) {
 // ===================================
 // 🔹 LOAD NOTIFICATIONS
 // ===================================
-async function loadNotifications(reset = true) {
+async function loadNotifications() {
   if (!currentUser) return;
-
-  if (reset) {
-    notifPage = 0;
-    document.getElementById("notifList").innerHTML = "";
-  }
-
-  const from = notifPage * notifLimit;
-  const to = from + notifLimit - 1;
 
   const { data, error } = await supabase
     .from("notif_market")
@@ -1665,36 +1655,31 @@ async function loadNotifications(reset = true) {
     .eq("user_id", currentUser.id)
     .eq("is_deleted", false)
     .order("created_at", { ascending: false })
-    .range(from, to);
+    .limit(50);
 
   if (error) {
     console.error("Erreur notifications:", error);
     return;
   }
 
+  const list = document.getElementById("notifList");
+  if (!list) return;
+
+  list.innerHTML = "";
+  let unreadCount = 0;
+
   if (!data || data.length === 0) {
-    if (reset) {
-      document.getElementById("notifList").innerHTML = `
-        <div style="padding:20px;text-align:center;color:#777">
-          Aucune notification
-        </div>
-      `;
-    }
+    list.innerHTML = `
+      <div style="padding:20px;text-align:center;color:#777">
+        Aucune notification
+      </div>
+    `;
+    updateNotifBadge(0);
     return;
   }
 
-  renderNotifications(data);
-  notifPage++;
-}
-
-// ===================================
-// 🔹 RENDER
-// ===================================
-function renderNotifications(data) {
-
-  const list = document.getElementById("notifList");
-
   data.forEach(n => {
+    if (!n.is_read) unreadCount++;
 
     const item = document.createElement("div");
     item.style = `
@@ -1705,35 +1690,28 @@ function renderNotifications(data) {
       justify-content:space-between;
       align-items:center;
       cursor:pointer;
-      transition:0.2s ease;
-      animation:fadeIn 0.3s ease;
+      transition:0.2s;
     `;
 
-    item.innerHTML = `
-      <div style="display:flex;gap:12px;flex:1;">
-        <div style="font-size:22px">${notifIcon(n.type)}</div>
-        <div>
-          <strong>${n.title}</strong>
-          <div style="font-size:14px;color:#555">${n.message}</div>
-          <div style="font-size:12px;color:#999">
-            ${new Date(n.created_at).toLocaleString()}
-          </div>
+    const content = document.createElement("div");
+    content.style = "flex:1; display:flex; gap:12px;";
+
+    content.innerHTML = `
+      <div style="font-size:22px">${notifIcon(n.type)}</div>
+      <div>
+        <strong>${n.title}</strong>
+        <div style="font-size:14px;color:#555">${n.message}</div>
+        <div style="font-size:12px;color:#999">
+          ${new Date(n.created_at).toLocaleString()}
         </div>
       </div>
-      <button class="deleteNotif" style="
-        background:#e53935;
-        border:none;
-        color:white;
-        padding:5px 8px;
-        border-radius:6px;
-        cursor:pointer;">🗑️</button>
     `;
 
-    // CLICK NOTIFICATION
-    item.onclick = async (e) => {
+    // 🔥 CLICK NOTIFICATION
+    content.addEventListener("click", async () => {
+      console.log("🔔 Notification cliquée :", n);
 
-      if (e.target.classList.contains("deleteNotif")) return;
-
+      // Marquer comme lu
       if (!n.is_read) {
         await supabase
           .from("notif_market")
@@ -1745,159 +1723,192 @@ function renderNotifications(data) {
         updateNotifBadge();
       }
 
+      // Fermer overlay
+      const overlay = document.getElementById("notifOverlay");
+      if (overlay) overlay.style.display = "none";
+
+      // 🔹 Redirection SPA
       redirectNotification(n);
-    };
+    });
 
-    // DELETE
-    item.querySelector(".deleteNotif").onclick = async (e) => {
+    // 🔹 DELETE BUTTON
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.style = `
+      background:#e53935;
+      border:none;
+      color:white;
+      padding:5px 8px;
+      border-radius:6px;
+      cursor:pointer;
+    `;
+    deleteBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
-
       await supabase
         .from("notif_market")
         .update({ is_deleted: true })
         .eq("id", n.id);
-
       item.remove();
       updateNotifBadge();
-    };
+    });
 
+    item.appendChild(content);
+    item.appendChild(deleteBtn);
     list.appendChild(item);
   });
 
-  updateNotifBadge();
+  updateNotifBadge(unreadCount);
 }
 
 // ===================================
-// 🔹 REDIRECTION
+// 🔹 REDIRECTION SPA (OPENSHOP)
 // ===================================
-function redirectNotification(n) {
+async function redirectNotification(n) {
+  if (!n || !n.target_type || !n.target_id) return;
 
-  if (!n.target_type || !n.target_id) return;
+  console.log("➡️ Redirection SPA:", n);
 
   switch (n.target_type) {
 
-    case "product":
-      window.location.href = `/product?id=${n.target_id}`;
-      break;
-
     case "shop":
-      window.location.href = `/shop?id=${n.target_id}`;
+      // 🔹 Ouvrir boutique via openShop
+      const { data: shop, error: shopErr } = await supabase
+        .from("shops")
+        .select("*")
+        .eq("id", n.target_id)
+        .single();
+
+      if (shopErr || !shop) return console.error("Boutique introuvable");
+
+      openShop(shop);
       break;
 
-    case "profile":
-      window.location.href = `/profile?id=${n.target_id}`;
+    case "product":
+      // 🔹 Ouvrir boutique du produit et scroll vers produit
+      const { data: product, error: prodErr } = await supabase
+        .from("shop_products")
+        .select("*, shops(*)")
+        .eq("id", n.target_id)
+        .single();
+
+      if (prodErr || !product) return console.error("Produit introuvable");
+
+      openShop(product.shops);
+
+      // Scroll vers produit après chargement
+      setTimeout(() => {
+        const productCard = document.querySelector(
+          `.favoriteProductBtn[data-id="${product.id}"]`
+        );
+        if (productCard) {
+          productCard.scrollIntoView({ behavior: "smooth", block: "center" });
+          productCard.closest(".productCard").style.boxShadow =
+            "0 0 0 3px #007bff";
+          setTimeout(() => {
+            productCard.closest(".productCard").style.boxShadow =
+              "0 6px 18px rgba(0,0,0,0.12)";
+          }, 2000);
+        }
+      }, 700);
       break;
 
     case "comment":
-      window.location.href = `/shop?id=${n.target_id}#comments`;
+      // 🔹 Ouvrir boutique + scroll vers commentaires
+      const { data: shopComment, error: commentErr } = await supabase
+        .from("shops")
+        .select("*")
+        .eq("id", n.target_id)
+        .single();
+
+      if (commentErr || !shopComment) return;
+
+      openShop(shopComment);
+
+      setTimeout(() => {
+        const section = document.getElementById("commentsSection");
+        if (section) section.scrollIntoView({ behavior: "smooth" });
+      }, 700);
       break;
+
+    case "profile":
+      // 🔹 Ouvrir profil utilisateur (à adapter selon ton SPA)
+      if (typeof loadProfile === "function") loadProfile(n.target_id);
+      break;
+
+    default:
+      console.warn("Type inconnu :", n.target_type);
   }
 }
 
 // ===================================
 // 🔹 BADGE
 // ===================================
-async function updateNotifBadge() {
-
-  if (!currentUser) return;
-
-  const { count } = await supabase
-    .from("notif_market")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", currentUser.id)
-    .eq("is_read", false)
-    .eq("is_deleted", false);
-
+function updateNotifBadge(count = null) {
   const badge = document.getElementById("notifCount");
+  if (!badge) return;
 
-  badge.textContent = count || 0;
-  badge.style.display = count > 0 ? "inline-block" : "none";
+  if (count === null) {
+    supabase
+      .from("notif_market")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", currentUser.id)
+      .eq("is_read", false)
+      .eq("is_deleted", false)
+      .then(({ count }) => {
+        badge.textContent = count || 0;
+        badge.style.display = count > 0 ? "inline-block" : "none";
+      });
+  } else {
+    badge.textContent = count;
+    badge.style.display = count > 0 ? "inline-block" : "none";
+  }
 }
 
 // ===================================
 // 🔹 REALTIME
 // ===================================
 function initNotifRealtime() {
-
   if (!currentUser || notifChannel) return;
 
   notifChannel = supabase
-    .channel("notif-live")
-    .on("postgres_changes", {
-      event: "*",
-      schema: "public",
-      table: "notif_market",
-      filter: `user_id=eq.${currentUser.id}`
-    }, () => {
-      loadNotifications(true);
-    })
+    .channel("notif-market")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "notif_market",
+        filter: `user_id=eq.${currentUser.id}`
+      },
+      () => {
+        loadNotifications();
+      }
+    )
     .subscribe();
 }
 
 // ===================================
-// 🔹 UI INIT
+// 🔹 UI OVERLAY
 // ===================================
 function initNotifUI() {
-
   const btn = document.getElementById("notifBtn");
   const overlay = document.getElementById("notifOverlay");
   const close = document.getElementById("closeNotif");
-  const loadMore = document.getElementById("loadMoreNotif");
 
   if (!btn || !overlay || !close) return;
 
   btn.onclick = () => {
     overlay.style.display = "flex";
-    loadNotifications(true);
+    loadNotifications();
   };
 
-  close.onclick = () => overlay.style.display = "none";
+  close.onclick = () => {
+    overlay.style.display = "none";
+  };
 
-  if (loadMore) {
-    loadMore.onclick = () => loadNotifications(false);
-  }
-}
-
-// ===================================
-// 🔹 CREATE NOTIFICATION
-// ===================================
-async function createNotification({
-  user_id,
-  type,
-  title,
-  message,
-  target_type,
-  target_id
-}) {
-
-  if (!user_id || !type) return;
-
-  await supabase.from("notif_market").insert({
-    user_id,
-    actor_id: currentUser.id,
-    type,
-    title,
-    message,
-    target_type,
-    target_id,
-    is_read: false,
-    is_deleted: false
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.style.display = "none";
   });
-}
-
-// ===================================
-// 🔹 AUTO MARK AS READ (OPTIONAL)
-// ===================================
-async function markAllAsRead() {
-  if (!currentUser) return;
-
-  await supabase
-    .from("notif_market")
-    .update({ is_read: true })
-    .eq("user_id", currentUser.id)
-    .eq("is_read", false);
-
-  updateNotifBadge();
 }
 
 // ===================================
@@ -1906,10 +1917,14 @@ async function markAllAsRead() {
 function initNotifications() {
   if (!currentUser) return;
   initNotifUI();
-  updateNotifBadge();
+  loadNotifications();
   initNotifRealtime();
- }
-    
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initNotifications();
+});
+      
 
   
     const waitForTopBtn = setInterval(() => {
