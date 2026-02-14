@@ -1190,8 +1190,9 @@ async function loadCurrentUser() {
   emailElement.textContent = currentUser.email + badge;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadCurrentUser();
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadCurrentUser();
+  initNotifications();
 });
 
   // ====== BOUTON VENDRE ======
