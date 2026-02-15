@@ -472,92 +472,68 @@ PDF RECEIPT CLIENT
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-    const primaryColor = "#1f4d3a"; // vert
+    const primaryColor = "#1f4d3a";
     const secondaryColor = "#555";
 
-    // =======================
-    // HEADER avec logo
-    // =======================
-    const logo = new Image();
-    logo.src = "assets/img/logos.png"; // ton logo
+    /* ================= HEADER ================= */
+    doc.setFillColor(primaryColor);
+    doc.rect(0, 0, 595, 60, "F");
 
-    // On attend que le logo soit chargé
-    logo.onload = () => {
-      doc.setFillColor(primaryColor);
-      doc.rect(0, 0, 595, 60, "F"); // barre header
+    doc.setFontSize(22);
+    doc.setTextColor("#ffffff");
+    doc.text("MANG", 40, 35);
 
-      doc.addImage(logo, "PNG", 40, 10, 40, 40); // logo à gauche
+    doc.setFontSize(14);
+    doc.text("REÇU OFFICIEL", 420, 35);
 
-      doc.setFontSize(22);
-      doc.setTextColor("#ffffff");
-      doc.text("MANG", 100, 35); // Nom du service
+    /* ================= CONTENU ================= */
+    doc.setDrawColor(primaryColor);
+    doc.rect(40, 80, 515, 250);
 
-      doc.setFontSize(14);
-      doc.text("REÇU OFFICIEL", 480, 35); // titre à droite
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
 
-      // =======================
-      // Boîte principale
-      // =======================
-      doc.setDrawColor(primaryColor);
-      doc.setLineWidth(1);
-      doc.rect(40, 80, 515, 280);
+    const startY = 110;
+    const lineHeight = 25;
 
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
+    doc.text(`Transaction ID : ${tx.id}`, 50, startY);
+    doc.text(`Date : ${new Date(tx.created_at).toLocaleString()}`, 50, startY + lineHeight);
+    doc.text(`Type : ${tx.type}`, 50, startY + 2 * lineHeight);
+    doc.text(`Montant : ${tx.amount} FCFA`, 50, startY + 3 * lineHeight);
+    doc.text(`Description : ${tx.description || "-"}`, 50, startY + 4 * lineHeight, { maxWidth: 480 });
 
-      const startY = 110;
-      const lineHeight = 25;
+    /* ================= QR CODE ================= */
+    const qrDiv = document.createElement("div");
 
-      doc.text(`Transaction ID : ${tx.id}`, 50, startY);
-      doc.text(`Date : ${new Date(tx.created_at).toLocaleString()}`, 50, startY + lineHeight);
-      doc.text(`Type : ${getTitle(tx)}`, 50, startY + 2 * lineHeight);
-      doc.text(`Montant : ${formatMoney(tx.amount)} FCFA`, 50, startY + 3 * lineHeight);
-      doc.text(`Statut : ${tx.status || "Validé"}`, 50, startY + 4 * lineHeight);
-      doc.text(`Opérateur : ${tx.operator || "-"}`, 50, startY + 5 * lineHeight);
-      doc.text(`Numéro : ${tx.phone || "-"}`, 50, startY + 6 * lineHeight);
+    const qr = new QRCode(qrDiv, {
+      text: `Transaction MANG ID: ${tx.id}`,
+      width: 80,
+      height: 80
+    });
 
-      doc.setFontSize(11);
-      doc.setTextColor(secondaryColor);
-      doc.text("Détail :", 50, startY + 7 * lineHeight);
-      doc.text(getUsage(tx), 50, startY + 8 * lineHeight, { maxWidth: 480 });
+    // Attendre que le QR soit généré
+    setTimeout(() => {
+      const qrCanvas = qrDiv.querySelector("canvas");
+      if (qrCanvas) {
+        const qrDataUrl = qrCanvas.toDataURL("image/png");
+        doc.addImage(qrDataUrl, "PNG", 440, 200, 80, 80);
+      }
 
-      // =======================
-      // QR CODE (vérification)
-      // =======================
-      const qrCodeDiv = document.createElement("div");
-      const qr = new QRCode(qrCodeDiv, {
-        text: `MANG Transaction ID: ${tx.id}`,
-        width: 80,
-        height: 80,
-        correctLevel: QRCode.CorrectLevel.H,
-      });
-
-      // On récupère le canvas du QR code
-      const qrCanvas = qrCodeDiv.querySelector("canvas");
-      const qrDataUrl = qrCanvas.toDataURL("image/png");
-      doc.addImage(qrDataUrl, "PNG", 440, 200, 80, 80);
-
-      // =======================
-      // Signature
-      // =======================
+      /* ================= SIGNATURE ================= */
       doc.setFontSize(10);
       doc.setTextColor(secondaryColor);
-      doc.text("Signature autorisée :", 50, 370);
-      doc.setLineWidth(0.5);
-      doc.line(150, 368, 300, 368); // ligne de signature
+      doc.text("Signature autorisée :", 50, 360);
+      doc.line(150, 358, 300, 358);
 
-      // Pied de page
-      doc.setFontSize(10);
-      doc.setTextColor(secondaryColor);
-      doc.text("Merci d'utiliser MANG. Ce reçu est généré automatiquement.", 50, 580);
+      doc.text("Merci d'utiliser MANG. Reçu généré automatiquement.", 50, 580);
 
-      // Télécharger PDF
+      /* ================= DOWNLOAD ================= */
       doc.save(`recu_MANG_${tx.id}.pdf`);
-    };
+    }, 300);
 
   } catch (err) {
     console.error(err);
-    alert("Impossible de générer le reçu PDF. Vérifiez la console pour plus de détails.");
+    alert("Impossible de générer le reçu PDF.");
   }
       }
           loadUser();
