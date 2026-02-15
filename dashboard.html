@@ -466,37 +466,26 @@ async function downloadReceiptPDF(id) {
 
     if (error || !tx) throw new Error("Impossible de récupérer la transaction.");
 
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([500, 600]);
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-    const text = `
-REÇU OFFICIEL - MANG
+    doc.setFontSize(16);
+    doc.text("REÇU OFFICIEL - MANG", 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Type: ${getTitle(tx)}`, 20, 40);
+    doc.text(`Montant: ${formatMoney(tx.amount)} FCFA`, 20, 50);
+    doc.text(`Date: ${new Date(tx.created_at).toLocaleString()}`, 20, 60);
+    doc.text(`Statut: ${tx.status || "Validé"}`, 20, 70);
+    doc.text(`Détail: ${getUsage(tx)}`, 20, 80);
 
-Type: ${getTitle(tx)}
-Montant: ${formatMoney(tx.amount)} FCFA
-Date: ${new Date(tx.created_at).toLocaleString()}
-Statut: ${tx.status || "Validé"}
-Détail: ${getUsage(tx)}
-`;
-
-    page.drawText(text, { x: 50, y: 550, font, size: 14, color: rgb(0, 0, 0), lineHeight: 18 });
-
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `recu_MANG_${tx.id}.pdf`;
-    link.click();
-    URL.revokeObjectURL(link.href);
+    // Téléchargement du PDF
+    doc.save(`recu_MANG_${tx.id}.pdf`);
 
   } catch (err) {
     console.error(err);
     alert("Impossible de générer le reçu PDF. Vérifiez la console pour plus de détails.");
   }
 }
-
-loadUser();
         </script>
 </body>
 </html>
