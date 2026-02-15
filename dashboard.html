@@ -251,6 +251,9 @@ input{
     <button onclick="closeDetail()">Fermer</button>
   </div>
 </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
 import { supabase } from './supabase.js';
 
@@ -466,38 +469,87 @@ function renderChart(totalIn,totalOut){
 
 /* ====================== PDF RECEIPT ====================== */
 
-window.downloadReceipt=async function(id){
+window.downloadReceipt = async function(id){
 
   const { data } = await supabase
-  .from("wallet_transactions")
-  .select("*")
-  .eq("id",id)
-  .single();
+    .from("wallet_transactions")
+    .select("*")
+    .eq("id",id)
+    .single();
 
-  const amount=Math.abs(Number(data.amount));
-  const sign=isPositive(data)?"+":"-";
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-  const htmlContent=`
-    <html>
-    <body style="font-family:Arial;padding:30px">
-      <h2>REÇU OFFICIEL - MANG</h2>
-      <hr>
-      <p><strong>Type :</strong> ${getTitle(data)}</p>
-      <p><strong>Montant :</strong> ${sign}${formatMoney(amount)} FCFA</p>
-      <p><strong>Date :</strong> ${new Date(data.created_at).toLocaleString()}</p>
-      <p><strong>Statut :</strong> ${data.status||"Validé"}</p>
-      <hr>
-      <p>Merci d'utiliser MANG.</p>
-    </body>
-    </html>
-  `;
+  const amount = Math.abs(Number(data.amount));
+  const sign = isPositive(data) ? "+" : "-";
+  const receiptNumber = "MANG-" + id + "-" + Date.now();
 
-  const win=window.open("","","width=800,height=600");
-  win.document.write(htmlContent);
-  win.document.close();
-  win.print();
-}
+  /* ================= HEADER ================= */
 
+  doc.setFillColor(31,77,58);
+  doc.rect(0,0,210,30,"F");
+
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(18);
+  doc.text("MANG",20,18);
+
+  doc.setFontSize(12);
+  doc.text("REÇU OFFICIEL",140,18);
+
+  doc.setTextColor(0,0,0);
+
+  /* ================= BODY ================= */
+
+  doc.setFontSize(11);
+
+  doc.text("Numéro de reçu :",20,45);
+  doc.text(receiptNumber,70,45);
+
+  doc.text("Type :",20,60);
+  doc.text(getTitle(data),70,60);
+
+  doc.text("Montant :",20,75);
+  doc.text(sign + formatMoney(amount) + " FCFA",70,75);
+
+  doc.text("Date :",20,90);
+  doc.text(new Date(data.created_at).toLocaleString(),70,90);
+
+  doc.text("Statut :",20,105);
+  doc.text(data.status || "Validé",70,105);
+
+  /* ================= QR CODE ================= */
+
+  const qrData = `
+MANG RECEIPT
+ID: ${id}
+Amount: ${sign}${amount}
+Date: ${data.created_at}
+`;
+
+  const qrContainer = document.createElement("div");
+
+  new QRCode(qrContainer,{
+    text: qrData,
+    width: 100,
+    height: 100
+  });
+
+  const qrCanvas = qrContainer.querySelector("canvas");
+  const qrImage = qrCanvas.toDataURL("image/png");
+
+  doc.addImage(qrImage,"PNG",140,60,40,40);
+
+  /* ================= FOOTER ================= */
+
+  doc.setDrawColor(200);
+  doc.line(20,130,190,130);
+
+  doc.setFontSize(10);
+  doc.text("Merci d'utiliser MANG.",20,145);
+  doc.text("Signature électronique sécurisée.",20,155);
+
+  doc.save("Recu_MANG_" + receiptNumber + ".pdf");
+  }
 loadUser();
 </script>
 </body>
