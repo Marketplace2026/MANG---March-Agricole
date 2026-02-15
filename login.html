@@ -345,101 +345,71 @@ section h3{
 
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
 
-<script type="module">
+    <script type="module">
 import { supabase } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-const sidebar = document.getElementById('sidebar');
-const closeSidebar = document.getElementById('closeSidebar');
-const loginBtn = document.getElementById('loginBtn');
-const signupBtn = document.getElementById('signupBtn');
+  const sidebar = document.getElementById('sidebar');
+  const closeSidebar = document.getElementById('closeSidebar');
+  const loginBtn = document.getElementById('loginBtn');
+  const signupBtn = document.getElementById('signupBtn');
 
-const formTitle = document.getElementById('formTitle');
-const actionBtn = document.getElementById('actionBtn');
-const errorMsg = document.getElementById('errorMsg');
-const usernameInput = document.getElementById('username');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const togglePass = document.getElementById('togglePass');
+  const formTitle = document.getElementById('formTitle');
+  const actionBtn = document.getElementById('actionBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const usernameInput = document.getElementById('username');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const togglePass = document.getElementById('togglePass');
+  const forgotPassword = document.getElementById('forgotPassword');
 
-/* ✅ AJOUT */
-const forgotPassword = document.getElementById('forgotPassword');
+  let isLogin = true;
 
-let isLogin = true;
+  /* ================= UI ================= */
+  loginBtn.onclick = () => {
+    isLogin = true;
+    sidebar.classList.add('open');
+    usernameInput.style.display = 'none';
+    formTitle.textContent = "Connexion";
+    actionBtn.textContent = "Se connecter";
+    errorMsg.textContent = "";
+    forgotPassword.style.display = "block";
+  };
 
-/* ================= UI ================= */
-loginBtn.onclick = () => {
-  isLogin = true;
-  sidebar.classList.add('open');
-  usernameInput.style.display = 'none';
-  formTitle.textContent = "Connexion";
-  actionBtn.textContent = "Se connecter";
-  errorMsg.textContent = "";
-  forgotPassword.style.display = "block"; // ✅ AJOUT
-};
+  signupBtn.onclick = () => {
+    isLogin = false;
+    sidebar.classList.add('open');
+    usernameInput.style.display = 'block';
+    formTitle.textContent = "Inscription";
+    actionBtn.textContent = "S'inscrire";
+    errorMsg.textContent = "";
+    forgotPassword.style.display = "none";
+  };
 
-signupBtn.onclick = () => {
-  isLogin = false;
-  sidebar.classList.add('open');
-  usernameInput.style.display = 'block';
-  formTitle.textContent = "Inscription";
-  actionBtn.textContent = "S'inscrire";
-  errorMsg.textContent = "";
-  forgotPassword.style.display = "none"; // ✅ AJOUT
-};
+  closeSidebar.onclick = () => {
+    sidebar.classList.remove('open');
+    emailInput.value = "";
+    passwordInput.value = "";
+    usernameInput.value = "";
+    errorMsg.textContent = "";
+  };
 
-closeSidebar.onclick = () => {
-  sidebar.classList.remove('open');
-  emailInput.value = "";
-  passwordInput.value = "";
-  usernameInput.value = "";
-  errorMsg.textContent = "";
-};
+  togglePass.onclick = () => {
+    passwordInput.type =
+      passwordInput.type === "password" ? "text" : "password";
+  };
 
-togglePass.onclick = () => {
-  passwordInput.type =
-    passwordInput.type === "password" ? "text" : "password";
-};
+  /* ================= MOT DE PASSE OUBLIÉ ================= */
+  forgotPassword.onclick = async () => {
+    const email = emailInput.value.trim();
+    if (!email) {
+      errorMsg.textContent = "Entre ton email pour réinitialiser le mot de passe";
+      return;
+    }
 
-/* ================= MOT DE PASSE OUBLIÉ ================= */
-forgotPassword.onclick = async () => {
-  const email = emailInput.value.trim();
-
-  if (!email) {
-    errorMsg.textContent = "Entre ton email pour réinitialiser le mot de passe";
-    return;
-  }
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: "https://marketplace2026.github.io/MANG---March-Agricole/reset-password.html"
-    });
-  if (error) {
-    errorMsg.textContent = error.message;
-    return;
-  }
-
-  alert("📩 Un email de réinitialisation a été envoyé !");
-};
-
-/* ================= AUTH ================= */
-actionBtn.onclick = async () => {
-  errorMsg.textContent = "";
-
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-  const username = usernameInput.value.trim();
-
-  if (!email || !password || (!isLogin && !username)) {
-    errorMsg.textContent = "Remplis tous les champs";
-    return;
-  }
-
-  /* ===== LOGIN ===== */
-  if (isLogin) {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://marketplace2026.github.io/MANG---March-Agricole//reset-password.html"
     });
 
     if (error) {
@@ -447,57 +417,108 @@ actionBtn.onclick = async () => {
       return;
     }
 
-    window.location.href = "index.html";
-    return;
-  }
+    alert("📩 Un email de réinitialisation a été envoyé !");
+  };
 
-  /* ===== SIGNUP ===== */
-  const { error: signUpError } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { username }
+  /* ================= AUTH ================= */
+  actionBtn.onclick = async () => {
+    errorMsg.textContent = "";
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    const username = usernameInput.value.trim();
+
+    if (!email || !password || (!isLogin && !username)) {
+      errorMsg.textContent = "Remplis tous les champs";
+      return;
+    }
+
+    /* ===== LOGIN ===== */
+    if (isLogin) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        errorMsg.textContent = error.message;
+        return;
+      }
+
+      // Redirection après connexion
+      window.location.href = "index.html";
+      return;
+    }
+
+    /* ===== SIGNUP ===== */
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username } }
+    });
+
+    if (signUpError) {
+      errorMsg.textContent = signUpError.message;
+      return;
+    }
+
+    // ✅ Créer le profil immédiatement après l'inscription
+    if (signUpData?.user) {
+      const user = signUpData.user;
+
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!existingProfile) {
+        const { error: profileError } = await supabase.from("profiles").insert({
+          id: user.id,
+          email: user.email,
+          username: user.user_metadata?.username || username || "Utilisateur",
+          is_acheteur: true,
+          is_vendeur: true,
+          is_premium: false
+        });
+
+        if (profileError) {
+          console.error("Impossible de créer le profil :", profileError);
+        }
+      }
+    }
+
+    alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+    sidebar.classList.remove('open');
+    emailInput.value = "";
+    passwordInput.value = "";
+    usernameInput.value = "";
+  };
+
+  /* ================= PROFILE AUTO CREATE AU LOGIN ================= */
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event !== "SIGNED_IN" || !session?.user) return;
+
+    const user = session.user;
+
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    // Créer le profil si absent
+    if (!existingProfile) {
+      const { error } = await supabase.from("profiles").insert({
+        id: user.id,
+        email: user.email,
+        username: user.user_metadata?.username || "Utilisateur",
+        is_acheteur: true,
+        is_vendeur: true,
+        is_premium: false
+      });
+
+      if (error) console.error("Impossible de créer le profil :", error);
     }
   });
 
-  if (signUpError) {
-    errorMsg.textContent = signUpError.message;
-    return;
-  }
-
-  alert("✅ Compte créé ! Tu peux maintenant te connecter.");
-  sidebar.classList.remove('open');
-};
-
-/* ================= PROFILE AUTO CREATE ================= */
-supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event !== "SIGNED_IN" || !session?.user) return;
-
-  const user = session.user;
-
-  const { data: existingProfile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", user.id)
-    .single();
-
-  if (existingProfile) return;
-
-  const { error } = await supabase.from("profiles").insert({
-    id: user.id,
-    email: user.email,
-    username: user.user_metadata?.username || "user",
-    is_acheteur: true,
-    is_vendeur: true,
-    is_premium: false
-  });
-
-  if (error) {
-    console.error("Impossible de créer le profil :", error);
-  }
 });
-
-});
-</script>
+  </script>
 </body>
 </html>
