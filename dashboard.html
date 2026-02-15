@@ -484,72 +484,40 @@ window.downloadReceipt = async function(id){
   const sign = isPositive(data) ? "+" : "-";
   const receiptNumber = "MANG-" + id + "-" + Date.now();
 
-  /* ================= HEADER ================= */
-
+  /* HEADER */
   doc.setFillColor(31,77,58);
-  doc.rect(0,0,210,30,"F");
+  doc.rect(0,0,210,25,"F");
 
   doc.setTextColor(255,255,255);
-  doc.setFontSize(18);
-  doc.text("MANG",20,18);
-
-  doc.setFontSize(12);
-  doc.text("REÇU OFFICIEL",140,18);
+  doc.setFontSize(16);
+  doc.text("REÇU OFFICIEL - MANG",20,16);
 
   doc.setTextColor(0,0,0);
+  doc.setFontSize(12);
 
-  /* ================= BODY ================= */
+  doc.text("Numéro : " + receiptNumber,20,40);
+  doc.text("Type : " + getTitle(data),20,55);
+  doc.text("Montant : " + sign + formatMoney(amount) + " FCFA",20,70);
+  doc.text("Date : " + new Date(data.created_at).toLocaleString(),20,85);
+  doc.text("Statut : " + (data.status || "Validé"),20,100);
 
-  doc.setFontSize(11);
+  doc.text("Merci d'utiliser MANG.",20,120);
 
-  doc.text("Numéro de reçu :",20,45);
-  doc.text(receiptNumber,70,45);
+  /* 🔥 FORCER TELECHARGEMENT MOBILE */
 
-  doc.text("Type :",20,60);
-  doc.text(getTitle(data),70,60);
+  const pdfBlob = doc.output("blob");
+  const url = URL.createObjectURL(pdfBlob);
 
-  doc.text("Montant :",20,75);
-  doc.text(sign + formatMoney(amount) + " FCFA",70,75);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "Recu_" + receiptNumber + ".pdf";
 
-  doc.text("Date :",20,90);
-  doc.text(new Date(data.created_at).toLocaleString(),70,90);
+  document.body.appendChild(link);
+  link.click();
 
-  doc.text("Statut :",20,105);
-  doc.text(data.status || "Validé",70,105);
-
-  /* ================= QR CODE ================= */
-
-  const qrData = `
-MANG RECEIPT
-ID: ${id}
-Amount: ${sign}${amount}
-Date: ${data.created_at}
-`;
-
-  const qrContainer = document.createElement("div");
-
-  new QRCode(qrContainer,{
-    text: qrData,
-    width: 100,
-    height: 100
-  });
-
-  const qrCanvas = qrContainer.querySelector("canvas");
-  const qrImage = qrCanvas.toDataURL("image/png");
-
-  doc.addImage(qrImage,"PNG",140,60,40,40);
-
-  /* ================= FOOTER ================= */
-
-  doc.setDrawColor(200);
-  doc.line(20,130,190,130);
-
-  doc.setFontSize(10);
-  doc.text("Merci d'utiliser MANG.",20,145);
-  doc.text("Signature électronique sécurisée.",20,155);
-
-  doc.save("Recu_MANG_" + receiptNumber + ".pdf");
-  }
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 loadUser();
 </script>
 </body>
