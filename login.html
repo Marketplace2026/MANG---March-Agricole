@@ -345,7 +345,7 @@ section h3{
 
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
 
-                    <script type="module">
+<script type="module">
 import { supabase } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -433,29 +433,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    /* ===== LOGIN ===== */
     if (isLogin) {
-      /* ===== LOGIN ===== */
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         errorMsg.textContent = error.message;
         return;
       }
 
+      // Redirection après connexion
       window.location.href = "index.html";
       return;
     }
 
     /* ===== SIGNUP ===== */
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { username }
-      }
+      options: { data: { username } }
     });
 
     if (signUpError) {
@@ -463,11 +458,40 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // ✅ Créer le profil immédiatement après l'inscription
+    if (signUpData?.user) {
+      const user = signUpData.user;
+
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!existingProfile) {
+        const { error: profileError } = await supabase.from("profiles").insert({
+          id: user.id,
+          email: user.email,
+          username: user.user_metadata?.username || username || "Utilisateur",
+          is_acheteur: true,
+          is_vendeur: true,
+          is_premium: false
+        });
+
+        if (profileError) {
+          console.error("Impossible de créer le profil :", profileError);
+        }
+      }
+    }
+
     alert("✅ Compte créé ! Tu peux maintenant te connecter.");
     sidebar.classList.remove('open');
+    emailInput.value = "";
+    passwordInput.value = "";
+    usernameInput.value = "";
   };
 
-  /* ================= PROFILE AUTO CREATE ================= */
+  /* ================= PROFILE AUTO CREATE AU LOGIN ================= */
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event !== "SIGNED_IN" || !session?.user) return;
 
@@ -475,33 +499,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const { data: existingProfile } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, username")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (existingProfile) return;
+    // Créer le profil si absent
+    if (!existingProfile) {
+      const { error } = await supabase.from("profiles").insert({
+        id: user.id,
+        email: user.email,
+        username: user.user_metadata?.username || "Utilisateur",
+        is_acheteur: true,
+        is_vendeur: true,
+        is_premium: false
+      });
 
-    // Créer le profil avec toutes les colonnes existantes
-    const { error } = await supabase.from("profiles").insert({
-      id: user.id,
-      username: user.user_metadata?.username || "user",
-      email: user.email,
-      is_acheteur: true,
-      is_vendeur: true,
-      created_at: new Date().toISOString(),
-      last_seen: new Date().toISOString(),
-      wallet_balance: 0,
-      premium_level: null,
-      premium_start: null,
-      premium_end: null
-    });
-
-    if (error) {
-      console.error("Impossible de créer le profil :", error);
+      if (error) console.error("Impossible de créer le profil :", error);
     }
   });
 
 });
-                          </script>
+</script>
 </body>
 </html>
