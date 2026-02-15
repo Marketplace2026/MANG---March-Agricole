@@ -473,7 +473,7 @@ function renderChart(totalIn,totalOut){
 
 window.downloadReceipt = async function(id) {
   try {
-    // 🔹 Récupérer la transaction depuis Supabase
+    // 1️⃣ Récupérer les données de la transaction depuis Supabase
     const { data, error } = await supabase
       .from("wallet_transactions")
       .select("*")
@@ -482,17 +482,18 @@ window.downloadReceipt = async function(id) {
 
     if (error || !data) {
       alert("Impossible de récupérer la transaction.");
-      console.error("Erreur transaction:", error);
+      console.error(error);
       return;
     }
 
-    // 🔹 Appel de l'Edge Function pour générer le PDF
+    // 2️⃣ Appeler la fonction Edge pour générer le PDF
     const response = await fetch(
       "https://czbqmzclcxitxxfydadl.functions.supabase.co/generate-receipt",
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          // Si nécessaire : "apikey": "<SERVICE_ROLE_KEY>"
         },
         body: JSON.stringify({ transaction: data })
       }
@@ -500,21 +501,25 @@ window.downloadReceipt = async function(id) {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Erreur lors de la génération du reçu: ${text}`);
+      throw new Error(`Erreur génération PDF : ${text}`);
     }
 
-    const result = await response.json();
+    // 3️⃣ Récupérer le PDF en blob
+    const blob = await response.blob();
 
-    if (!result.url) {
-      throw new Error("URL du reçu non disponible.");
-    }
-
-    // 🔹 Ouvre le PDF dans un nouvel onglet
-    window.open(result.url, "_blank");
+    // 4️⃣ Créer un lien de téléchargement
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `recu_MANG_${data.id}.pdf`; // nom du fichier
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url); // libérer la mémoire
 
   } catch (err) {
     console.error(err);
-    alert("Impossible de générer le reçu PDF. Vérifie la console pour plus de détails.");
+    alert("Impossible de générer le reçu PDF. Vérifiez la console pour plus de détails.");
   }
 };
 loadUser();
