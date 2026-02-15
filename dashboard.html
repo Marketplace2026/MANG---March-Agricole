@@ -180,6 +180,7 @@ input{
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -471,87 +472,147 @@ async function downloadReceiptPDF(id) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-    const primaryColor = "#1f4d3a"; // vert
-    const secondaryColor = "#555";
+    const isCredit = tx.type === "deposit";
+    const primary = isCredit ? "#0d6efd" : "#842029";
+    const accent = isCredit ? "#198754" : "#dc3545";
+    const gray = "#555";
 
-    // =======================
-    // HEADER avec logo
-    // =======================
+    // ===== Génération code sécurisé =====
+    const rawString = tx.id + tx.amount + tx.created_at;
+    const validationCode = btoa(rawString).substring(0, 16).toUpperCase();
+
+    const receiptNumber = `MNG-${new Date().getFullYear()}-${tx.id.substring(0,6)}`;
+
     const logo = new Image();
-    logo.src = "assets/img/logos.png"; // ton logo
+    logo.src = "assets/img/logos.png";
 
-    // On attend que le logo soit chargé
     logo.onload = () => {
-      doc.setFillColor(primaryColor);
-      doc.rect(0, 0, 595, 60, "F"); // barre header
 
-      doc.addImage(logo, "PNG", 40, 10, 40, 40); // logo à gauche
+      // ===== WATERMARK =====
+      doc.setFontSize(90);
+      doc.setTextColor(240, 240, 240);
+      doc.text("SECURED", 100, 420, { angle: 45 });
+
+      // ===== HEADER =====
+      doc.setFillColor(primary);
+      doc.rect(0, 0, 595, 90, "F");
+
+      doc.addImage(logo, "PNG", 40, 25, 50, 40);
 
       doc.setFontSize(22);
       doc.setTextColor("#ffffff");
-      doc.text("MANG", 100, 35); // Nom du service
+      doc.text("MANG INTERNATIONAL", 110, 50);
+
+      doc.setFontSize(12);
+      doc.text("REÇU OFFICIEL SÉCURISÉ", 110, 70);
+
+      // ===== Bande sécurité hologramme =====
+      doc.setFillColor(230, 230, 250);
+      doc.rect(40, 105, 515, 25, "F");
+
+      doc.setFontSize(10);
+      doc.setTextColor("#333");
+      doc.text(
+        "DOCUMENT OFFICIEL • SYSTÈME SÉCURISÉ • VÉRIFIABLE EN LIGNE",
+        70,
+        122
+      );
+
+      // ===== Numéro reçu =====
+      doc.setFontSize(11);
+      doc.setTextColor(gray);
+      doc.text(`N° Reçu : ${receiptNumber}`, 400, 150);
+
+      // ===== Montant =====
+      doc.setFillColor("#f8f9fa");
+      doc.rect(40, 170, 515, 85, "F");
 
       doc.setFontSize(14);
-      doc.text("REÇU OFFICIEL", 480, 35); // titre à droite
+      doc.setTextColor(gray);
+      doc.text("Montant Transaction", 50, 200);
 
-      // =======================
-      // Boîte principale
-      // =======================
-      doc.setDrawColor(primaryColor);
+      doc.setFontSize(30);
+      doc.setTextColor(accent);
+      doc.text(`${formatMoney(tx.amount)} FCFA`, 50, 230);
+
+      // ===== Détails =====
+      doc.setDrawColor(accent);
       doc.setLineWidth(1);
-      doc.rect(40, 80, 515, 280);
+      doc.rect(40, 270, 515, 230);
+
+      const y = 300;
+      const gap = 25;
 
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
 
-      const startY = 110;
-      const lineHeight = 25;
+      doc.text("Transaction ID :", 60, y);
+      doc.text(tx.id.substring(0,12) + "...", 220, y);
 
-      doc.text(`Transaction ID : ${tx.id}`, 50, startY);
-      doc.text(`Date : ${new Date(tx.created_at).toLocaleString()}`, 50, startY + lineHeight);
-      doc.text(`Type : ${getTitle(tx)}`, 50, startY + 2 * lineHeight);
-      doc.text(`Montant : ${formatMoney(tx.amount)} FCFA`, 50, startY + 3 * lineHeight);
-      doc.text(`Statut : ${tx.status || "Validé"}`, 50, startY + 4 * lineHeight);
-      doc.text(`Opérateur : ${tx.operator || "-"}`, 50, startY + 5 * lineHeight);
-      doc.text(`Numéro : ${tx.phone || "-"}`, 50, startY + 6 * lineHeight);
+      doc.text("Date :", 60, y + gap);
+      doc.text(new Date(tx.created_at).toLocaleString(), 220, y + gap);
 
+      doc.text("Type :", 60, y + gap * 2);
+      doc.text(getTitle(tx), 220, y + gap * 2);
+
+      doc.text("Statut :", 60, y + gap * 3);
+      doc.text(tx.status || "Validé", 220, y + gap * 3);
+
+      doc.text("Opérateur :", 60, y + gap * 4);
+      doc.text(tx.operator || "-", 220, y + gap * 4);
+
+      doc.text("Numéro :", 60, y + gap * 5);
+      doc.text(tx.phone || "-", 220, y + gap * 5);
+
+      // ===== Code validation =====
       doc.setFontSize(11);
-      doc.setTextColor(secondaryColor);
-      doc.text("Détail :", 50, startY + 7 * lineHeight);
-      doc.text(getUsage(tx), 50, startY + 8 * lineHeight, { maxWidth: 480 });
+      doc.setTextColor(primary);
+      doc.text("Code de validation sécurisé :", 60, 460);
+      doc.setFontSize(14);
+      doc.text(validationCode, 60, 480);
 
-      // =======================
-      // QR CODE (vérification)
-      // =======================
-      const qrCodeDiv = document.createElement("div");
-      const qr = new QRCode(qrCodeDiv, {
-        text: `MANG Transaction ID: ${tx.id}`,
-        width: 80,
-        height: 80,
-        correctLevel: QRCode.CorrectLevel.H,
+      // ===== QR CODE =====
+      const qrDiv = document.createElement("div");
+      const qr = new QRCode(qrDiv, {
+        text: `Verification Code: ${validationCode}`,
+        width: 100,
+        height: 100
       });
 
-      // On récupère le canvas du QR code
-      const qrCanvas = qrCodeDiv.querySelector("canvas");
-      const qrDataUrl = qrCanvas.toDataURL("image/png");
-      doc.addImage(qrDataUrl, "PNG", 440, 200, 80, 80);
+      const qrCanvas = qrDiv.querySelector("canvas");
+      const qrImg = qrCanvas.toDataURL("image/png");
+      doc.addImage(qrImg, "PNG", 420, 380, 100, 100);
 
-      // =======================
-      // Signature
-      // =======================
-      doc.setFontSize(10);
-      doc.setTextColor(secondaryColor);
-      doc.text("Signature autorisée :", 50, 370);
-      doc.setLineWidth(0.5);
-      doc.line(150, 368, 300, 368); // ligne de signature
+      // ===== Cachet =====
+      doc.setDrawColor(accent);
+      doc.setLineWidth(3);
+      doc.circle(470, 290, 45);
 
-      // Pied de page
-      doc.setFontSize(10);
-      doc.setTextColor(secondaryColor);
-      doc.text("Merci d'utiliser MANG. Ce reçu est généré automatiquement.", 50, 580);
+      doc.setFontSize(14);
+      doc.setTextColor(accent);
+      doc.text(
+        tx.status === "pending" ? "EN ATTENTE" : "VALIDÉ",
+        440,
+        295,
+        { angle: -20 }
+      );
 
-      // Télécharger PDF
-      doc.save(`recu_MANG_${tx.id}.pdf`);
+      // ===== Signature =====
+      doc.setFontSize(11);
+      doc.setTextColor(gray);
+      doc.text("Direction Financière", 60, 520);
+      doc.line(60, 530, 200, 530);
+
+      // ===== Footer =====
+      doc.setFontSize(9);
+      doc.setTextColor(gray);
+      doc.text(
+        "Ce reçu est généré automatiquement par le système sécurisé MANG INTERNATIONAL.",
+        40,
+        580
+      );
+
+      doc.save(`${receiptNumber}.pdf`);
     };
 
   } catch (err) {
