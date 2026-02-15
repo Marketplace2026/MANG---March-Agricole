@@ -257,27 +257,31 @@ input{
 
   
         <script type="module">
-    import { supabase } from './supabase.js';
-import { PDFDocument, StandardFonts, rgb } from 'https://cdn.skypack.dev/pdf-lib';
+      import { supabase } from './supabase.js';
 
 let currentUser = null;
 let walletChart = null;
 
 /* ======================
 LOAD USER
-====================== */
+===================== */
 async function loadUser() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) { location.href = "login.html"; return; }
   currentUser = user;
+
   document.getElementById("userEmail").innerText = user.email;
-  document.getElementById("filterType")?.addEventListener("change", loadTransactions);
+
+  // Filtre par type
+  const filter = document.getElementById("filterType");
+  if (filter) filter.addEventListener("change", loadTransactions);
+
   loadWallet();
 }
 
 /* ======================
 LOAD WALLET
-====================== */
+===================== */
 async function loadWallet() {
   const { data } = await supabase
     .from("profiles")
@@ -291,9 +295,10 @@ async function loadWallet() {
 
 /* ======================
 LOAD TRANSACTIONS
-====================== */
+===================== */
 async function loadTransactions() {
   const filter = document.getElementById("filterType")?.value || "";
+
   let query = supabase
     .from("wallet_transactions")
     .select("*")
@@ -318,12 +323,14 @@ async function loadTransactions() {
   data.forEach(tx => {
     const isCredit = isPositive(tx);
     const amount = Math.abs(Number(tx.amount));
+
     if (isCredit) totalIn += amount;
     else totalOut += amount;
 
     const div = document.createElement("div");
     div.className = "transaction";
     div.style.cursor = "pointer";
+
     div.innerHTML = `
       <div>
         <strong>${getTitle(tx)}</strong><br>
@@ -334,7 +341,8 @@ async function loadTransactions() {
         ${isCredit ? '+' : '-'}${formatMoney(amount)} FCFA
       </div>
     `;
-    div.addEventListener("click", () => showTransactionDetail(tx.id));
+
+    div.onclick = () => showTransactionDetail(tx);
     container.appendChild(div);
   });
 
@@ -343,7 +351,7 @@ async function loadTransactions() {
 
 /* ======================
 CREDIT LOGIC
-====================== */
+===================== */
 function isPositive(tx) {
   const type = tx.type?.toLowerCase() || "";
   return type.includes("deposit") || type.includes("refund");
@@ -351,10 +359,11 @@ function isPositive(tx) {
 
 /* ======================
 GET TITLE
-====================== */
+===================== */
 function getTitle(tx) {
   const type = tx.type?.toLowerCase() || "";
   const desc = tx.description?.toLowerCase() || "";
+
   if (type.includes("deposit")) return "Rechargement Mobile Money";
   if (type.includes("withdraw")) return "Retrait Mobile Money";
   if (type.includes("premium") || desc.includes("premium")) return "Abonnement Premium MANG";
@@ -365,37 +374,28 @@ function getTitle(tx) {
 
 /* ======================
 FORMAT MONEY
-====================== */
+===================== */
 function formatMoney(amount) {
   return Number(amount || 0).toLocaleString("fr-FR");
 }
 
 /* ======================
 STATUS BADGE
-====================== */
+===================== */
 function statusBadge(status) {
   if (!status) return badge("Validé", "#00c853");
   if (status === "pending") return badge("En attente", "#ff9800");
   if (status === "failed") return badge("Échoué", "#ff5252");
   return badge("Validé", "#00c853");
 }
-
 function badge(text, color) {
   return `<span style="background:${color};color:white;padding:4px 8px;border-radius:6px;font-size:11px;">${text}</span>`;
 }
 
 /* ======================
 DETAIL MODAL
-====================== */
-async function showTransactionDetail(id) {
-  const { data: tx, error } = await supabase
-    .from("wallet_transactions")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !tx) return alert("Impossible de récupérer la transaction.");
-
+===================== */
+function showTransactionDetail(tx) {
   const isCredit = isPositive(tx);
   const amount = Math.abs(Number(tx.amount));
   const sign = isCredit ? "+" : "-";
@@ -416,15 +416,17 @@ async function showTransactionDetail(id) {
     </button>
   `;
   document.getElementById("detailModal").style.display = "flex";
-  document.getElementById("downloadPdfBtn").addEventListener("click", () => downloadReceiptPDF(tx.id));
+
+  document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
 }
 
-window.showTransactionDetail = showTransactionDetail;
-window.closeDetail = () => { document.getElementById("detailModal").style.display = "none"; };
+window.closeDetail = () => {
+  document.getElementById("detailModal").style.display = "none";
+};
 
 /* ======================
 USAGE DESCRIPTION
-====================== */
+===================== */
 function getUsage(tx) {
   const desc = tx.description?.toLowerCase() || "";
   if (tx.type === "deposit") return "Rechargement de votre portefeuille via Mobile Money.";
@@ -437,7 +439,7 @@ function getUsage(tx) {
 
 /* ======================
 CHART
-====================== */
+===================== */
 function renderChart(totalIn, totalOut) {
   const ctx = document.getElementById("walletChart");
   if (!ctx) return;
@@ -455,7 +457,7 @@ function renderChart(totalIn, totalOut) {
 
 /* ======================
 PDF RECEIPT CLIENT
-====================== */
+===================== */
 async function downloadReceiptPDF(id) {
   try {
     const { data: tx, error } = await supabase
@@ -478,7 +480,6 @@ async function downloadReceiptPDF(id) {
     doc.text(`Statut: ${tx.status || "Validé"}`, 20, 70);
     doc.text(`Détail: ${getUsage(tx)}`, 20, 80);
 
-    // Téléchargement du PDF
     doc.save(`recu_MANG_${tx.id}.pdf`);
 
   } catch (err) {
@@ -486,6 +487,8 @@ async function downloadReceiptPDF(id) {
     alert("Impossible de générer le reçu PDF. Vérifiez la console pour plus de détails.");
   }
 }
+
+loadUser();
         </script>
 </body>
 </html>
