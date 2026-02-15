@@ -345,7 +345,7 @@ section h3{
 
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
 
-<script type="module">
+    <script type="module">
 import { supabase } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLogin = true;
 
-  /* ================= UI ================= */
+  /* UI */
   loginBtn.onclick = () => {
     isLogin = true;
     sidebar.classList.add('open');
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
       passwordInput.type === "password" ? "text" : "password";
   };
 
-  /* ================= MOT DE PASSE OUBLIÉ ================= */
+  /* MOT DE PASSE OUBLIÉ */
   forgotPassword.onclick = async () => {
     const email = emailInput.value.trim();
     if (!email) {
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alert("📩 Un email de réinitialisation a été envoyé !");
   };
 
-  /* ================= AUTH ================= */
+  /* AUTH */
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
 
@@ -433,20 +433,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    /* ===== LOGIN ===== */
     if (isLogin) {
+      // LOGIN
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         errorMsg.textContent = error.message;
         return;
       }
-
-      // Redirection après connexion
       window.location.href = "index.html";
       return;
     }
 
-    /* ===== SIGNUP ===== */
+    // SIGNUP
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
@@ -458,67 +456,46 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // ✅ Créer le profil immédiatement après l'inscription
-    if (signUpData?.user) {
-      const user = signUpData.user;
-
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!existingProfile) {
-        const { error: profileError } = await supabase.from("profiles").insert({
-          id: user.id,
-          email: user.email,
-          username: user.user_metadata?.username || username || "Utilisateur",
-          is_acheteur: true,
-          is_vendeur: true,
-          is_premium: false
-        });
-
-        if (profileError) {
-          console.error("Impossible de créer le profil :", profileError);
-        }
-      }
-    }
-
     alert("✅ Compte créé ! Tu peux maintenant te connecter.");
     sidebar.classList.remove('open');
-    emailInput.value = "";
-    passwordInput.value = "";
-    usernameInput.value = "";
   };
 
-  /* ================= PROFILE AUTO CREATE AU LOGIN ================= */
+  /* PROFILE AUTO CREATE après connexion */
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event !== "SIGNED_IN" || !session?.user) return;
 
     const user = session.user;
 
-    const { data: existingProfile } = await supabase
+    // Vérifie si le profil existe déjà
+    const { data: existingProfile, error: fetchError } = await supabase
       .from("profiles")
-      .select("id, username")
+      .select("id")
       .eq("id", user.id)
-      .maybeSingle();
+      .single();
 
-    // Créer le profil si absent
-    if (!existingProfile) {
-      const { error } = await supabase.from("profiles").insert({
-        id: user.id,
-        email: user.email,
-        username: user.user_metadata?.username || "Utilisateur",
-        is_acheteur: true,
-        is_vendeur: true,
-        is_premium: false
-      });
-
-      if (error) console.error("Impossible de créer le profil :", error);
+    if (fetchError && fetchError.code !== "PGRST116") {
+      console.error("Erreur vérification profil :", fetchError);
+      return;
     }
+    if (existingProfile) return;
+
+    // Crée le profil
+    const { error: insertError } = await supabase.from("profiles").insert({
+      id: user.id,
+      username: user.user_metadata?.username || "Utilisateur",
+      email: user.email,
+      is_acheteur: true,
+      is_vendeur: true,
+      wallet_balance: 0,
+      premium_level: 0,       // valeur par défaut
+      premium_start: null,
+      premium_end: null
+    });
+
+    if (insertError) console.error("Impossible de créer le profil :", insertError);
   });
 
 });
-</script>
+    </script>
 </body>
 </html>
