@@ -455,7 +455,13 @@ function renderChart(totalIn, totalOut) {
     options: { plugins: { legend: { labels: { color: "white" } } } }
   });
 }
-
+async function generateHash(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
 /* ======================
 PDF RECEIPT CLIENT
 ===================== */
@@ -467,75 +473,117 @@ PDF RECEIPT CLIENT
       .eq("id", id)
       .single();
 
-    if (error || !tx) throw new Error("Impossible de récupérer la transaction.");
+    if (error || !tx) throw new Error("Transaction introuvable.");
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
 
-    const primaryColor = "#1f4d3a";
-    const secondaryColor = "#555";
+    const primary = "#0b3d2e";
+    const accent = tx.type === "credit" ? "#16a34a" : "#dc2626";
 
-    /* ================= HEADER ================= */
-    doc.setFillColor(primaryColor);
-    doc.rect(0, 0, 595, 60, "F");
+    /* ===== NUMÉRO OFFICIEL ===== */
+    const receiptNumber = `MANG-${new Date().getFullYear()}-${String(tx.id).padStart(6, "0")}`;
 
-    doc.setFontSize(22);
+    /* ===== HASH SÉCURITÉ ===== */
+    const securityString = `${receiptNumber}|${tx.amount}|${tx.created_at}`;
+    const hash = await generateHash(securityString);
+
+    /* ===== HEADER ===== */
+    doc.setFillColor(primary);
+    doc.rect(0, 0, 595, 100, "F");
+
     doc.setTextColor("#ffffff");
-    doc.text("MANG", 40, 35);
+    doc.setFontSize(20);
+    doc.text("MANG WALLET", 40, 60);
 
-    doc.setFontSize(14);
-    doc.text("REÇU OFFICIEL", 420, 35);
+    doc.setFontSize(11);
+    doc.text("Reçu Financier Sécurisé", 400, 60);
 
-    /* ================= CONTENU ================= */
-    doc.setDrawColor(primaryColor);
-    doc.rect(40, 80, 515, 250);
+    /* ===== CARTE BLANCHE ===== */
+    doc.setFillColor("#ffffff");
+    doc.roundedRect(40, 140, 515, 360, 14, 14, "F");
 
+    doc.setDrawColor(220);
+    doc.roundedRect(40, 140, 515, 360, 14, 14);
+
+    /* ===== MONTANT CENTRAL ===== */
+    doc.setFontSize(34);
+    doc.setTextColor(accent);
+    doc.text(
+      `${tx.type === "credit" ? "+" : "-"} ${Number(tx.amount).toLocaleString()} FCFA`,
+      297,
+      220,
+      { align: "center" }
+    );
+
+    /* ===== BADGE ===== */
+    doc.setFillColor(accent);
+    doc.roundedRect(240, 235, 120, 30, 8, 8, "F");
+
+    doc.setTextColor("#ffffff");
     doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
+    doc.text(tx.type.toUpperCase(), 300, 255, { align: "center" });
 
-    const startY = 110;
-    const lineHeight = 25;
+    /* ===== INFOS ===== */
+    doc.setTextColor("#333");
+    doc.setFontSize(12);
 
-    doc.text(`Transaction ID : ${tx.id}`, 50, startY);
-    doc.text(`Date : ${new Date(tx.created_at).toLocaleString()}`, 50, startY + lineHeight);
-    doc.text(`Type : ${tx.type}`, 50, startY + 2 * lineHeight);
-    doc.text(`Montant : ${tx.amount} FCFA`, 50, startY + 3 * lineHeight);
-    doc.text(`Description : ${tx.description || "-"}`, 50, startY + 4 * lineHeight, { maxWidth: 480 });
+    let y = 300;
+    const gap = 30;
 
-    /* ================= QR CODE ================= */
-    const qrDiv = document.createElement("div");
+    doc.text("Numéro de reçu :", 70, y);
+    doc.text(receiptNumber, 230, y);
 
-    const qr = new QRCode(qrDiv, {
-      text: `Transaction MANG ID: ${tx.id}`,
-      width: 80,
-      height: 80
+    doc.text("Transaction ID :", 70, y + gap);
+    doc.text(String(tx.id), 230, y + gap);
+
+    doc.text("Date :", 70, y + gap * 2);
+    doc.text(new Date(tx.created_at).toLocaleString(), 230, y + gap * 2);
+
+    doc.text("Description :", 70, y + gap * 3);
+    doc.text(tx.description || "-", 230, y + gap * 3, { maxWidth: 250 });
+
+    /* ===== QR CODE SÉCURISÉ ===== */
+    const qrCanvas = document.createElement("canvas");
+
+    await new Promise(resolve => {
+      new QRCode(qrCanvas, {
+        text: `${receiptNumber}|HASH:${hash}`,
+        width: 110,
+        height: 110,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      setTimeout(resolve, 200);
     });
 
-    // Attendre que le QR soit généré
-    setTimeout(() => {
-      const qrCanvas = qrDiv.querySelector("canvas");
-      if (qrCanvas) {
-        const qrDataUrl = qrCanvas.toDataURL("image/png");
-        doc.addImage(qrDataUrl, "PNG", 440, 200, 80, 80);
-      }
+    const qrData = qrCanvas.toDataURL("image/png");
+    doc.addImage(qrData, "PNG", 410, 330, 110, 110);
 
-      /* ================= SIGNATURE ================= */
-      doc.setFontSize(10);
-      doc.setTextColor(secondaryColor);
-      doc.text("Signature autorisée :", 50, 360);
-      doc.line(150, 358, 300, 358);
+    /* ===== CACHE OFFICIEL ===== */
+    doc.setDrawColor(primary);
+    doc.circle(480, 470, 40);
+    doc.setFontSize(9);
+    doc.setTextColor(primary);
+    doc.text("OFFICIEL", 480, 475, { align: "center" });
 
-      doc.text("Merci d'utiliser MANG. Reçu généré automatiquement.", 50, 580);
+    /* ===== HASH INVISIBLE ===== */
+    doc.setFontSize(6);
+    doc.setTextColor("#aaaaaa");
+    doc.text(hash, 40, 820);
 
-      /* ================= DOWNLOAD ================= */
-      doc.save(`recu_MANG_${tx.id}.pdf`);
-    }, 300);
+    /* ===== FOOTER ===== */
+    doc.setFontSize(9);
+    doc.setTextColor("#777");
+    doc.text("Document signé numériquement par MANG Wallet.", 40, 800);
+    doc.text("Toute altération rend ce document invalide.", 40, 815);
+
+    doc.save(`${receiptNumber}.pdf`);
 
   } catch (err) {
     console.error(err);
-    alert("Impossible de générer le reçu PDF.");
+    alert("Erreur génération reçu.");
   }
-      }
+          }
           loadUser();
         </script>
 </body>
