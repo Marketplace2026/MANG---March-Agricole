@@ -477,46 +477,24 @@ window.downloadReceipt = async function(id){
     .eq("id",id)
     .single();
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const response = await fetch(
+    "https://czbqmzclcxitxxfydadl.supabase.co'
+    /functions/v1/generate-receipt",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        transaction: data
+      })
+    }
+  )
 
-  const amount = Math.abs(Number(data.amount));
-  const sign = isPositive(data) ? "+" : "-";
-  const receiptNumber = "MANG-" + id + "-" + Date.now();
+  const result = await response.json()
 
-  /* HEADER */
-  doc.setFillColor(31,77,58);
-  doc.rect(0,0,210,25,"F");
-
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(16);
-  doc.text("REÇU OFFICIEL - MANG",20,16);
-
-  doc.setTextColor(0,0,0);
-  doc.setFontSize(12);
-
-  doc.text("Numéro : " + receiptNumber,20,40);
-  doc.text("Type : " + getTitle(data),20,55);
-  doc.text("Montant : " + sign + formatMoney(amount) + " FCFA",20,70);
-  doc.text("Date : " + new Date(data.created_at).toLocaleString(),20,85);
-  doc.text("Statut : " + (data.status || "Validé"),20,100);
-
-  doc.text("Merci d'utiliser MANG.",20,120);
-
-  /* 🔥 FORCER TELECHARGEMENT MOBILE */
-
-  const pdfBlob = doc.output("blob");
-  const url = URL.createObjectURL(pdfBlob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "Recu_" + receiptNumber + ".pdf";
-
-  document.body.appendChild(link);
-  link.click();
-
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // 🔥 ouvre le vrai lien public
+  window.open(result.url, "_blank")
 }
 loadUser();
 </script>
