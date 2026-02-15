@@ -470,12 +470,54 @@ function renderChart(totalIn, totalOut) {
 /* ======================
 PDF RECEIPT CLIENT
 ====================== */
-window.downloadReceiptPDF = async function(tx) {
-  const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([500, 600]);
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+/* ======================
+DETAIL MODAL
+====================== */
+window.showTransactionDetail = function(tx) {
+  const isCredit = isPositive(tx);
+  const amount = Math.abs(Number(tx.amount));
+  const sign = isCredit ? "+" : "-";
+  const color = isCredit ? "#00e676" : "#ff5252";
 
-  const text = `
+  const detail = document.getElementById("transactionDetails");
+  detail.innerHTML = `
+    <h4>${getTitle(tx)}</h4>
+    <div style="font-size:22px;font-weight:700;color:${color}">${sign}${formatMoney(amount)} FCFA</div>
+    <hr>
+    <p><strong>Date :</strong><br>${new Date(tx.created_at).toLocaleString()}</p>
+    <p><strong>Statut :</strong><br>${tx.status || "Validé"}</p>
+    ${tx.operator ? `<p><strong>Opérateur :</strong><br>${tx.operator}</p>` : ""}
+    ${tx.phone ? `<p><strong>Numéro :</strong><br>${tx.phone}</p>` : ""}
+    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
+    <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
+      Télécharger PDF
+    </button>
+  `;
+
+  document.getElementById("detailModal").style.display = "flex";
+
+  // 🔥 Attach the click listener properly
+  document.getElementById("downloadPdfBtn").addEventListener("click", () => downloadReceiptPDF(tx.id));
+};
+
+/* ======================
+PDF RECEIPT CLIENT
+====================== */
+async function downloadReceiptPDF(id) {
+  try {
+    const { data: tx, error } = await supabase
+      .from("wallet_transactions")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !tx) throw new Error("Impossible de récupérer la transaction.");
+
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([500, 600]);
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    const text = `
 REÇU OFFICIEL - MANG
 
 Type: ${getTitle(tx)}
@@ -485,16 +527,21 @@ Statut: ${tx.status || "Validé"}
 Détail: ${getUsage(tx)}
 `;
 
-  page.drawText(text, { x: 50, y: 550, font, size: 14, color: rgb(0, 0, 0), lineHeight: 18 });
+    page.drawText(text, { x: 50, y: 550, font, size: 14, color: rgb(0, 0, 0), lineHeight: 18 });
 
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `recu_MANG_${tx.id}.pdf`;
-  link.click();
-  URL.revokeObjectURL(link.href);
-};
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `recu_MANG_${tx.id}.pdf`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+
+  } catch (err) {
+    console.error(err);
+    alert("Impossible de générer le reçu PDF. Vérifiez la console pour plus de détails.");
+  }
+}
 
 loadUser();
         </script>
