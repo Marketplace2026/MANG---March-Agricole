@@ -345,7 +345,7 @@ section h3{
 
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
 
-    <script type="module">
+          <script type="module">
 import { supabase } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLogin = true;
 
-  /* UI */
+  /* ================= UI ================= */
   loginBtn.onclick = () => {
     isLogin = true;
     sidebar.classList.add('open');
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
       passwordInput.type === "password" ? "text" : "password";
   };
 
-  /* MOT DE PASSE OUBLIÉ */
+  /* ================= MOT DE PASSE OUBLIÉ ================= */
   forgotPassword.onclick = async () => {
     const email = emailInput.value.trim();
     if (!email) {
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alert("📩 Un email de réinitialisation a été envoyé !");
   };
 
-  /* AUTH */
+  /* ================= AUTH ================= */
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
 
@@ -456,43 +456,61 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // CRÉER LE PROFIL IMMÉDIATEMENT
+    if (signUpData?.user?.id) {
+      const { error: insertError } = await supabase.from('profiles').insert({
+        id: signUpData.user.id,
+        username: username || "Utilisateur",
+        email: email,
+        is_acheteur: true,
+        is_vendeur: true,
+        wallet_balance: 10000, // ⚡ 10 000 FCFA par défaut
+        premium_level: 0,
+        premium_start: null,
+        premium_end: null,
+        created_at: new Date().toISOString(),
+        last_seen: new Date().toISOString()
+      });
+
+      if (insertError) {
+        console.error("Erreur création profil :", insertError);
+        errorMsg.textContent = "Erreur lors de la création du profil.";
+        return;
+      }
+    }
+
     alert("✅ Compte créé ! Tu peux maintenant te connecter.");
     sidebar.classList.remove('open');
   };
 
-  /* PROFILE AUTO CREATE après connexion */
+  /* ================= PROFILE AUTO CREATE (sécuritaire) ================= */
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event !== "SIGNED_IN" || !session?.user) return;
 
     const user = session.user;
 
-    // Vérifie si le profil existe déjà
-    const { data: existingProfile, error: fetchError } = await supabase
+    const { data: existingProfile } = await supabase
       .from("profiles")
       .select("id")
       .eq("id", user.id)
       .single();
 
-    if (fetchError && fetchError.code !== "PGRST116") {
-      console.error("Erreur vérification profil :", fetchError);
-      return;
+    if (!existingProfile) {
+      // Crée profil si jamais il manque encore
+      await supabase.from("profiles").insert({
+        id: user.id,
+        username: user.user_metadata?.username || "Utilisateur",
+        email: user.email,
+        is_acheteur: true,
+        is_vendeur: true,
+        wallet_balance: 10000,
+        premium_level: 0,
+        premium_start: null,
+        premium_end: null,
+        created_at: new Date().toISOString(),
+        last_seen: new Date().toISOString()
+      });
     }
-    if (existingProfile) return;
-
-    // Crée le profil
-    const { error: insertError } = await supabase.from("profiles").insert({
-      id: user.id,
-      username: user.user_metadata?.username || "Utilisateur",
-      email: user.email,
-      is_acheteur: true,
-      is_vendeur: true,
-      wallet_balance: 0,
-      premium_level: 0,       // valeur par défaut
-      premium_start: null,
-      premium_end: null
-    });
-
-    if (insertError) console.error("Impossible de créer le profil :", insertError);
   });
 
 });
