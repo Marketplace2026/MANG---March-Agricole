@@ -256,88 +256,87 @@ input{
 </div>
 
   
-  <script type="module">
+        <script type="module">
 import { supabase } from './supabase.js';
+import { PDFDocument, StandardFonts, rgb } from 'https://cdn.skypack.dev/pdf-lib';
 
-let currentUser=null;
-let walletChart=null;
+let currentUser = null;
+let walletChart = null;
 
-/* ====================== LOAD USER ====================== */
+/* ======================
+LOAD USER
+====================== */
+async function loadUser() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) { location.href = "login.html"; return; }
+  currentUser = user;
 
-async function loadUser(){
-  const { data:{user} } = await supabase.auth.getUser();
-  if(!user){location.href="login.html";return;}
-  currentUser=user;
+  document.getElementById("userEmail").innerText = user.email;
 
-  document.getElementById("userEmail").innerText=user.email;
-
-  document.getElementById("filterType")
-  ?.addEventListener("change",loadTransactions);
+  // Filtre par type
+  const filter = document.getElementById("filterType");
+  if (filter) filter.addEventListener("change", loadTransactions);
 
   loadWallet();
 }
 
-/* ====================== LOAD WALLET ====================== */
-
-async function loadWallet(){
+/* ======================
+LOAD WALLET
+====================== */
+async function loadWallet() {
   const { data } = await supabase
-  .from("profiles")
-  .select("wallet_balance")
-  .eq("id",currentUser.id)
-  .single();
+    .from("profiles")
+    .select("wallet_balance")
+    .eq("id", currentUser.id)
+    .single();
 
-  document.getElementById("balance")
-  .innerText=formatMoney(data?.wallet_balance||0);
+  document.getElementById("balance").innerText = formatMoney(data?.wallet_balance || 0);
 
   loadTransactions();
 }
 
-/* ====================== LOAD TRANSACTIONS ====================== */
+/* ======================
+LOAD TRANSACTIONS
+====================== */
+async function loadTransactions() {
+  const filter = document.getElementById("filterType")?.value || "";
 
-async function loadTransactions(){
+  let query = supabase
+    .from("wallet_transactions")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending: false });
 
-  const filter=document.getElementById("filterType")?.value || "";
+  if (filter) query = query.ilike("type", `%${filter}%`);
 
-  let query=supabase
-  .from("wallet_transactions")
-  .select("*")
-  .eq("user_id",currentUser.id)
-  .order("created_at",{ascending:false});
+  const { data, error } = await query;
+  const container = document.getElementById("transactions");
+  container.innerHTML = "";
 
-  if(filter){
-    query=query.ilike("type",`%${filter}%`);
-  }
-
-  const { data,error }=await query;
-
-  const container=document.getElementById("transactions");
-  container.innerHTML="";
-
-  if(error || !data || data.length===0){
-    container.innerHTML=`<div class="empty">Aucune transaction</div>`;
-    renderChart(0,0);
+  if (error || !data || data.length === 0) {
+    container.innerHTML = `<div class="empty">Aucune transaction</div>`;
+    renderChart(0, 0);
     return;
   }
 
-  let totalIn=0;
-  let totalOut=0;
+  let totalIn = 0;
+  let totalOut = 0;
 
-  data.forEach(tx=>{
+  data.forEach(tx => {
+    const isCredit = isPositive(tx);
+    const amount = Math.abs(Number(tx.amount));
 
-    const isCredit=isPositive(tx);
-    const amount=Math.abs(Number(tx.amount));
+    if (isCredit) totalIn += amount;
+    else totalOut += amount;
 
-    if(isCredit) totalIn+=amount;
-    else totalOut+=amount;
+    const sign = isCredit ? "+" : "-";
+    const color = isCredit ? "#00e676" : "#ff5252";
 
-    const sign=isCredit?"+":"-";
-    const color=isCredit?"#00e676":"#ff5252";
+    const div = document.createElement("div");
+    div.className = "transaction";
+    div.style.cursor = "pointer";
 
-    const div=document.createElement("div");
-    div.className="transaction";
-    div.style.cursor="pointer";
-
-    div.innerHTML=`
+    div.innerHTML = `
       <div>
         <strong>${getTitle(tx)}</strong><br>
         <small>${new Date(tx.created_at).toLocaleString()}</small><br>
@@ -349,180 +348,155 @@ async function loadTransactions(){
       </div>
     `;
 
-    div.onclick=()=>showTransactionDetail(tx);
+    div.onclick = () => showTransactionDetail(tx);
     container.appendChild(div);
   });
 
-  renderChart(totalIn,totalOut);
+  renderChart(totalIn, totalOut);
 }
 
-/* ====================== CREDIT LOGIC ====================== */
-
-function isPositive(tx){
-  const type=tx.type?.toLowerCase()||"";
-
-  return type.includes("deposit")
-      || type.includes("refund");
+/* ======================
+CREDIT LOGIC
+====================== */
+function isPositive(tx) {
+  const type = tx.type?.toLowerCase() || "";
+  return type.includes("deposit") || type.includes("refund");
 }
 
-/* ====================== TITRE ====================== */
+/* ======================
+GET TITLE
+====================== */
+function getTitle(tx) {
+  const type = tx.type?.toLowerCase() || "";
+  const desc = tx.description?.toLowerCase() || "";
 
-function getTitle(tx){
-  const type=tx.type?.toLowerCase()||"";
-  const desc=tx.description?.toLowerCase()||"";
-
-  if(type.includes("deposit")) return "Rechargement Mobile Money";
-  if(type.includes("withdraw")) return "Retrait Mobile Money";
-  if(type.includes("premium")||desc.includes("premium"))
-    return "Abonnement Premium MANG";
-  if(type.includes("purchase"))
-    return tx.description || "Paiement produit";
-  if(type.includes("transfer"))
-    return "Transfert utilisateur";
+  if (type.includes("deposit")) return "Rechargement Mobile Money";
+  if (type.includes("withdraw")) return "Retrait Mobile Money";
+  if (type.includes("premium") || desc.includes("premium")) return "Abonnement Premium MANG";
+  if (type.includes("purchase")) return tx.description || "Paiement produit";
+  if (type.includes("transfer")) return "Transfert utilisateur";
 
   return "Transaction";
 }
 
-/* ====================== FORMAT ====================== */
-
-function formatMoney(amount){
-  return Number(amount).toLocaleString("fr-FR");
+/* ======================
+FORMAT MONEY
+====================== */
+function formatMoney(amount) {
+  return Number(amount || 0).toLocaleString("fr-FR");
 }
 
-/* ====================== BADGE ====================== */
-
-function statusBadge(status){
-  if(!status) return badge("Validé","#00c853");
-  if(status==="pending") return badge("En attente","#ff9800");
-  if(status==="failed") return badge("Échoué","#ff5252");
-  return badge("Validé","#00c853");
+/* ======================
+STATUS BADGE
+====================== */
+function statusBadge(status) {
+  if (!status) return badge("Validé", "#00c853");
+  if (status === "pending") return badge("En attente", "#ff9800");
+  if (status === "failed") return badge("Échoué", "#ff5252");
+  return badge("Validé", "#00c853");
 }
 
-function badge(text,color){
-  return `<span style="
-    background:${color};
-    color:white;
-    padding:4px 8px;
-    border-radius:6px;
-    font-size:11px;">
-    ${text}
-  </span>`;
+function badge(text, color) {
+  return `<span style="background:${color};color:white;padding:4px 8px;border-radius:6px;font-size:11px;">${text}</span>`;
 }
 
-/* ====================== DETAIL ====================== */
+/* ======================
+DETAIL MODAL
+====================== */
+window.showTransactionDetail = function(tx) {
+  const isCredit = isPositive(tx);
+  const amount = Math.abs(Number(tx.amount));
+  const sign = isCredit ? "+" : "-";
+  const color = isCredit ? "#00e676" : "#ff5252";
 
-window.showTransactionDetail=function(tx){
-
-  const isCredit=isPositive(tx);
-  const amount=Math.abs(Number(tx.amount));
-  const sign=isCredit?"+":"-";
-  const color=isCredit?"#00e676":"#ff5252";
-
-  const detail=document.getElementById("transactionDetails");
-
-  detail.innerHTML=`
+  const detail = document.getElementById("transactionDetails");
+  detail.innerHTML = `
     <h4>${getTitle(tx)}</h4>
-
-    <div style="font-size:22px;font-weight:700;color:${color}">
-      ${sign}${formatMoney(amount)} FCFA
-    </div>
-
+    <div style="font-size:22px;font-weight:700;color:${color}">${sign}${formatMoney(amount)} FCFA</div>
     <hr>
-
-    <p><strong>Date :</strong><br>
-    ${new Date(tx.created_at).toLocaleString()}</p>
-
-    <p><strong>Statut :</strong><br>
-    ${tx.status||"Validé"}</p>
-
-    <button onclick="downloadReceipt('${tx.id}')"
-    style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
-    Télécharger PDF
+    <p><strong>Date :</strong><br>${new Date(tx.created_at).toLocaleString()}</p>
+    <p><strong>Statut :</strong><br>${tx.status || "Validé"}</p>
+    ${tx.operator ? `<p><strong>Opérateur :</strong><br>${tx.operator}</p>` : ""}
+    ${tx.phone ? `<p><strong>Numéro :</strong><br>${tx.phone}</p>` : ""}
+    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
+    <button onclick='downloadReceiptPDF(${JSON.stringify(tx)})' style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
+      Télécharger PDF
     </button>
   `;
 
-  document.getElementById("detailModal").style.display="flex";
+  document.getElementById("detailModal").style.display = "flex";
+};
+
+window.closeDetail = function() {
+  document.getElementById("detailModal").style.display = "none";
+};
+
+/* ======================
+USAGE DESCRIPTION
+====================== */
+function getUsage(tx) {
+  const desc = tx.description?.toLowerCase() || "";
+  if (tx.type === "deposit") return "Rechargement de votre portefeuille via Mobile Money.";
+  if (tx.type === "withdraw") return "Retrait envoyé vers votre numéro Mobile Money.";
+  if (tx.type === "premium" || desc.includes("premium")) return "Paiement pour activation de votre abonnement Premium.";
+  if (tx.type === "purchase") return tx.description ? `Paiement pour : ${tx.description}` : "Paiement d’un produit.";
+  if (tx.type === "transfer") return "Transfert vers un autre utilisateur.";
+  return "Transaction enregistrée.";
 }
 
-window.closeDetail=function(){
-  document.getElementById("detailModal").style.display="none";
-}
+/* ======================
+CHART
+====================== */
+function renderChart(totalIn, totalOut) {
+  const ctx = document.getElementById("walletChart");
+  if (!ctx) return;
+  if (walletChart) walletChart.destroy();
 
-/* ====================== CHART ====================== */
-
-function renderChart(totalIn,totalOut){
-
-  const ctx=document.getElementById("walletChart");
-  if(!ctx) return;
-
-  if(walletChart) walletChart.destroy();
-
-  walletChart=new Chart(ctx,{
-    type:"doughnut",
-    data:{
-      labels:["Entrées","Sorties"],
-      datasets:[{
-        data:[totalIn,totalOut],
-        backgroundColor:["#00e676","#ff5252"]
+  walletChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Entrées", "Sorties"],
+      datasets: [{
+        data: [totalIn, totalOut],
+        backgroundColor: ["#00e676", "#ff5252"]
       }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: "white" } } }
     }
   });
 }
 
-/* ====================== PDF RECEIPT ====================== */
+/* ======================
+PDF RECEIPT CLIENT
+====================== */
+window.downloadReceiptPDF = async function(tx) {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([500, 600]);
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-window.downloadReceipt = async function(id) {
-  try {
-    // 1️⃣ Récupérer les données de la transaction depuis Supabase
-    const { data, error } = await supabase
-      .from("wallet_transactions")
-      .select("*")
-      .eq("id", id)
-      .single();
+  const text = `
+REÇU OFFICIEL - MANG
 
-    if (error || !data) {
-      alert("Impossible de récupérer la transaction.");
-      console.error(error);
-      return;
-    }
+Type: ${getTitle(tx)}
+Montant: ${formatMoney(tx.amount)} FCFA
+Date: ${new Date(tx.created_at).toLocaleString()}
+Statut: ${tx.status || "Validé"}
+Détail: ${getUsage(tx)}
+`;
 
-    // 2️⃣ Appeler la fonction Edge pour générer le PDF
-    const response = await fetch(
-      "https://czbqmzclcxitxxfydadl.functions.supabase.co/generate-receipt",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Si nécessaire : "apikey": "<SERVICE_ROLE_KEY>"
-        },
-        body: JSON.stringify({ transaction: data })
-      }
-    );
+  page.drawText(text, { x: 50, y: 550, font, size: 14, color: rgb(0, 0, 0), lineHeight: 18 });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Erreur génération PDF : ${text}`);
-    }
-
-    // 3️⃣ Récupérer le PDF en blob
-    const blob = await response.blob();
-
-    // 4️⃣ Créer un lien de téléchargement
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = `recu_MANG_${data.id}.pdf`; // nom du fichier
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url); // libérer la mémoire
-
-  } catch (err) {
-    console.error(err);
-    alert("Impossible de générer le reçu PDF. Vérifiez la console pour plus de détails.");
-  }
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `recu_MANG_${tx.id}.pdf`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 };
+
 loadUser();
-</script>
+        </script>
 </body>
 </html>
