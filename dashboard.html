@@ -472,46 +472,49 @@ function renderChart(totalIn,totalOut){
 /* ====================== PDF RECEIPT ====================== */
 
 window.downloadReceipt = async function(id) {
-
-  // 🔹 Récupère la transaction dans Supabase
-  const { data, error } = await supabase
-    .from("wallet_transactions")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !data) {
-    alert("Transaction introuvable !");
-    return;
-  }
-
   try {
-    // 🔹 Appel de la fonction Edge pour générer le reçu PDF
+    // 🔹 Récupérer la transaction depuis Supabase
+    const { data, error } = await supabase
+      .from("wallet_transactions")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !data) {
+      alert("Impossible de récupérer la transaction.");
+      console.error("Erreur transaction:", error);
+      return;
+    }
+
+    // 🔹 Appel de l'Edge Function pour générer le PDF
     const response = await fetch(
-      "https://czbqmzclcxitxxfydadl.supabase.co/functions/v1/generate-receipt",
+      "https://czbqmzclcxitxxfydadl.functions.supabase.co/generate-receipt",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          transaction: data
-        })
+        body: JSON.stringify({ transaction: data })
       }
     );
 
-    if (!response.ok) throw new Error("Erreur lors de la génération du reçu");
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Erreur lors de la génération du reçu: ${text}`);
+    }
 
     const result = await response.json();
 
-    if (!result.url) throw new Error("URL du reçu introuvable");
+    if (!result.url) {
+      throw new Error("URL du reçu non disponible.");
+    }
 
-    // 🔥 Ouvre le PDF dans un nouvel onglet
+    // 🔹 Ouvre le PDF dans un nouvel onglet
     window.open(result.url, "_blank");
 
   } catch (err) {
     console.error(err);
-    alert("Impossible de générer le reçu PDF : " + err.message);
+    alert("Impossible de générer le reçu PDF. Vérifie la console pour plus de détails.");
   }
 };
 loadUser();
