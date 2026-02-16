@@ -192,6 +192,79 @@ input{
   letter-spacing: 3px;
   margin-bottom: 10px;
 }
+  
+  .modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.send-btn {
+  padding: 12px 18px;
+  background: #1e8e3e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-bottom:25px;
+}
+
+.receiver-info {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: green;
+}
+
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #1e8e3e;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 10px auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+  #openTransferModal{
+    margin-bottom:25px;
+  }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -250,23 +323,30 @@ input{
   💸 Envoyer de l'argent
 </button>
   
-  <!-- MODAL TRANSFERT -->
-<div id="transferModal" class="modal" style="display:none;">
-  <div class="modal-content">
+ <!-- MODAL TRANSFERT -->
+<div id="transferModal" class="modal">
+  <div class="modal-content slide-up">
 
     <span class="close" onclick="closeTransferModal()">&times;</span>
 
     <h3>Transférer de l'argent</h3>
 
     <input type="text" id="receiverNumber" placeholder="Numéro du portefeuille" maxlength="10">
+    
+    <div id="receiverInfo" class="receiver-info"></div>
+
     <input type="number" id="transferAmount" placeholder="Montant">
     <input type="password" id="transferPin" placeholder="Votre PIN" maxlength="4">
 
-    <button onclick="sendMoney()">Envoyer</button>
+    <button id="confirmTransferBtn" onclick="confirmTransfer()">
+      Envoyer
+    </button>
+
+    <div id="transferLoader" class="loader" style="display:none;"></div>
 
   </div>
 </div>
-  
+
   <div class="card">
     <h3>Historique</h3>
     <div style="margin:15px 0;display:flex;gap:10px;flex-wrap:wrap">
@@ -613,60 +693,86 @@ window.closeDetail = () => {
 
 function closeTransferModal() {
   document.getElementById("transferModal").style.display = "none";
+  document.getElementById("receiverInfo").innerHTML = "";
 }
 
-// Attacher bouton
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("openTransferModal");
   if (btn) btn.addEventListener("click", openTransferModal);
 });
 
-// rendre global si module
-window.closeTransferModal = closeTransferModal;
+// 🔎 Vérifier destinataire automatiquement
+document.addEventListener("input", async (e) => {
+  if (e.target.id === "receiverNumber") {
+
+    const number = e.target.value.trim();
+    if (number.length < 6) return;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("email, wallet_number")
+      .eq("wallet_number", number)
+      .single();
+
+    const info = document.getElementById("receiverInfo");
+
+    if (data) {
+      info.innerHTML = "Destinataire : <b>" + data.email + "</b>";
+    } else {
+      info.innerHTML = "Numéro introuvable";
+    }
+  }
+});
   
-  async function sendMoney() {
+  async function confirmTransfer() {
 
-  const receiverNumber = document.getElementById("receiverNumber").value.trim();
-  const amount = parseFloat(document.getElementById("transferAmount").value);
-  const pin = document.getElementById("transferPin").value.trim();
+  if (!confirm("Êtes-vous sûr de vouloir effectuer ce transfert ?")) return;
 
-  if (!receiverNumber || !amount || !pin) {
-    alert("Veuillez remplir tous les champs");
-    return;
-  }
+  await sendMoney();
+}
 
-  if (amount <= 0) {
-    alert("Montant invalide");
-    return;
-  }
+async function sendMoney() {
+
+  const loader = document.getElementById("transferLoader");
+  loader.style.display = "block";
 
   try {
 
+    const receiverNumber = document
+      .getElementById("receiverNumber")
+      .value.replace(/\s/g, "") // 🔥 supprimer espaces
+      .trim();
+
+    const amount = parseFloat(
+      document.getElementById("transferAmount").value
+    );
+
+    const pin = document
+      .getElementById("transferPin")
+      .value
+      .trim();
+
+    if (!receiverNumber || !amount || !pin) {
+      throw new Error("Veuillez remplir tous les champs");
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 🔎 Récupérer l'expéditeur
+    // 🔎 Récupérer expéditeur
     const { data: sender, error: senderError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
       .single();
 
-    if (senderError || !sender) {
-      alert("Erreur utilisateur");
-      return;
-    }
+    if (senderError || !sender)
+      throw new Error("Utilisateur introuvable");
 
-    // 🔐 Vérifier PIN
-    if (sender.pin !== pin) {
-      alert("PIN incorrect");
-      return;
-    }
+    if (sender.pin !== pin)
+      throw new Error("PIN incorrect");
 
-    // 💰 Vérifier solde
-    if (sender.wallet_balance < amount) {
-      alert("Solde insuffisant");
-      return;
-    }
+    if (sender.wallet_balance < amount)
+      throw new Error("Solde insuffisant");
 
     // 🔎 Récupérer destinataire
     const { data: receiver, error: receiverError } = await supabase
@@ -675,30 +781,32 @@ window.closeTransferModal = closeTransferModal;
       .eq("wallet_number", receiverNumber)
       .single();
 
-    if (receiverError || !receiver) {
-      alert("Numéro de portefeuille introuvable");
-      return;
-    }
+    if (receiverError || !receiver)
+      throw new Error("Numéro introuvable");
 
-    if (receiver.id === sender.id) {
-      alert("Vous ne pouvez pas vous envoyer de l'argent");
-      return;
-    }
+    if (receiver.id === sender.id)
+      throw new Error("Auto-transfert interdit");
 
-    // 💸 Mise à jour solde expéditeur
-    await supabase
+    // 💸 Mise à jour expéditeur
+    const { error: debitError } = await supabase
       .from("profiles")
       .update({ wallet_balance: sender.wallet_balance - amount })
       .eq("id", sender.id);
 
-    // 💸 Mise à jour solde destinataire
-    await supabase
+    if (debitError)
+      throw new Error("Erreur débit");
+
+    // 💸 Mise à jour destinataire
+    const { error: creditError } = await supabase
       .from("profiles")
       .update({ wallet_balance: receiver.wallet_balance + amount })
       .eq("id", receiver.id);
 
-    // 🧾 Enregistrer transaction
-    await supabase
+    if (creditError)
+      throw new Error("Erreur crédit");
+
+    // 🧾 Historique
+    const { error: historyError } = await supabase
       .from("wallet_transactions")
       .insert([
         {
@@ -711,26 +819,26 @@ window.closeTransferModal = closeTransferModal;
           user_id: receiver.id,
           amount: amount,
           type: "transfer_received",
-          description: "Transfert reçu de " + sender.wallet_number
+          description: "Transfert reçu"
         }
       ]);
 
+    if (historyError)
+      console.error("Erreur historique:", historyError);
+
     alert("Transfert réussi !");
 
-    // 🔄 Reset champs
-    document.getElementById("receiverNumber").value = "";
-    document.getElementById("transferAmount").value = "";
-    document.getElementById("transferPin").value = "";
-
-    // 🔄 Recharger wallet
+    closeTransferModal();
     loadWallet();
 
   } catch (err) {
-    console.error("Erreur transfert:", err);
-    alert("Erreur lors du transfert");
+    alert(err.message);
   }
-}
 
+  loader.style.display = "none";
+}
+window.closeTransferModal = closeTransferModal;
+  window.confirmTransfer = confirmTransfer;
 window.sendMoney = sendMoney;
 /* ======================
 USAGE DESCRIPTION
