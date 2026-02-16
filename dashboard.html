@@ -226,6 +226,17 @@ input{
     </div>
   </div>
 
+  <!-- MODAL CREATION PIN -->
+<div class="modal" id="createPinModal">
+  <div class="modal-content">
+    <h3>Créer votre PIN de sécurité</h3>
+    <p style="font-size:13px;margin-bottom:10px;">
+      Ce code sera demandé pour chaque transfert.
+    </p>
+    <input type="password" id="newPin" placeholder="PIN à 4 chiffres" maxlength="4">
+    <button onclick="createPin()">Créer PIN</button>
+  </div>
+</div>
 
 <div class="wallet-box">
   <h3>Mon numéro de portefeuille</h3>
@@ -348,14 +359,22 @@ async function loadWallet() {
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .select("wallet_balance, wallet_number")
+      .select("wallet_balance, wallet_number, pin")
       .eq("id", currentUser.id)
       .single();
 
     if (error) throw error;
+    if (!data) return;
 
-    const balance = data?.wallet_balance || 0;
-    const walletNumber = data?.wallet_number || "";
+    // 🔐 Vérifier si le PIN existe
+    if (!data.pin) {
+      const modal = document.getElementById("createPinModal");
+      if (modal) modal.style.display = "flex";
+      return; // ⛔ Stop ici tant que PIN non créé
+    }
+
+    const balance = data.wallet_balance || 0;
+    const walletNumber = data.wallet_number || "";
 
     // ===== Solde principal =====
     const balanceMain = document.getElementById("balance");
@@ -390,10 +409,53 @@ async function loadWallet() {
 
 
 /* ======================
+   CREATE PIN
+===================== */
+async function createPin() {
+
+  const pinInput = document.getElementById("newPin");
+  if (!pinInput) return;
+
+  const pin = pinInput.value.trim();
+
+  if (pin.length !== 4 || isNaN(pin)) {
+    alert("Le PIN doit contenir exactement 4 chiffres");
+    return;
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ pin: pin })
+      .eq("id", user.id);
+
+    if (error) throw error;
+
+    const modal = document.getElementById("createPinModal");
+    if (modal) modal.style.display = "none";
+
+    alert("PIN créé avec succès !");
+
+    // 🔄 Recharger wallet après création
+    loadWallet();
+
+  } catch (err) {
+    console.error("Erreur création PIN:", err);
+    alert("Erreur lors de la création du PIN");
+  }
+}
+
+// IMPORTANT si tu utilises type="module"
+window.createPin = createPin;
+
+
+/* ======================
    START
 ===================== */
 document.addEventListener("DOMContentLoaded", loadUser);
-/* ======================
+ /* ======================
 LOAD TRANSACTIONS
 ===================== */
 async function loadTransactions() {
