@@ -177,12 +177,13 @@ input{
   cursor:pointer;
   font-weight:600;
 }
-  .wallet-box {
-  background: #0f3d2e;
-  padding: 20px;
-  border-radius: 12px;
-  color: white;
-  width: 320px;
+   .wallet-box {
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:25px;
+  margin-bottom:25px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.3);
 }
 
 #walletNumber {
@@ -226,15 +227,14 @@ input{
   </div>
 
 
-  <div class="wallet-box">
+<div class="wallet-box">
   <h3>Mon numéro de portefeuille</h3>
   <div id="walletNumber">Chargement...</div>
 
   <button onclick="copyWalletNumber()">Copier</button>
 
-  <h3>Solde</h3>
-  <div id="walletBalance">0 FCFA</div>
   </div>
+ 
   
   <div class="card">
     <h3>Historique</h3>
@@ -289,36 +289,110 @@ let currentUser = null;
 let walletChart = null;
 
 /* ======================
-LOAD USER
+   LOAD USER
 ===================== */
 async function loadUser() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { location.href = "login.html"; return; }
-  currentUser = user;
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-  document.getElementById("userEmail").innerText = user.email;
+    if (error || !user) {
+      location.href = "login.html";
+      return;
+    }
 
-  // Filtre par type
-  const filter = document.getElementById("filterType");
-  if (filter) filter.addEventListener("change", loadTransactions);
+    currentUser = user;
 
-  loadWallet();
+    const emailEl = document.getElementById("userEmail");
+    if (emailEl) emailEl.innerText = user.email;
+
+    const filter = document.getElementById("filterType");
+    if (filter) {
+      filter.addEventListener("change", loadTransactions);
+    }
+
+    await loadWallet();
+
+  } catch (err) {
+    console.error("Erreur loadUser:", err);
+  }
 }
+function copyWalletNumber() {
+  const el = document.getElementById("walletNumber");
+  if (!el) return;
+
+  const number = el.textContent.replace(/\s/g, "");
+
+  if (!number || number === "Non disponible") {
+    alert("Numéro indisponible");
+    return;
+  }
+
+  navigator.clipboard.writeText(number)
+    .then(() => {
+      alert("Numéro copié !");
+    })
+    .catch(() => {
+      alert("Impossible de copier.");
+    });
+}
+
+// RENDRE LA FONCTION GLOBALE
+window.copyWalletNumber = copyWalletNumber;
 
 /* ======================
-LOAD WALLET
+   LOAD WALLET
 ===================== */
 async function loadWallet() {
-  const { data } = await supabase
-    .from("profiles")
-    .select("wallet_balance")
-    .eq("id", currentUser.id)
-    .single();
+  if (!currentUser) return;
 
-  document.getElementById("balance").innerText = formatMoney(data?.wallet_balance || 0);
-  loadTransactions();
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("wallet_balance, wallet_number")
+      .eq("id", currentUser.id)
+      .single();
+
+    if (error) throw error;
+
+    const balance = data?.wallet_balance || 0;
+    const walletNumber = data?.wallet_number || "";
+
+    // ===== Solde principal =====
+    const balanceMain = document.getElementById("balance");
+    if (balanceMain) {
+      balanceMain.innerText = formatMoney(balance);
+    }
+
+    // ===== Solde secondaire =====
+    const walletBalanceEl = document.getElementById("walletBalance");
+    if (walletBalanceEl) {
+      walletBalanceEl.textContent =
+        Number(balance).toLocaleString() + " FCFA";
+    }
+
+    // ===== Numéro portefeuille =====
+    const walletNumberEl = document.getElementById("walletNumber");
+    if (walletNumberEl) {
+      if (walletNumber.length > 0) {
+        const formatted = walletNumber.replace(/(\d{2})(?=\d)/g, "$1 ");
+        walletNumberEl.textContent = formatted;
+      } else {
+        walletNumberEl.textContent = "Non disponible";
+      }
+    }
+
+    await loadTransactions();
+
+  } catch (err) {
+    console.error("Erreur loadWallet:", err);
+  }
 }
 
+
+/* ======================
+   START
+===================== */
+document.addEventListener("DOMContentLoaded", loadUser);
 /* ======================
 LOAD TRANSACTIONS
 ===================== */
