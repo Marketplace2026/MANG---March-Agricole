@@ -177,7 +177,7 @@ input{
   cursor:pointer;
   font-weight:600;
 }
-   .wallet-box {
+  .wallet-box {
   background:rgba(255,255,255,0.08);
   backdrop-filter:blur(15px);
   border-radius:20px;
@@ -237,15 +237,35 @@ input{
     <button onclick="createPin()">Créer PIN</button>
   </div>
 </div>
-
-<div class="wallet-box">
+  
+  <div class="wallet-box">
   <h3>Mon numéro de portefeuille</h3>
   <div id="walletNumber">Chargement...</div>
 
   <button onclick="copyWalletNumber()">Copier</button>
 
   </div>
- 
+  
+ <button id="openTransferModal" class="send-btn">
+  💸 Envoyer de l'argent
+</button>
+  
+  <!-- MODAL TRANSFERT -->
+<div id="transferModal" class="modal" style="display:none;">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeTransferModal()">&times;</span>
+
+    <h3>Transférer de l'argent</h3>
+
+    <input type="text" id="receiverNumber" placeholder="Numéro du portefeuille" maxlength="10">
+    <input type="number" id="transferAmount" placeholder="Montant">
+    <input type="password" id="transferPin" placeholder="Votre PIN" maxlength="4">
+
+    <button onclick="sendMoney()">Envoyer</button>
+
+  </div>
+</div>
   
   <div class="card">
     <h3>Historique</h3>
@@ -266,7 +286,7 @@ input{
 
 </div>
 
-<!-- MODAL -->
+ <!-- MODAL -->
 <div class="modal" id="paymentModal">
   <div class="modal-content">
     <h3 id="modalTitle"></h3>
@@ -327,6 +347,7 @@ async function loadUser() {
     console.error("Erreur loadUser:", err);
   }
 }
+
 function copyWalletNumber() {
   const el = document.getElementById("walletNumber");
   if (!el) return;
@@ -349,7 +370,7 @@ function copyWalletNumber() {
 
 // RENDRE LA FONCTION GLOBALE
 window.copyWalletNumber = copyWalletNumber;
-
+  
 /* ======================
    LOAD WALLET
 ===================== */
@@ -455,7 +476,7 @@ window.createPin = createPin;
    START
 ===================== */
 document.addEventListener("DOMContentLoaded", loadUser);
- /* ======================
+/* ======================
 LOAD TRANSACTIONS
 ===================== */
 async function loadTransactions() {
@@ -586,40 +607,131 @@ window.closeDetail = () => {
   document.getElementById("detailModal").style.display = "none";
 };
 
-          async function loadWallet() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  function openTransferModal() {
+  document.getElementById("transferModal").style.display = "flex";
+}
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("wallet_number, wallet_balance")
-    .eq("id", user.id)
-    .single();
+function closeTransferModal() {
+  document.getElementById("transferModal").style.display = "none";
+}
 
-  if (error) {
-    console.error(error);
+// Attacher bouton
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("openTransferModal");
+  if (btn) btn.addEventListener("click", openTransferModal);
+});
+
+// rendre global si module
+window.closeTransferModal = closeTransferModal;
+  
+  async function sendMoney() {
+
+  const receiverNumber = document.getElementById("receiverNumber").value.trim();
+  const amount = parseFloat(document.getElementById("transferAmount").value);
+  const pin = document.getElementById("transferPin").value.trim();
+
+  if (!receiverNumber || !amount || !pin) {
+    alert("Veuillez remplir tous les champs");
     return;
   }
 
-  // Formater numéro (12 34 56 78 90)
-  const formattedNumber = data.wallet_number.replace(/(\d{2})(?=\d)/g, "$1 ");
+  if (amount <= 0) {
+    alert("Montant invalide");
+    return;
+  }
 
-  document.getElementById("walletNumber").textContent = formattedNumber;
-  document.getElementById("walletBalance").textContent =
-    Number(data.wallet_balance).toLocaleString() + " FCFA";
-}
+  try {
 
-loadWallet();
+    const { data: { user } } = await supabase.auth.getUser();
 
-          function copyWalletNumber() {
-  const number = document
-    .getElementById("walletNumber")
-    .textContent.replace(/\s/g, "");
+    // 🔎 Récupérer l'expéditeur
+    const { data: sender, error: senderError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
 
-  navigator.clipboard.writeText(number);
-  alert("Numéro copié !");
+    if (senderError || !sender) {
+      alert("Erreur utilisateur");
+      return;
     }
 
+    // 🔐 Vérifier PIN
+    if (sender.pin !== pin) {
+      alert("PIN incorrect");
+      return;
+    }
+
+    // 💰 Vérifier solde
+    if (sender.wallet_balance < amount) {
+      alert("Solde insuffisant");
+      return;
+    }
+
+    // 🔎 Récupérer destinataire
+    const { data: receiver, error: receiverError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("wallet_number", receiverNumber)
+      .single();
+
+    if (receiverError || !receiver) {
+      alert("Numéro de portefeuille introuvable");
+      return;
+    }
+
+    if (receiver.id === sender.id) {
+      alert("Vous ne pouvez pas vous envoyer de l'argent");
+      return;
+    }
+
+    // 💸 Mise à jour solde expéditeur
+    await supabase
+      .from("profiles")
+      .update({ wallet_balance: sender.wallet_balance - amount })
+      .eq("id", sender.id);
+
+    // 💸 Mise à jour solde destinataire
+    await supabase
+      .from("profiles")
+      .update({ wallet_balance: receiver.wallet_balance + amount })
+      .eq("id", receiver.id);
+
+    // 🧾 Enregistrer transaction
+    await supabase
+      .from("wallet_transactions")
+      .insert([
+        {
+          user_id: sender.id,
+          amount: -amount,
+          type: "transfer_sent",
+          description: "Transfert vers " + receiver.wallet_number
+        },
+        {
+          user_id: receiver.id,
+          amount: amount,
+          type: "transfer_received",
+          description: "Transfert reçu de " + sender.wallet_number
+        }
+      ]);
+
+    alert("Transfert réussi !");
+
+    // 🔄 Reset champs
+    document.getElementById("receiverNumber").value = "";
+    document.getElementById("transferAmount").value = "";
+    document.getElementById("transferPin").value = "";
+
+    // 🔄 Recharger wallet
+    loadWallet();
+
+  } catch (err) {
+    console.error("Erreur transfert:", err);
+    alert("Erreur lors du transfert");
+  }
+}
+
+window.sendMoney = sendMoney;
 /* ======================
 USAGE DESCRIPTION
 ===================== */
@@ -779,6 +891,7 @@ PDF RECEIPT CLIENT
     alert("Erreur génération reçu.");
   }
           }
+  
           loadUser();
         </script>
 </body>
