@@ -730,7 +730,6 @@ document.addEventListener("input", async (e) => {
 
   await sendMoney();
 }
-
 async function sendMoney() {
 
   const loader = document.getElementById("transferLoader");
@@ -740,7 +739,7 @@ async function sendMoney() {
 
     const receiverNumber = document
       .getElementById("receiverNumber")
-      .value.replace(/\s/g, "") // 🔥 supprimer espaces
+      .value.replace(/\s/g, "")
       .trim();
 
     const amount = parseFloat(
@@ -758,73 +757,14 @@ async function sendMoney() {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 🔎 Récupérer expéditeur
-    const { data: sender, error: senderError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+    const { error } = await supabase.rpc("transfer_money", {
+      sender_id: user.id,
+      receiver_wallet: receiverNumber,
+      transfer_amount: amount,
+      user_pin: pin
+    });
 
-    if (senderError || !sender)
-      throw new Error("Utilisateur introuvable");
-
-    if (sender.pin !== pin)
-      throw new Error("PIN incorrect");
-
-    if (sender.wallet_balance < amount)
-      throw new Error("Solde insuffisant");
-
-    // 🔎 Récupérer destinataire
-    const { data: receiver, error: receiverError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("wallet_number", receiverNumber)
-      .single();
-
-    if (receiverError || !receiver)
-      throw new Error("Numéro introuvable");
-
-    if (receiver.id === sender.id)
-      throw new Error("Auto-transfert interdit");
-
-    // 💸 Mise à jour expéditeur
-    const { error: debitError } = await supabase
-      .from("profiles")
-      .update({ wallet_balance: sender.wallet_balance - amount })
-      .eq("id", sender.id);
-
-    if (debitError)
-      throw new Error("Erreur débit");
-
-    // 💸 Mise à jour destinataire
-    const { error: creditError } = await supabase
-      .from("profiles")
-      .update({ wallet_balance: receiver.wallet_balance + amount })
-      .eq("id", receiver.id);
-
-    if (creditError)
-      throw new Error("Erreur crédit");
-
-    // 🧾 Historique
-    const { error: historyError } = await supabase
-      .from("wallet_transactions")
-      .insert([
-        {
-          user_id: sender.id,
-          amount: -amount,
-          type: "transfer_sent",
-          description: "Transfert vers " + receiver.wallet_number
-        },
-        {
-          user_id: receiver.id,
-          amount: amount,
-          type: "transfer_received",
-          description: "Transfert reçu"
-        }
-      ]);
-
-    if (historyError)
-      console.error("Erreur historique:", historyError);
+    if (error) throw error;
 
     alert("Transfert réussi !");
 
@@ -837,6 +777,8 @@ async function sendMoney() {
 
   loader.style.display = "none";
 }
+
+
 window.closeTransferModal = closeTransferModal;
   window.confirmTransfer = confirmTransfer;
 window.sendMoney = sendMoney;
