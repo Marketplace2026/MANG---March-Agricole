@@ -265,6 +265,15 @@ input{
   #openTransferModal{
     margin-bottom:25px;
   }
+  .amount.plus {
+  color: #00c853; /* vert */
+  font-weight: bold;
+}
+
+.amount.minus {
+  color: #ff3d00; /* rouge */
+  font-weight: bold;
+}
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -581,35 +590,39 @@ async function loadTransactions() {
   }
 
   let totalIn = 0;
-  let totalOut = 0;
+let totalOut = 0;
 
-  data.forEach(tx => {
-    const isCredit = isPositive(tx);
-    const amount = Math.abs(Number(tx.amount));
+data.forEach(tx => {
 
-    if (isCredit) totalIn += amount;
-    else totalOut += amount;
+  const amount = Number(tx.amount);
+  const isCredit = amount > 0; // 🔥 clé principale
 
-    const div = document.createElement("div");
-    div.className = "transaction";
-    div.style.cursor = "pointer";
+  const absAmount = Math.abs(amount);
 
-    div.innerHTML = `
-      <div>
-        <strong>${getTitle(tx)}</strong><br>
-        <small>${new Date(tx.created_at).toLocaleString()}</small><br>
-        ${statusBadge(tx.status)}
-      </div>
-      <div class="amount ${isCredit ? 'plus' : 'minus'}">
-        ${isCredit ? '+' : '-'}${formatMoney(amount)} FCFA
-      </div>
-    `;
+  if (isCredit) totalIn += absAmount;
+  else totalOut += absAmount;
 
-    div.onclick = () => showTransactionDetail(tx);
-    container.appendChild(div);
-  });
+  const div = document.createElement("div");
+  div.className = "transaction";
+  div.style.cursor = "pointer";
 
-  renderChart(totalIn, totalOut);
+  div.innerHTML = `
+    <div>
+      <strong>${getTitle(tx)}</strong><br>
+      <small>${new Date(tx.created_at).toLocaleString()}</small><br>
+      ${statusBadge(tx.status)}
+    </div>
+
+    <div class="amount ${isCredit ? 'plus' : 'minus'}">
+      ${isCredit ? '+' : '-'}${formatMoney(absAmount)} FCFA
+    </div>
+  `;
+
+  div.onclick = () => showTransactionDetail(tx);
+  container.appendChild(div);
+});
+
+renderChart(totalIn, totalOut);
 }
 
 /* ======================
@@ -819,11 +832,27 @@ async function generateHash(text) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
+          function loadImageBase64(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = url;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+  });
+          }
 /* ======================
 PDF RECEIPT CLIENT
 ===================== */
       async function downloadReceiptPDF(id) {
   try {
+
     const { data: tx, error } = await supabase
       .from("wallet_transactions")
       .select("*")
@@ -836,103 +865,135 @@ PDF RECEIPT CLIENT
     const doc = new jsPDF({ unit: "pt", format: "a4" });
 
     const primary = "#0b3d2e";
-    const accent = tx.type === "credit" ? "#16a34a" : "#dc2626";
+    const success = "#16a34a";
+    const danger = "#dc2626";
+
+    const isCredit = Number(tx.amount) > 0;
+    const accent = isCredit ? success : danger;
+
+    const cleanAmount = Math.abs(Number(tx.amount));
 
     /* ===== NUMÉRO OFFICIEL ===== */
-    const receiptNumber = `MANG-${new Date().getFullYear()}-${String(tx.id).padStart(6, "0")}`;
+    const receiptNumber =
+      `MANG-${new Date().getFullYear()}-${String(tx.id).padStart(6, "0")}`;
 
     /* ===== HASH SÉCURITÉ ===== */
-    const securityString = `${receiptNumber}|${tx.amount}|${tx.created_at}`;
+    const securityString =
+      `${receiptNumber}|${tx.amount}|${tx.created_at}`;
     const hash = await generateHash(securityString);
 
-    /* ===== HEADER ===== */
+    /* ===== HEADER FOND ===== */
     doc.setFillColor(primary);
-    doc.rect(0, 0, 595, 100, "F");
+    doc.rect(0, 0, 595, 110, "F");
+
+    /* ===== LOGO ===== */
+    const logo = await loadImageBase64("assets/img/logos.png");
+    doc.addImage(logo, "PNG", 40, 25, 60, 60);
 
     doc.setTextColor("#ffffff");
     doc.setFontSize(20);
-    doc.text("MANG WALLET", 40, 60);
+    doc.text("MANG WALLET", 120, 60);
 
     doc.setFontSize(11);
-    doc.text("Reçu Financier Sécurisé", 400, 60);
+    doc.text("Reçu Financier Officiel", 420, 60);
 
-    /* ===== CARTE BLANCHE ===== */
+    /* ===== CARTE PRINCIPALE ===== */
     doc.setFillColor("#ffffff");
-    doc.roundedRect(40, 140, 515, 360, 14, 14, "F");
+    doc.roundedRect(40, 150, 515, 400, 18, 18, "F");
 
     doc.setDrawColor(220);
-    doc.roundedRect(40, 140, 515, 360, 14, 14);
+    doc.roundedRect(40, 150, 515, 400, 18, 18);
+
+    /* ===== TITRE ===== */
+    doc.setFontSize(14);
+    doc.setTextColor("#333");
+    doc.text("Détails de la transaction", 60, 190);
 
     /* ===== MONTANT CENTRAL ===== */
-    doc.setFontSize(34);
+    doc.setFontSize(36);
     doc.setTextColor(accent);
     doc.text(
-      `${tx.type === "credit" ? "+" : "-"} ${Number(tx.amount).toLocaleString()} FCFA`,
+      `${isCredit ? "+" : "-"} ${cleanAmount.toLocaleString()} FCFA`,
       297,
-      220,
+      250,
       { align: "center" }
     );
 
-    /* ===== BADGE ===== */
+    /* ===== BADGE TYPE ===== */
     doc.setFillColor(accent);
-    doc.roundedRect(240, 235, 120, 30, 8, 8, "F");
+    doc.roundedRect(230, 270, 135, 30, 10, 10, "F");
 
     doc.setTextColor("#ffffff");
     doc.setFontSize(12);
-    doc.text(tx.type.toUpperCase(), 300, 255, { align: "center" });
+
+    const typeLabel =
+      tx.type === "transfer_received" ? "TRANSFERT REÇU"
+      : tx.type === "transfer_sent" ? "TRANSFERT ENVOYÉ"
+      : tx.type?.toUpperCase() || "TRANSACTION";
+
+    doc.text(typeLabel, 297, 290, { align: "center" });
 
     /* ===== INFOS ===== */
     doc.setTextColor("#333");
     doc.setFontSize(12);
 
-    let y = 300;
-    const gap = 30;
+    let y = 330;
+    const gap = 32;
 
-    doc.text("Numéro de reçu :", 70, y);
-    doc.text(receiptNumber, 230, y);
+    const infoLine = (label, value, offset) => {
+      doc.setFont(undefined, "bold");
+      doc.text(label, 70, y + gap * offset);
+      doc.setFont(undefined, "normal");
+      doc.text(String(value), 230, y + gap * offset);
+    };
 
-    doc.text("Transaction ID :", 70, y + gap);
-    doc.text(String(tx.id), 230, y + gap);
+    infoLine("Numéro de reçu :", receiptNumber, 0);
+    infoLine("Transaction ID :", tx.id, 1);
+    infoLine("Date :", new Date(tx.created_at).toLocaleString(), 2);
+    infoLine("Description :", tx.description || "-", 3);
 
-    doc.text("Date :", 70, y + gap * 2);
-    doc.text(new Date(tx.created_at).toLocaleString(), 230, y + gap * 2);
-
-    doc.text("Description :", 70, y + gap * 3);
-    doc.text(tx.description || "-", 230, y + gap * 3, { maxWidth: 250 });
-
-    /* ===== QR CODE SÉCURISÉ ===== */
+    /* ===== QR CODE ===== */
     const qrCanvas = document.createElement("canvas");
 
     await new Promise(resolve => {
       new QRCode(qrCanvas, {
         text: `${receiptNumber}|HASH:${hash}`,
-        width: 110,
-        height: 110,
+        width: 120,
+        height: 120,
         correctLevel: QRCode.CorrectLevel.H
       });
-      setTimeout(resolve, 200);
+      setTimeout(resolve, 250);
     });
 
     const qrData = qrCanvas.toDataURL("image/png");
-    doc.addImage(qrData, "PNG", 410, 330, 110, 110);
+    doc.addImage(qrData, "PNG", 400, 390, 120, 120);
 
-    /* ===== CACHE OFFICIEL ===== */
+    /* ===== CACHET OFFICIEL ===== */
     doc.setDrawColor(primary);
-    doc.circle(480, 470, 40);
-    doc.setFontSize(9);
-    doc.setTextColor(primary);
-    doc.text("OFFICIEL", 480, 475, { align: "center" });
+    doc.setLineWidth(2);
+    doc.circle(470, 520, 45);
 
-    /* ===== HASH INVISIBLE ===== */
+    doc.setFontSize(10);
+    doc.setTextColor(primary);
+    doc.text("CERTIFIÉ", 470, 525, { align: "center" });
+
+    /* ===== HASH FOOTER ===== */
     doc.setFontSize(6);
     doc.setTextColor("#aaaaaa");
-    doc.text(hash, 40, 820);
+    doc.text(hash, 40, 830);
 
-    /* ===== FOOTER ===== */
     doc.setFontSize(9);
     doc.setTextColor("#777");
-    doc.text("Document signé numériquement par MANG Wallet.", 40, 800);
-    doc.text("Toute altération rend ce document invalide.", 40, 815);
+    doc.text(
+      "Document signé électroniquement par MANG Wallet.",
+      40,
+      800
+    );
+    doc.text(
+      "Toute modification invalide ce reçu.",
+      40,
+      815
+    );
 
     doc.save(`${receiptNumber}.pdf`);
 
@@ -941,7 +1002,6 @@ PDF RECEIPT CLIENT
     alert("Erreur génération reçu.");
   }
           }
-  
           loadUser();
         </script>
 </body>
