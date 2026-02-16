@@ -177,6 +177,21 @@ input{
   cursor:pointer;
   font-weight:600;
 }
+  .wallet-box {
+  background: #0f3d2e;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  width: 320px;
+}
+
+#walletNumber {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+  
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -210,6 +225,17 @@ input{
       <button class="withdraw" onclick="openWithdraw()">Retirer</button>
     </div>
   </div>
+
+<div class="wallet-box">
+  <h3>Mon numéro de portefeuille</h3>
+  <div id="walletNumber">Chargement...</div>
+
+  <button onclick="copyWalletNumber()">Copier</button>
+
+  <h3>Solde</h3>
+  <div id="walletBalance">0 FCFA</div>
+</div>
+  
 
   <div class="card">
     <h3>Historique</h3>
@@ -425,6 +451,39 @@ window.closeDetail = () => {
   document.getElementById("detailModal").style.display = "none";
 };
 
+          async function loadWallet() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("wallet_number, wallet_balance")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  // Formater numéro (12 34 56 78 90)
+  const formattedNumber = data.wallet_number.replace(/(\d{2})(?=\d)/g, "$1 ");
+
+  document.getElementById("walletNumber").textContent = formattedNumber;
+  document.getElementById("walletBalance").textContent =
+    Number(data.wallet_balance).toLocaleString() + " FCFA";
+}
+
+loadWallet();
+
+          function copyWalletNumber() {
+  const number = document
+    .getElementById("walletNumber")
+    .textContent.replace(/\s/g, "");
+
+  navigator.clipboard.writeText(number);
+  alert("Numéro copié !");
+          }
 /* ======================
 USAGE DESCRIPTION
 ===================== */
