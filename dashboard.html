@@ -686,35 +686,43 @@ async function submitDeposit() {
   const amount = Number(document.getElementById("depositAmount").value);
   const phone = document.getElementById("depositPhone").value.trim();
 
-  // Récupérer opérateur sélectionné
-  const operatorEl = document.querySelector('input[name="depositOperator"]:checked');
-  const operator = operatorEl ? operatorEl.value : null;
+  if (!amount || amount <= 0) {
+    return alert("Montant invalide");
+  }
+  if (!phone) {
+    return alert("Veuillez saisir le numéro Mobile Money");
+  }
 
-  if (!amount || amount <= 0) return alert("Montant invalide");
-  if (!operator) return alert("Veuillez sélectionner un opérateur");
-  if (!phone) return alert("Veuillez saisir le numéro Mobile Money");
-
-  const { data: { user } } = await supabase.auth.getUser();
+  // Récupérer l'utilisateur connecté Supabase
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return alert("Utilisateur non connecté");
+  }
 
   try {
-    // Appel serveur sécurisé pour créer la recharge
-    const res = await fetch('https://ton-serveur.com/api/recharge', {
+    // Appel serveur Render pour créer la transaction FedaPay
+    const res = await fetch('https://wallet-backend-jx12.onrender.com/deposit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, amount, operator, phone })
+      body: JSON.stringify({
+        userId: user.id,
+        amount,
+        phone
+      })
     });
 
     const result = await res.json();
 
     if (result.success) {
-      // Rediriger vers la page de paiement Mobile Money (FedaPay ou équivalent)
-      window.location.href = result.checkout_url;
+      // Redirection vers FedaPay sandbox
+      window.location.href = result.payment_url;
     } else {
-      alert(result.error || "Erreur recharge");
+      alert(result.error || "Erreur lors de la recharge");
     }
+
   } catch (err) {
-    console.error(err);
-    alert("Erreur serveur");
+    console.error("Erreur submitDeposit:", err);
+    alert("Erreur serveur, réessayer plus tard");
   }
 }
 
