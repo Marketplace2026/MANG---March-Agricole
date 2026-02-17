@@ -791,9 +791,9 @@ header.topbar .top-actions button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  width: 130px;
-  height: 50px;
+  gap: 6px;
+  width: 70px;
+  height: 40px;
   padding: 0 18px;
   background: linear-gradient(145deg, #ffd700, #ffb700);
   border-radius: 50px;
@@ -1250,8 +1250,8 @@ const shopProductLimits = {
 };
 
 // ===== LOGIN & PROFIL =====
-  
-async function loadCurrentUser() {
+  async function loadCurrentUser() {
+  // 🔹 Récupérer l'utilisateur courant
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) {
     location.href = "login.html";
@@ -1259,12 +1259,12 @@ async function loadCurrentUser() {
   }
   currentUser = user;
 
-  // 🔹 Récupérer profil avec coins
+  // 🔹 Récupérer le profil avec coins
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select('*, coins')
+    .select('*, coins, wallet_balance, premium_start, premium_level')
     .eq('id', currentUser.id)
-    .single(); // 🔹 single() pour avoir directement l'objet
+    .single(); // single() pour récupérer directement l'objet
 
   if (profileError || !profile) {
     console.error("Erreur chargement profil :", profileError);
@@ -1274,11 +1274,13 @@ async function loadCurrentUser() {
   currentProfile = profile;
 
   // 🔹 Mettre à jour l'affichage du compteur de pièces
-  const coinsElement = document.getElementById("userCoins");
-  if (coinsElement) {
-    coinsElement.textContent = currentProfile.coins ?? 35; // Si null, mettre 35 par défaut
-  }
+  const coinsElement = document.querySelector(".coin-text");
 
+if (coinsElement) {
+  coinsElement.textContent = Number(profile.coins || 0)
+    .toString()
+    .padStart(2, "0");
+}
   // 🔹 Vérifier expiration premium (30 jours)
   if (currentProfile.premium_start) {
     const start = new Date(currentProfile.premium_start);
@@ -1294,27 +1296,13 @@ async function loadCurrentUser() {
     }
   }
 
+  // 🔹 Mettre à jour d'autres parties de l'UI
   renderUserIdentity();
   loadMyShops();
 }
-  async function updateCoins(newCoins) {
-  // Mettre à jour localement
-  currentProfile.coins = newCoins;
-  document.getElementById("userCoins").textContent = newCoins;
+  
 
-  // Mettre à jour dans Supabase
-  const { error } = await supabase
-    .from("profiles")
-    .update({ coins: newCoins })
-    .eq("id", currentUser.id);
-
-  if (error) {
-    console.error("Erreur mise à jour coins :", error);
-    alert("Impossible de mettre à jour vos pièces !");
-  } else {
-    alert(`✅ Paiement réussi ! Vous avez maintenant ${newCoins} pièces.`);
-  }
-  }
+  
   
 // ===== AFFICHAGE EMAIL + BADGES PREMIUM =====
 function renderUserIdentity() {
@@ -1336,63 +1324,119 @@ function renderUserIdentity() {
     window.location.href = 'index.html';
   });
 
-  const userCoinsBtn = document.getElementById("userCoinsBtn");
+  async function updateCoins(newCoins) {
+  try {
+    // 🔹 Vérifier que newCoins est bien un nombre
+    newCoins = Number(newCoins);
+    if (isNaN(newCoins) || newCoins < 0) throw new Error("Nombre de pièces invalide");
+
+    // 🔹 Mettre à jour localement
+    currentProfile.coins = newCoins;
+
+    // 🔹 Mettre à jour le badge frontend
+    const coinsElement = document.getElementById("userCoins");
+    if (coinsElement) {
+      coinsElement.textContent = newCoins;
+    }
+
+    // 🔹 Mettre à jour dans Supabase
+    const { error } = await supabase
+      .from("profiles")
+      .update({ coins: newCoins })
+      .eq("id", currentUser.id);
+
+    if (error) throw error;
+
+    console.log(`✅ Coins mis à jour : ${newCoins}`);
+  } catch (err) {
+    console.error("Erreur mise à jour coins :", err);
+    alert("❌ Impossible de mettre à jour vos pièces, vérifiez la console");
+  }
+}
+    // ===== Sélection des éléments =====
+const userCoinsBtn = document.getElementById("userCoinsBtn");
 const coinsModal = document.getElementById("coinsModal");
 const closeCoinsModal = document.getElementById("closeCoinsModal");
-const userCoinsSpan = document.getElementById("userCoins");
+const coinsText = document.querySelector(".user-coins .coin-text");
+const walletText = document.getElementById("walletBalance"); // Si tu veux afficher le solde
 
-// Ouvrir la modale
+// ===== Ouvrir/fermer la modale =====
 userCoinsBtn.addEventListener("click", () => {
   coinsModal.style.display = "flex";
   document.body.style.overflow = "hidden";
 });
-
-// Fermer la modale
 closeCoinsModal.addEventListener("click", () => {
   coinsModal.style.display = "none";
   document.body.style.overflow = "auto";
 });
 
-// Tous les boutons de recharge
+// ===== Fonction pour mettre à jour le badge et Supabase =====
+async function updateCoinsAndWallet(newCoins, newWallet) {
+  try {
+    newCoins = Number(newCoins);
+    newWallet = Number(newWallet);
+    if (isNaN(newCoins) || newCoins < 0) throw new Error("Nombre de pièces invalide");
+    if (isNaN(newWallet) || newWallet < 0) throw new Error("Solde wallet invalide");
+
+    // Mise à jour locale
+    currentProfile.coins = newCoins;
+    currentProfile.wallet_balance = newWallet;
+
+    // Mise à jour du front-end
+    if (coinsText) coinsText.textContent = newCoins.toString().padStart(2, "0");
+    if (walletText) walletText.textContent = newWallet.toLocaleString() + " FCFA";
+
+    // Mise à jour Supabase
+    const { error } = await supabase
+      .from("profiles")
+      .update({ coins: newCoins, wallet_balance: newWallet })
+      .eq("id", currentUser.id);
+
+    if (error) throw error;
+
+    console.log(`✅ Coins et wallet mis à jour : ${newCoins} pièces, ${newWallet} FCFA`);
+  } catch (err) {
+    console.error("Erreur mise à jour coins/wallet :", err);
+    alert("❌ Impossible de mettre à jour vos pièces ou votre solde");
+    
+  }
+}
+
+    
+// ===== Gestion achat de pièces =====
 document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
   btn.addEventListener("click", async () => {
-    const coinsToBuy = parseInt(btn.dataset.coins);
-    const priceFCFA = parseInt(btn.dataset.price);
+    const coinsToBuy = Number(btn.dataset.coins);
+    const priceFCFA = Number(btn.dataset.price);
+
+    const wallet = Number(currentProfile.wallet_balance || 0);
+    const coins = Number(currentProfile.coins || 0);
 
     if (!confirm(`Confirmer l'achat de ${coinsToBuy} pièces pour ${priceFCFA} FCFA ?`)) return;
 
-    if ((currentProfile.wallet_balance || 0) < priceFCFA) {
-      alert("❌ Solde wallet insuffisant !");
+    if (wallet < priceFCFA) {
+      alert(`❌ Solde wallet insuffisant !\nVotre solde : ${wallet.toLocaleString()} FCFA`);
       return;
     }
 
     try {
-      // Déduire du wallet et ajouter les pièces
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          wallet_balance: currentProfile.wallet_balance - priceFCFA,
-          coins: (currentProfile.coins || 0) + coinsToBuy
-        })
-        .eq("id", currentUser.id);
+      // 🔹 Calcul des nouveaux montants
+      const newCoins = coins + coinsToBuy;
+      const newWallet = wallet - priceFCFA;
 
-      if (error) throw error;
+      // 🔹 Mettre à jour Supabase et frontend
+      await updateCoinsAndWallet(newCoins, newWallet);
 
-      // Mise à jour frontend
-      currentProfile.wallet_balance -= priceFCFA;
-      currentProfile.coins = (currentProfile.coins || 0) + coinsToBuy;
-      userCoinsSpan.innerText = currentProfile.coins;
-
-      alert(`✅ Achat réussi ! Vous avez maintenant ${currentProfile.coins} pièces`);
+      alert(`✅ Achat réussi ! Vous avez maintenant ${newCoins} pièces et ${newWallet} FCFA`);
       coinsModal.style.display = "none";
       document.body.style.overflow = "auto";
-
     } catch (err) {
       console.error("Erreur achat pièces :", err);
-      alert("❌ Une erreur est survenue");
+      alert("❌ Une erreur est survenue lors de l'achat");
     }
   });
 });
+    
   // ===============================
 // INPUTS CACHÉS (déjà dans ton HTML)
 // <input type="hidden" id="latitude">
