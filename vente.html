@@ -783,6 +783,177 @@ header.topbar .top-actions button {
     font-size: 1.15rem;
   }
 
+
+  /* ===== COMPTEUR DE PIÈCES STYLE PIÈCE ===== */
+.user-coins {
+  position: relative; /* pour le reflet */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 130px;
+  height: 50px;
+  padding: 0 18px;
+  background: linear-gradient(145deg, #ffd700, #ffb700);
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.2),
+    0 4px 12px rgba(0,0,0,0.2);
+  border: 2px solid #ffeb3b;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
+}
+
+/* Effet hover dynamique */
+.user-coins:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.25),
+    0 6px 18px rgba(0,0,0,0.25);
+  background: linear-gradient(145deg, #ffe34d, #ffc107);
+}
+
+/* Icône de pièce */
+.user-coins .coin-icon {
+  font-size: 22px;
+  display: inline-block;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  animation: bounceCoin 1.2s infinite alternate;
+}
+
+/* Animation légère de la pièce */
+@keyframes bounceCoin {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+/* Nombre de pièces */
+.user-coins .coin-text {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Petit reflet sur la pièce */
+.user-coins::before {
+  content: "";
+  position: absolute;
+  width: 60%;
+  height: 30%;
+  top: 5px;
+  left: 15%;
+  background: rgba(255,255,255,0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: rotate(-25deg);
+}
+
+/* Optionnel : effet “clic” sur pièce */
+.user-coins:active {
+  transform: scale(0.97);
+  box-shadow:
+    inset 0 -2px 0 rgba(0,0,0,0.2),
+    0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* ===== MODALE RECHARGE PIÈCES ===== */
+#coinsModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+#coinsModal > div {
+  background: #ffffff;
+  padding: 25px 20px;
+  border-radius: 20px;
+  width: 360px;
+  max-width: 95%;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  0% { transform: translateY(-30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+#coinsModal h3 {
+  margin-bottom: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+}
+
+#coinsModal p {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* ===== BOUTONS ACHAT ===== */
+.buyCoinsBtn {
+  display: inline-block;
+  padding: 12px 20px;
+  margin: 8px 6px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+  transition: all 0.2s ease;
+  min-width: 110px;
+}
+
+.buyCoinsBtn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+}
+
+.buyCoinsBtn:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Couleurs pro selon niveau */
+.buyCoinsBtn[data-coins="5"] { background: #43a047; }    /* vert */
+.buyCoinsBtn[data-coins="10"] { background: #1e88e5; }   /* bleu */
+.buyCoinsBtn[data-coins="20"] { background: #f57c00; }   /* orange */
+.buyCoinsBtn[data-coins="50"] { background: #8e24aa; }   /* violet */
+
+/* Bouton fermer modal */
+#closeCoinsModal {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#closeCoinsModal:hover {
+  background-color: #d32f2f;
+                               }
   .productCard img {
     height: 120px;
   }
@@ -805,8 +976,33 @@ header.topbar .top-actions button {
   <div class="top-actions">
     <button id="goToAchat">Acheter</button>
     <button id="premiumMenuBtn" class="premiumHeaderBtn">Premium</button>
+
+
+    <!-- Compteur de pièces cliquable -->
+<div class="user-coins" id="userCoinsBtn">
+  <span class="coin-icon">💰</span>
+  <span class="coin-text">35</span>
+</div>
     
   </div>
+
+  
+<!-- Modal recharge pièces -->
+<div id="coinsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;">
+  <div style="background:#fff; padding:20px; border-radius:12px; width:300px; max-width:90%;">
+    <h3>Recharger des pièces</h3>
+    <p>5 pièces = 100 FCFA</p>
+
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+      <button class="buyCoinsBtn" data-coins="5" data-price="100" style="padding:8px; background:#4CAF50; color:#fff; border:none; border-radius:6px;">Acheter 5 pièces (100 FCFA)</button>
+      <button class="buyCoinsBtn" data-coins="10" data-price="200" style="padding:8px; background:#2196F3; color:#fff; border:none; border-radius:6px;">Acheter 10 pièces (200 FCFA)</button>
+      <button class="buyCoinsBtn" data-coins="20" data-price="350" style="padding:8px; background:#FF9800; color:#fff; border:none; border-radius:6px;">Acheter 20 pièces (350 FCFA)</button>
+      <button class="buyCoinsBtn" data-coins="50" data-price="950" style="padding:8px; background:#9C27B0; color:#fff; border:none; border-radius:6px;">Acheter 50 pièces (950 FCFA)</button>
+    </div>
+
+    <button id="closeCoinsModal" style="width:100%; padding:8px; margin-top:10px; background:#e53935; color:#fff; border:none; border-radius:6px;">Fermer</button>
+  </div>
+</div>
 </header>
 <!-- ===== SIDEBAR PREMIUM ===== -->
 <div id="premiumSidebar" class="premium-sidebar">
@@ -1054,7 +1250,8 @@ const shopProductLimits = {
 };
 
 // ===== LOGIN & PROFIL =====
-  async function loadCurrentUser() {
+  
+async function loadCurrentUser() {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) {
     location.href = "login.html";
@@ -1062,35 +1259,62 @@ const shopProductLimits = {
   }
   currentUser = user;
 
-  // Récupérer profil
-  const { data: profiles } = await supabase
+  // 🔹 Récupérer profil avec coins
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select('*')
-    .eq('id', currentUser.id);
+    .select('*, coins')
+    .eq('id', currentUser.id)
+    .single(); // 🔹 single() pour avoir directement l'objet
 
-  if (profiles.length) {
-    currentProfile = profiles[0];
+  if (profileError || !profile) {
+    console.error("Erreur chargement profil :", profileError);
+    return;
+  }
 
-    // 🔹 Vérifier expiration premium (30 jours)
-    if (currentProfile.premium_start) {
-      const start = new Date(currentProfile.premium_start);
-      const now = new Date();
-      const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-      if (diffDays >= 30) {
-        // Expiration
-        await supabase.from('profiles').update({
-          premium_level: 'free',
-          premium_start: null
-        }).eq('id', currentUser.id);
-        currentProfile.premium_level = 'free';
-      }
+  currentProfile = profile;
+
+  // 🔹 Mettre à jour l'affichage du compteur de pièces
+  const coinsElement = document.getElementById("userCoins");
+  if (coinsElement) {
+    coinsElement.textContent = currentProfile.coins ?? 35; // Si null, mettre 35 par défaut
+  }
+
+  // 🔹 Vérifier expiration premium (30 jours)
+  if (currentProfile.premium_start) {
+    const start = new Date(currentProfile.premium_start);
+    const now = new Date();
+    const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+    if (diffDays >= 30) {
+      // Expiration
+      await supabase.from('profiles').update({
+        premium_level: 'free',
+        premium_start: null
+      }).eq('id', currentUser.id);
+      currentProfile.premium_level = 'free';
     }
   }
 
   renderUserIdentity();
   loadMyShops();
 }
+  async function updateCoins(newCoins) {
+  // Mettre à jour localement
+  currentProfile.coins = newCoins;
+  document.getElementById("userCoins").textContent = newCoins;
 
+  // Mettre à jour dans Supabase
+  const { error } = await supabase
+    .from("profiles")
+    .update({ coins: newCoins })
+    .eq("id", currentUser.id);
+
+  if (error) {
+    console.error("Erreur mise à jour coins :", error);
+    alert("Impossible de mettre à jour vos pièces !");
+  } else {
+    alert(`✅ Paiement réussi ! Vous avez maintenant ${newCoins} pièces.`);
+  }
+  }
   
 // ===== AFFICHAGE EMAIL + BADGES PREMIUM =====
 function renderUserIdentity() {
@@ -1112,6 +1336,63 @@ function renderUserIdentity() {
     window.location.href = 'index.html';
   });
 
+  const userCoinsBtn = document.getElementById("userCoinsBtn");
+const coinsModal = document.getElementById("coinsModal");
+const closeCoinsModal = document.getElementById("closeCoinsModal");
+const userCoinsSpan = document.getElementById("userCoins");
+
+// Ouvrir la modale
+userCoinsBtn.addEventListener("click", () => {
+  coinsModal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+});
+
+// Fermer la modale
+closeCoinsModal.addEventListener("click", () => {
+  coinsModal.style.display = "none";
+  document.body.style.overflow = "auto";
+});
+
+// Tous les boutons de recharge
+document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const coinsToBuy = parseInt(btn.dataset.coins);
+    const priceFCFA = parseInt(btn.dataset.price);
+
+    if (!confirm(`Confirmer l'achat de ${coinsToBuy} pièces pour ${priceFCFA} FCFA ?`)) return;
+
+    if ((currentProfile.wallet_balance || 0) < priceFCFA) {
+      alert("❌ Solde wallet insuffisant !");
+      return;
+    }
+
+    try {
+      // Déduire du wallet et ajouter les pièces
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          wallet_balance: currentProfile.wallet_balance - priceFCFA,
+          coins: (currentProfile.coins || 0) + coinsToBuy
+        })
+        .eq("id", currentUser.id);
+
+      if (error) throw error;
+
+      // Mise à jour frontend
+      currentProfile.wallet_balance -= priceFCFA;
+      currentProfile.coins = (currentProfile.coins || 0) + coinsToBuy;
+      userCoinsSpan.innerText = currentProfile.coins;
+
+      alert(`✅ Achat réussi ! Vous avez maintenant ${currentProfile.coins} pièces`);
+      coinsModal.style.display = "none";
+      document.body.style.overflow = "auto";
+
+    } catch (err) {
+      console.error("Erreur achat pièces :", err);
+      alert("❌ Une erreur est survenue");
+    }
+  });
+});
   // ===============================
 // INPUTS CACHÉS (déjà dans ton HTML)
 // <input type="hidden" id="latitude">
@@ -1200,7 +1481,8 @@ document.getElementById("createShopBtn").addEventListener("click", async () => {
 });
 
    // ===== CREER BOUTIQUE =====
-submitShopBtn.onclick = async () => {
+
+  submitShopBtn.onclick = async () => {
   const name = shopName.value.trim();
   if (!name) {
     alert("Nom obligatoire");
@@ -1209,6 +1491,13 @@ submitShopBtn.onclick = async () => {
 
   if (!selectedShopCategory) {
     alert("Veuillez choisir une catégorie");
+    return;
+  }
+
+  // 🔹 Vérifier si l'utilisateur a assez de pièces
+  const cost = 10; // 10 pièces pour créer une boutique
+  if ((currentProfile.coins || 35) < cost) {
+    alert("⚠️ Vous n'avez pas assez de pièces pour créer une boutique");
     return;
   }
 
@@ -1249,8 +1538,8 @@ submitShopBtn.onclick = async () => {
       category: selectedShopCategory,
       location: shopLocation.value,
       image_url: imageUrl,
-      livraison: livraison,     // ✅ AJOUTÉ
-      whatsapp: whatsapp,       // ✅ AJOUTÉ
+      livraison: livraison,
+      whatsapp: whatsapp,
       premium_level: currentProfile?.premium_level || "free"
     });
 
@@ -1258,6 +1547,19 @@ submitShopBtn.onclick = async () => {
     alert(error.message);
     return;
   }
+
+  // 🔹 Déduire les pièces et mettre à jour le frontend & Supabase
+  currentProfile.coins = (currentProfile.coins || 35) - cost;
+
+  await supabase
+    .from("profiles")
+    .update({ coins: currentProfile.coins })
+    .eq("id", currentUser.id);
+
+  const coinsElement = document.getElementById("userCoins");
+  if (coinsElement) coinsElement.textContent = currentProfile.coins;
+
+  alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
 
   // 🔄 RESET FORMULAIRE
   shopName.value = "";
@@ -1276,7 +1578,6 @@ submitShopBtn.onclick = async () => {
   shopFullModal.style.display = "none";
   loadMyShops();
 };
-  
   let selectedShopCategory = null;
 let selectedMainCategory = null;
 let selectedSubCategories = [];
@@ -1927,6 +2228,13 @@ submitProductBtn.onclick = async () => {
     return;
   }
 
+  // 🔹 Vérifier si l'utilisateur a assez de pièces pour créer un produit
+  const productCost = 5; // 5 pièces pour ajouter un produit
+  if ((currentProfile.coins || 35) < productCost) {
+    alert("⚠️ Vous n'avez pas assez de pièces pour ajouter ce produit");
+    return;
+  }
+
   const name = productName.value.trim();
   const description = productDesc.value.trim();
   const price = Number(productPrice.value);
@@ -2001,7 +2309,19 @@ submitProductBtn.onclick = async () => {
       return;
     }
 
-    alert("✅ Produit ajouté avec succès");
+    // 🔹 Déduire les pièces et mettre à jour frontend & Supabase
+    currentProfile.coins = (currentProfile.coins || 35) - productCost;
+
+    await supabase
+      .from("profiles")
+      .update({ coins: currentProfile.coins })
+      .eq("id", currentUser.id);
+
+    // Mettre à jour le compteur frontend
+    const coinsElement = document.getElementById("userCoins");
+    if (coinsElement) coinsElement.textContent = currentProfile.coins;
+
+    alert(`✅ Produit ajouté avec succès ! Il vous reste ${currentProfile.coins} pièces`);
 
     await supabase.from("notif_market").insert({
       user_id: currentUser.id,
@@ -2027,7 +2347,6 @@ submitProductBtn.onclick = async () => {
     alert("Erreur inattendue lors de l'ajout");
   }
 };
-
 // ===== INIT =====
 await loadCurrentUser();
 </script>
