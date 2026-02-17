@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Recharge Wallet Sandbox</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+</head>
+<body>
+  <h2>Test Recharge Wallet FedaPay Sandbox</h2>
+
+  <button onclick="submitDeposit()">Tester Recharge 100 FCFA</button>
+
+  <div id="result" style="margin-top:20px; color:green;"></div>
+
+  <script>
+    // 🔹 Connecter Supabase
+    const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
+    const supabaseAnonKey = "PUBLIC_ANON_KEY_ICI"; // remplace par ta clé anonyme
+    const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    async function submitDeposit() {
+      const amount = 100; // montant fixe pour test rapide
+      const phone = "22960000000"; // numéro test
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "";
+
+      // 🔹 Récupérer utilisateur connecté
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) return alert("Utilisateur non connecté");
+
+      try {
+        // 🔹 Appel backend Render
+        const res = await fetch('https://wallet-backend-jx12.onrender.com/deposit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            amount,
+            phone
+          })
+        });
+
+        const result = await res.json();
+
+        if (result.success && result.payment_url) {
+          resultDiv.innerHTML = `✅ Transaction créée ! <a href="${result.payment_url}" target="_blank">Ouvrir FedaPay Sandbox</a>`;
+        } else {
+          resultDiv.style.color = "red";
+          resultDiv.textContent = result.error || "Erreur lors de la recharge";
+        }
+      } catch (err) {
+        console.error("Erreur fetch :", err);
+        resultDiv.style.color = "red";
+        resultDiv.textContent = "Erreur serveur, réessayer plus tard";
+      }
+    }
+  </script>
+</body>
+</html>
