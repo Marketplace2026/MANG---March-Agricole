@@ -795,18 +795,72 @@ header.topbar .top-actions button {
   font-weight: 600;
   color: white;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  animation: floatBadge 3s ease-in-out infinite;
+  transition: transform 0.3s ease;
 }
 
+/* Effet léger flottant */
+@keyframes floatBadge {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Hover effet */
+.premium-badge:hover {
+  transform: scale(1.1);
+}
+
+/* Premium 1 - Bronze */
 .bronze {
   background: linear-gradient(45deg, #cd7f32, #a97142);
+  animation: floatBadge 3s ease-in-out infinite, glowBronze 2s infinite alternate;
 }
 
+@keyframes glowBronze {
+  from { box-shadow: 0 0 5px #cd7f32; }
+  to { box-shadow: 0 0 15px #cd7f32; }
+}
+
+/* Premium 2 - Silver */
 .silver {
   background: linear-gradient(45deg, #bdc3c7, #95a5a6);
+  animation: floatBadge 3s ease-in-out infinite, glowSilver 1.5s infinite alternate;
 }
 
+@keyframes glowSilver {
+  from { box-shadow: 0 0 6px #bdc3c7; }
+  to { box-shadow: 0 0 20px #ffffff; }
+}
+
+/* Premium 3 - Gold */
 .gold {
   background: linear-gradient(45deg, #f1c40f, #f39c12);
+  overflow: hidden;
+  animation: floatBadge 3s ease-in-out infinite, glowGold 1s infinite alternate;
+}
+
+@keyframes glowGold {
+  from { box-shadow: 0 0 10px #f1c40f; }
+  to { box-shadow: 0 0 25px #ffd700; }
+}
+
+/* Effet brillant Premium 3 */
+.gold::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255,255,255,0.4);
+  transform: skewX(-25deg);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% { left: -75%; }
+  100% { left: 125%; }
 }
 </style>
 
