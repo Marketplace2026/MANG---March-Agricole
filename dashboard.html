@@ -429,13 +429,17 @@ MODALES
   <div class="balance-title">Solde disponible</div>
   <div class="balance"><span id="balance">0</span> FCFA</div>
 
-  <div class="actions">
-    <button class="deposit" onclick="openDeposit()">Recharger</button>
-    <button class="withdraw" onclick="openWithdraw()">Retirer</button>
-  </div>
+  <!-- ========================= -->
+<!-- BOUTONS ACTIONS -->
+<!-- ========================= -->
+<div class="actions">
+  <button class="deposit" onclick="openDeposit()">Recharger</button>
+  <button class="withdraw" onclick="openWithdraw()">Retirer</button>
 </div>
 
-<!-- Modal Recharger -->
+<!-- ========================= -->
+<!-- MODAL RECHARGER -->
+<!-- ========================= -->
 <div id="depositModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeDeposit()">&times;</span>
@@ -443,27 +447,21 @@ MODALES
 
     <label>Opérateur</label>
     <div class="operator-select">
-      <label>
-        <input type="radio" name="depositOperator" value="MTN">
-        <img src="assets/img/mtn.png" alt="MTN" title="MTN">
-      </label>
-      <label>
-        <input type="radio" name="depositOperator" value="Moov">
-        <img src="assets/img/moov.png" alt="Moov" title="Moov">
-      </label>
-      <label>
-        <input type="radio" name="depositOperator" value="Celtis">
-        <img src="assets/img/celtis.png" alt="Celtis" title="Celtis">
-      </label>
+      <label><input type="radio" name="depositOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="depositOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="depositOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
     </div>
 
     <input id="depositPhone" type="text" placeholder="Numéro Mobile Money">
     <input id="depositAmount" type="number" placeholder="Montant à recharger">
-    <button onclick="submitDeposit()">Recharger</button>
+    <button id="depositBtn" onclick="submitDeposit()">Recharger</button>
+    <span id="depositLoader" style="display:none;">⏳ Traitement...</span>
   </div>
 </div>
 
-<!-- Modal Retirer -->
+<!-- ========================= -->
+<!-- MODAL RETRAIT -->
+<!-- ========================= -->
 <div id="withdrawModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeWithdraw()">&times;</span>
@@ -471,25 +469,18 @@ MODALES
 
     <label>Opérateur</label>
     <div class="operator-select">
-      <label>
-        <input type="radio" name="withdrawOperator" value="MTN">
-        <img src="assets/img/mtn.png" alt="MTN" title="MTN">
-      </label>
-      <label>
-        <input type="radio" name="withdrawOperator" value="Moov">
-        <img src="assets/img/moov.png" alt="Moov" title="Moov">
-      </label>
-      <label>
-        <input type="radio" name="withdrawOperator" value="Celtis">
-        <img src="assets/img/celtis.png" alt="Celtis" title="Celtis">
-      </label>
+      <label><input type="radio" name="withdrawOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="withdrawOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="withdrawOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
     </div>
 
     <input id="withdrawPhone" type="text" placeholder="Numéro Mobile Money">
     <input id="withdrawAmount" type="number" placeholder="Montant à retirer">
-    <button onclick="submitWithdraw()">Retirer</button>
+    <button id="withdrawBtn" onclick="submitWithdraw()">Retirer</button>
+    <span id="withdrawLoader" style="display:none;">⏳ Traitement...</span>
   </div>
 </div>
+    
 
 <div class="container">
   
@@ -644,7 +635,7 @@ function copyWalletNumber() {
     });
 }
 
-// RENDRE LA FONCTION GLOBALE
+//  LA FONCTION GLOBALE
 window.copyWalletNumber = copyWalletNumber;
   
   /* ======================
