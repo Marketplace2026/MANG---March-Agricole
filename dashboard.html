@@ -638,149 +638,113 @@ function copyWalletNumber() {
 //  LA FONCTION GLOBALE
 window.copyWalletNumber = copyWalletNumber;
   
-  /* ======================
-MODALES RECHARGER / RETIRER
-===================== */
+  // =========================
+// MODALES RECHARGER / RETIRER
+// =========================
+window.openDeposit = () => document.getElementById("depositModal").style.display = "flex";
+window.closeDeposit = () => document.getElementById("depositModal").style.display = "none";
+window.openWithdraw = () => document.getElementById("withdrawModal").style.display = "flex";
+window.closeWithdraw = () => document.getElementById("withdrawModal").style.display = "none";
 
-// Ouvrir modale Recharger
-window.openDeposit = () => {
-  document.getElementById("depositModal").style.display = "flex";
-}
-
-// Fermer modale Recharger
-window.closeDeposit = () => {
-  document.getElementById("depositModal").style.display = "none";
-}
-
-// Ouvrir modale Retirer
-window.openWithdraw = () => {
-  document.getElementById("withdrawModal").style.display = "flex";
-}
-
-// Fermer modale Retirer
-window.closeWithdraw = () => {
-  document.getElementById("withdrawModal").style.display = "none";
-}
-
-// Fermer modale si clic en dehors
 window.addEventListener("click", (event) => {
   if (event.target.id === "depositModal") window.closeDeposit();
   if (event.target.id === "withdrawModal") window.closeWithdraw();
 });
 
-
 // ==============================
-// RECHARGE (Deposit)
+// RECHARGE LIVE (Deposit)
 // ==============================
 async function submitDeposit() {
   const amount = Number(document.getElementById("depositAmount").value);
+  const phone = document.getElementById("depositPhone").value.trim();
+  const operatorEl = document.querySelector('input[name="depositOperator"]:checked');
+  const operator = operatorEl ? operatorEl.value : null;
 
-  if (!amount || amount <= 0) {
-    return alert("Montant invalide");
-  }
+  if (!amount || amount <= 0) return alert("Montant invalide");
+  if (!phone) return alert("Veuillez saisir le numéro Mobile Money");
+  if (!operator) return alert("Veuillez sélectionner un opérateur");
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return alert("Utilisateur non connecté");
-  }
+  const loader = document.getElementById("depositLoader");
+  const btn = document.getElementById("depositBtn");
+  loader.style.display = "inline";
+  btn.disabled = true;
 
   try {
-    // 🔹 Créer transaction pending
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return alert("Utilisateur non connecté");
+
+    // 🔹 Créer transaction sur ton serveur qui appelle CinetPay
     const res = await fetch('https://wallet-backend-jx12.onrender.com/init-deposit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: user.id,
-        amount
-      })
+      body: JSON.stringify({ userId: user.id, amount, operator, phone })
     });
 
     const result = await res.json();
-    if (!result.success) return alert(result.error || "Erreur création transaction");
+    if (!result.success) throw new Error(result.error || "Erreur création transaction");
 
-    // 🔹 Simuler webhook pour test (ou attendre clé réelle)
-    await fetch('https://wallet-backend-jx12.onrender.com/webhook', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        transaction_id: result.transaction_id,
-        provider_transaction_id: "TEST_DEPOSIT_001",
-        status: "success"
-      })
-    });
-
-    alert("Recharge simulée avec succès !");
-    loadWallet();
+    // 🔹 Redirection utilisateur vers CinetPay pour paiement
+    window.location.href = result.payment_url;
 
   } catch (err) {
     console.error("Erreur submitDeposit:", err);
-    alert("Erreur serveur, réessayer plus tard");
+    alert(err.message || "Erreur serveur");
+  } finally {
+    loader.style.display = "none";
+    btn.disabled = false;
   }
 }
 
 // ==============================
-// RETRAIT (Withdrawal)
+// RETRAIT LIVE (Withdrawal)
 // ==============================
 async function submitWithdraw() {
   const amount = Number(document.getElementById("withdrawAmount").value);
-
+  const phone = document.getElementById("withdrawPhone").value.trim();
   const operatorEl = document.querySelector('input[name="withdrawOperator"]:checked');
   const operator = operatorEl ? operatorEl.value : null;
 
-  const phone = document.getElementById("withdrawPhone").value.trim();
-
   if (!amount || amount <= 0) return alert("Montant invalide");
-  if (!operator) return alert("Veuillez sélectionner un opérateur");
   if (!phone) return alert("Veuillez saisir le numéro Mobile Money");
+  if (!operator) return alert("Veuillez sélectionner un opérateur");
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) return alert("Utilisateur non connecté");
+  const loader = document.getElementById("withdrawLoader");
+  const btn = document.getElementById("withdrawBtn");
+  loader.style.display = "inline";
+  btn.disabled = true;
 
   try {
-    // 🔹 Créer transaction retrait pending
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return alert("Utilisateur non connecté");
+
+    // 🔹 Créer transaction retrait sur ton serveur
     const res = await fetch('https://wallet-backend-jx12.onrender.com/request-withdrawal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: user.id,
-        amount
-      })
+      body: JSON.stringify({ userId: user.id, amount, operator, phone })
     });
 
     const result = await res.json();
-    if (!result.success) return alert(result.error || "Erreur création retrait");
+    if (!result.success) throw new Error(result.error || "Erreur création retrait");
 
-    // 🔹 Simuler webhook pour test (ou attendre clé réelle)
-    await fetch('https://wallet-backend-jx12.onrender.com/confirm-withdrawal', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        transaction_id: result.transaction_id,
-        status: "success"  // ou "failed" si tu veux tester l’échec
-      })
-    });
-
-    alert("Retrait simulé avec succès !");
+    alert("Retrait initié ! L’argent sera transféré vers votre compte Mobile Money.");
     loadWallet();
-    closeWithdrawModal();
+    closeWithdraw();
 
   } catch (err) {
     console.error(err);
-    alert("Erreur serveur");
+    alert(err.message || "Erreur serveur");
+  } finally {
+    loader.style.display = "none";
+    btn.disabled = false;
   }
 }
 
-
-
-// Fermer la modale retrait
-function closeWithdrawModal() {
-  document.getElementById("withdrawModal").style.display = "none";
-}
-
-// Rendre ces fonctions globales
+// ==============================
+// Globales pour HTML
+// ==============================
 window.submitDeposit = submitDeposit;
 window.submitWithdraw = submitWithdraw;
-window.closeWithdrawModal = closeWithdrawModal;
 /* ======================
    LOAD WALLET
 ===================== */
