@@ -641,9 +641,9 @@ window.copyWalletNumber = copyWalletNumber;
   // =========================
 // MODALES RECHARGER / RETIRER
 // =========================
-window.openDeposit = () => document.getElementById("depositModal").style.display = "none";
+window.openDeposit = () => document.getElementById("depositModal").style.display = "flex";
 window.closeDeposit = () => document.getElementById("depositModal").style.display = "none";
-window.openWithdraw = () => document.getElementById("withdrawModal").style.display = "none";
+window.openWithdraw = () => document.getElementById("withdrawModal").style.display = "flex";
 window.closeWithdraw = () => document.getElementById("withdrawModal").style.display = "none";
 
 window.addEventListener("click", (event) => {
@@ -740,11 +740,13 @@ async function submitWithdraw() {
   }
 }
 
+
 // ==============================
 // Globales pour HTML
 // ==============================
 window.submitDeposit = submitDeposit;
 window.submitWithdraw = submitWithdraw;
+ window.closeWithdrawModal = closeWithdrawModal;
 /* ======================
    LOAD WALLET
 ===================== */
@@ -780,7 +782,7 @@ async function loadWallet() {
     // ===== Solde secondaire =====
     const walletBalanceEl = document.getElementById("walletBalance");
     if (walletBalanceEl) {
-      walletBalanceEl.textContent =
+      walletBalanceEl.extContent =
         Number(balance).toLocaleString() + " FCFA";
     }
 
