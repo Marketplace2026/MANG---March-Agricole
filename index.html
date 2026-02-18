@@ -784,6 +784,52 @@ header.topbar .top-actions button {
   align-items:center; /* centre le texte */
   font-weight:600;
 }
+
+ /* Badge Premium général */
+.premium-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+}
+
+/* Premium 1 */
+.premium1 {
+  background: #2ecc71;
+}
+
+/* Premium 2 */
+.premium2 {
+  background: #3498db;
+}
+
+/* Premium 3 */
+.premium3 {
+  background: linear-gradient(45deg, #f39c12, #f1c40f);
+  overflow: hidden;
+}
+
+/* Effet brillant pour Premium 3 */
+.premium3::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: skewX(-25deg);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% { left: -75%; }
+  100% { left: 125%; }
+}
 </style>
 
 <script type="application/ld+json">
