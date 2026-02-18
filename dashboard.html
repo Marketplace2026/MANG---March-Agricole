@@ -678,47 +678,48 @@ window.addEventListener("click", (event) => {
 });
 
 
-/* ======================
-RECHARGE ET RETRAIT
-===================== */
-
+// ==============================
+// RECHARGE (Deposit)
+// ==============================
 async function submitDeposit() {
   const amount = Number(document.getElementById("depositAmount").value);
-  const phone = document.getElementById("depositPhone").value.trim();
 
   if (!amount || amount <= 0) {
     return alert("Montant invalide");
   }
-  if (!phone) {
-    return alert("Veuillez saisir le numéro Mobile Money");
-  }
 
-  // Récupérer l'utilisateur connecté Supabase
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
     return alert("Utilisateur non connecté");
   }
 
   try {
-    // Appel serveur Render pour créer la transaction FedaPay
-    const res = await fetch('https://wallet-backend-jx12.onrender.com/deposit', {
+    // 🔹 Créer transaction pending
+    const res = await fetch('https://wallet-backend-jx12.onrender.com/init-deposit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         userId: user.id,
-        amount,
-        phone
+        amount
       })
     });
 
     const result = await res.json();
+    if (!result.success) return alert(result.error || "Erreur création transaction");
 
-    if (result.success) {
-      // Redirection vers FedaPay sandbox
-      window.location.href = result.payment_url;
-    } else {
-      alert(result.error || "Erreur lors de la recharge");
-    }
+    // 🔹 Simuler webhook pour test (ou attendre clé réelle)
+    await fetch('https://wallet-backend-jx12.onrender.com/webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transaction_id: result.transaction_id,
+        provider_transaction_id: "TEST_DEPOSIT_001",
+        status: "success"
+      })
+    });
+
+    alert("Recharge simulée avec succès !");
+    loadWallet();
 
   } catch (err) {
     console.error("Erreur submitDeposit:", err);
@@ -726,42 +727,59 @@ async function submitDeposit() {
   }
 }
 
+// ==============================
+// RETRAIT (Withdrawal)
+// ==============================
 async function submitWithdraw() {
   const amount = Number(document.getElementById("withdrawAmount").value);
-  const phone = document.getElementById("withdrawPhone").value.trim();
 
-  // Récupérer opérateur sélectionné
   const operatorEl = document.querySelector('input[name="withdrawOperator"]:checked');
   const operator = operatorEl ? operatorEl.value : null;
+
+  const phone = document.getElementById("withdrawPhone").value.trim();
 
   if (!amount || amount <= 0) return alert("Montant invalide");
   if (!operator) return alert("Veuillez sélectionner un opérateur");
   if (!phone) return alert("Veuillez saisir le numéro Mobile Money");
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) return alert("Utilisateur non connecté");
 
   try {
-    // Appel serveur sécurisé pour retrait
-    const res = await fetch('https://ton-serveur.com/api/withdraw', {
+    // 🔹 Créer transaction retrait pending
+    const res = await fetch('https://wallet-backend-jx12.onrender.com/request-withdrawal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, amount, operator, phone })
+      body: JSON.stringify({
+        userId: user.id,
+        amount
+      })
     });
 
     const result = await res.json();
+    if (!result.success) return alert(result.error || "Erreur création retrait");
 
-    if (result.success) {
-      alert(result.message || "Retrait initié avec succès");
-      loadWallet();
-      closeWithdrawModal();
-    } else {
-      alert(result.error || "Erreur retrait");
-    }
+    // 🔹 Simuler webhook pour test (ou attendre clé réelle)
+    await fetch('https://wallet-backend-jx12.onrender.com/confirm-withdrawal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transaction_id: result.transaction_id,
+        status: "success"  // ou "failed" si tu veux tester l’échec
+      })
+    });
+
+    alert("Retrait simulé avec succès !");
+    loadWallet();
+    closeWithdrawModal();
+
   } catch (err) {
     console.error(err);
     alert("Erreur serveur");
   }
 }
+
+
 
 // Fermer la modale retrait
 function closeWithdrawModal() {
