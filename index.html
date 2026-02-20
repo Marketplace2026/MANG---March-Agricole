@@ -2925,6 +2925,28 @@ async function loadProducts(shop, shopProductsScroll, currentUser) {
 
     shopProductsScroll.appendChild(div);
   });
+// 🔹 Initialiser favoris produits
+      document.querySelectorAll(".favoriteProductBtn").forEach(btn => {
+        const productId = btn.dataset.id;
+
+        initFavoriteProduct(productId, btn);
+
+        btn.onclick = async (e) => {
+          e.stopPropagation();
+          await toggleFavoriteProduct(productId, btn);
+        };
+      });
+    }
+
+    // ================= LIKES & COMMENTAIRES =================
+    await loadShopLikes();
+    await loadShopComments();
+
+  } catch (err) {
+    console.error("Erreur openShop :", err);
+    shopProductsScroll.innerHTML =
+      "<p style='color:red;'>Erreur chargement boutique</p>";
+  }
 }
 
 // ==============================
@@ -3012,29 +3034,7 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   
 
 
-      // 🔹 Initialiser favoris produits
-      document.querySelectorAll(".favoriteProductBtn").forEach(btn => {
-        const productId = btn.dataset.id;
-
-        initFavoriteProduct(productId, btn);
-
-        btn.onclick = async (e) => {
-          e.stopPropagation();
-          await toggleFavoriteProduct(productId, btn);
-        };
-      });
-    }
-
-    // ================= LIKES & COMMENTAIRES =================
-    await loadShopLikes();
-    await loadShopComments();
-
-  } catch (err) {
-    console.error("Erreur openShop :", err);
-    shopProductsScroll.innerHTML =
-      "<p style='color:red;'>Erreur chargement boutique</p>";
-  }
- }
+      
 
 // ===================== FONCTIONS FAVORIS PRODUITS =====================
 async function toggleFavoriteProduct(productId, btn, productOwnerId) {
