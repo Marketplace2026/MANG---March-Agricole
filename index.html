@@ -1413,7 +1413,6 @@ MODALE COMMANDE
     <label>Note (optionnelle)</label>
     <textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
 
-    <!-- Bouton pour créer la commande -->
     <button id="createOrderBtn">Créer la commande</button>
   </div>
 </div>
@@ -2828,7 +2827,7 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-   // ==============================
+         // ==============================
 // VARIABLES GLOBALES
 // ==============================
 let currentProduct = null;
@@ -2840,17 +2839,14 @@ let currentOrderId = null;
 function openOrderModal() {
   document.getElementById("orderModal").style.display = "flex";
 }
-
 function closeOrderModal() {
   document.getElementById("orderModal").style.display = "none";
 }
-
 function openPaymentModal(orderId, amount) {
   currentOrderId = orderId;
   document.getElementById("paymentAmount").textContent = amount;
   document.getElementById("paymentModal").style.display = "flex";
 }
-
 function closePaymentModal() {
   document.getElementById("paymentModal").style.display = "none";
 }
@@ -2864,7 +2860,7 @@ window.addEventListener("click", (event) => {
 // ==============================
 // BOUTON COMMANDER
 // ==============================
-shopProductsScroll.addEventListener("click", (e) => {
+document.getElementById("shopProductsScroll").addEventListener("click", (e) => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
 
@@ -2896,6 +2892,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   if (userError || !user) return alert("Utilisateur non connecté");
 
   try {
+    // Appel RPC pour créer la commande
     const { data, error } = await supabase.rpc("create_order", {
       p_buyer: user.id,
       p_seller: currentProduct.sellerId,
@@ -2907,9 +2904,9 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     });
 
     if (error) throw error;
-    if (!data || !data[0]) throw new Error("Commande non créée");
+    if (!data || !data[0] || !data[0].id) throw new Error("Commande non créée");
 
-    const orderId = data[0].id; // Assure-toi que ton RPC retourne l’ID de la commande
+    const orderId = data[0].id; // L'ID retourné par create_order
     closeOrderModal();
     alert("Commande créée ! Cliquez sur Payer maintenant pour finaliser.");
     openPaymentModal(orderId, currentProduct.amount);
@@ -2930,41 +2927,44 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   if (userError || !user) return alert("Utilisateur non connecté");
 
   try {
+    // Appel RPC pour payer la commande
     const { data, error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
     if (error) throw error;
 
     closePaymentModal();
     alert("Paiement effectué ! Argent bloqué en escrow.");
-    loadWallet();
+    loadWallet(); // Recharge le portefeuille si nécessaire
 
   } catch(err) {
     console.error(err);
     alert(err.message || "Erreur lors du paiement");
   }
 });
+   
 
-   // ================= CHARGER PRODUITS =================
+         // ==============================
+// CHARGER PRODUITS
+// ==============================
 let query = supabase
-.from('shop_products')
-.select('*')
-.eq('shop_id', shop.id)
-.order('created_at', { ascending: false });
+  .from('shop_products')
+  .select('*')
+  .eq('shop_id', shop.id)
+  .order('created_at', { ascending: false });
 
 // 🔹 Si ouverture depuis favoris
 if (shop.fromFavorites && currentUser) {
-const { data: favData, error: favError } = await supabase
-.from('favorite_products')
-.select('product_id')
-.eq('user_id', currentUser.id);
+  const { data: favData, error: favError } = await supabase
+    .from('favorite_products')
+    .select('product_id')
+    .eq('user_id', currentUser.id);
 
-if (!favError && favData && favData.length > 0) {
-const favIds = favData.map(f => f.product_id);
-query = query.in('id', favIds);
-} else {
-shopProductsScroll.innerHTML =
-"<p>Aucun produit suivi dans cette boutique.</p>";
-return;
-}
+  if (!favError && favData && favData.length > 0) {
+    const favIds = favData.map(f => f.product_id);
+    query = query.in('id', favIds);
+  } else {
+    shopProductsScroll.innerHTML = "<p>Aucun produit suivi dans cette boutique.</p>";
+    return;
+  }
 }
 
 const { data: products, error: prodError } = await query;
@@ -2972,37 +2972,39 @@ const { data: products, error: prodError } = await query;
 shopProductsScroll.innerHTML = "";
 
 if (prodError) {
-shopProductsScroll.innerHTML =
-"<p style='color:red;'>Erreur chargement produits</p>";
+  shopProductsScroll.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
 } else if (!products || products.length === 0) {
-shopProductsScroll.innerHTML =
-"<p>Aucun produit disponible</p>";
+  shopProductsScroll.innerHTML = "<p>Aucun produit disponible</p>";
 } else {
-
   products.forEach(p => {
     const div = document.createElement("div");
     div.className = "productCard";
+
+    // ⚠️ Sécurisation des données pour éviter undefined/null
+    const sellerId = p.seller_id ?? '';
+    const productId = p.id ?? '';
+    const amount = p.price ?? 0;
 
     div.innerHTML = `
       <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name || 'Produit'}">
       <h5>${p.name || 'Produit'}</h5>
       ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
       <p class="productAvailability">${formatAvailability(p.availability)}</p>
-      <p class="productPrice"><strong>${p.price || '-'} FCFA</strong></p>
-      <button class="favoriteProductBtn" data-id="${p.id}">🤍</button>
+      <p class="productPrice"><strong>${p.price ?? '-'} FCFA</strong></p>
+      <button class="favoriteProductBtn" data-id="${productId}">🤍</button>
 
       <!-- Commander -->
       <button class="orderBtn"
-              data-seller-id="${p.seller_id || ''}"
-              data-product-id="${p.id || ''}"
-              data-amount="${p.price || 0}">
+              data-seller-id="${sellerId}"
+              data-product-id="${productId}"
+              data-amount="${amount}">
         Commander
       </button>
     `;
 
     shopProductsScroll.appendChild(div);
   });
-
+}
 // 🔹 Initialiser favoris produits
       document.querySelectorAll(".favoriteProductBtn").forEach(btn => {
         const productId = btn.dataset.id;
