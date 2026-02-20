@@ -2828,47 +2828,157 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-
-   
+   // ==============================
+// VARIABLES GLOBALES
 // ==============================
-// CHARGER PRODUITS
+let currentProduct = null;
+let currentOrderId = null;
+
 // ==============================
-async function loadProducts(shop, shopProductsScroll, currentUser) {
-  let query = supabase
-    .from('shop_products')
-    .select('*')
-    .eq('shop_id', shop.id)
-    .order('created_at', { ascending: false });
+// MODALES
+// ==============================
+function openOrderModal() {
+  document.getElementById("orderModal").style.display = "flex";
+}
 
-  // 🔹 Si ouverture depuis favoris
-  if (shop.fromFavorites && currentUser) {
-    const { data: favData, error: favError } = await supabase
-      .from('favorite_products')
-      .select('product_id')
-      .eq('user_id', currentUser.id);
+function closeOrderModal() {
+  document.getElementById("orderModal").style.display = "none";
+}
 
-    if (!favError && favData && favData.length > 0) {
-      const favIds = favData.map(f => f.product_id);
-      query = query.in('id', favIds);
-    } else {
-      shopProductsScroll.innerHTML = "<p>Aucun produit suivi dans cette boutique.</p>";
-      return;
-    }
+function openPaymentModal(orderId, amount) {
+  currentOrderId = orderId;
+  document.getElementById("paymentAmount").textContent = amount;
+  document.getElementById("paymentModal").style.display = "flex";
+}
+
+function closePaymentModal() {
+  document.getElementById("paymentModal").style.display = "none";
+}
+
+// Fermer modale si clic en dehors
+window.addEventListener("click", (event) => {
+  if (event.target.id === "orderModal") closeOrderModal();
+  if (event.target.id === "paymentModal") closePaymentModal();
+});
+
+// ==============================
+// BOUTON COMMANDER
+// ==============================
+shopProductsScroll.addEventListener("click", (e) => {
+  const btn = e.target.closest(".orderBtn");
+  if (!btn) return;
+
+  const sellerId = btn.dataset.sellerId;
+  const productId = btn.dataset.productId;
+  const amount = parseFloat(btn.dataset.amount);
+
+  if (!sellerId || !productId || isNaN(amount)) {
+    return alert("Impossible de commander : informations produit manquantes.");
   }
 
-  const { data: products, error: prodError } = await query;
+  currentProduct = { sellerId, productId, amount };
+  openOrderModal();
+});
 
-  shopProductsScroll.innerHTML = "";
+// ==============================
+// CREER COMMANDE
+// ==============================
+document.getElementById("createOrderBtn").addEventListener("click", async () => {
+  if (!currentProduct) return alert("Produit invalide");
 
-  if (prodError) {
-    shopProductsScroll.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
-    return;
-  } else if (!products || products.length === 0) {
-    shopProductsScroll.innerHTML = "<p>Aucun produit disponible</p>";
-    return;
+  const address = document.getElementById("orderAddress").value.trim();
+  const phone = document.getElementById("orderPhone").value.trim();
+  const note = document.getElementById("orderNote").value.trim();
+
+  if (!address || !phone) return alert("Adresse et téléphone requis");
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) return alert("Utilisateur non connecté");
+
+  try {
+    const { data, error } = await supabase.rpc("create_order", {
+      p_buyer: user.id,
+      p_seller: currentProduct.sellerId,
+      p_product: currentProduct.productId,
+      p_amount: currentProduct.amount,
+      p_address: address,
+      p_phone: phone,
+      p_note: note
+    });
+
+    if (error) throw error;
+    if (!data || !data[0]) throw new Error("Commande non créée");
+
+    const orderId = data[0].id; // Assure-toi que ton RPC retourne l’ID de la commande
+    closeOrderModal();
+    alert("Commande créée ! Cliquez sur Payer maintenant pour finaliser.");
+    openPaymentModal(orderId, currentProduct.amount);
+
+  } catch(err) {
+    console.error(err);
+    alert(err.message || "Erreur création commande");
   }
+});
 
-  // Boucle pour afficher chaque produit
+// ==============================
+// PAYER COMMANDE
+// ==============================
+document.getElementById("payOrderBtn").addEventListener("click", async () => {
+  if (!currentOrderId) return alert("Commande invalide");
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) return alert("Utilisateur non connecté");
+
+  try {
+    const { data, error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
+    if (error) throw error;
+
+    closePaymentModal();
+    alert("Paiement effectué ! Argent bloqué en escrow.");
+    loadWallet();
+
+  } catch(err) {
+    console.error(err);
+    alert(err.message || "Erreur lors du paiement");
+  }
+});
+
+   // ================= CHARGER PRODUITS =================
+let query = supabase
+.from('shop_products')
+.select('*')
+.eq('shop_id', shop.id)
+.order('created_at', { ascending: false });
+
+// 🔹 Si ouverture depuis favoris
+if (shop.fromFavorites && currentUser) {
+const { data: favData, error: favError } = await supabase
+.from('favorite_products')
+.select('product_id')
+.eq('user_id', currentUser.id);
+
+if (!favError && favData && favData.length > 0) {
+const favIds = favData.map(f => f.product_id);
+query = query.in('id', favIds);
+} else {
+shopProductsScroll.innerHTML =
+"<p>Aucun produit suivi dans cette boutique.</p>";
+return;
+}
+}
+
+const { data: products, error: prodError } = await query;
+
+shopProductsScroll.innerHTML = "";
+
+if (prodError) {
+shopProductsScroll.innerHTML =
+"<p style='color:red;'>Erreur chargement produits</p>";
+} else if (!products || products.length === 0) {
+shopProductsScroll.innerHTML =
+"<p>Aucun produit disponible</p>";
+} else {
+
   products.forEach(p => {
     const div = document.createElement("div");
     div.className = "productCard";
