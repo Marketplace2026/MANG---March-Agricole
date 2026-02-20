@@ -960,6 +960,105 @@ border: 2px solid #ffeb3b;
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   transition: all 0.25s ease;
 }
+ .shop-products-scroll {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .productCard {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 180px;
+    text-align: center;
+    background: #fff;
+  }
+
+  .productCard img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .productDesc {
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+  }
+
+  .productAvailability, .productPrice {
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+  }
+
+  .favoriteProductBtn, .orderBtn {
+    margin-top: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .orderBtn {
+    background-color: #28a745;
+    color: white;
+  }
+
+  /* MODALES */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 300px;
+    max-width: 90%;
+    position: relative;
+  }
+
+  .modal-content .close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    font-size: 1.2rem;
+  }
+
+  .modal-content input, .modal-content textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+  }
+
+  .modal-content button {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .modal-content button:hover {
+    opacity: 0.9;
+  }
 </style>
 
 <script type="application/ld+json">
@@ -1294,6 +1393,44 @@ border: 2px solid #ffeb3b;
   <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>
 </div>
 
+ <!-- CONTENEUR PRODUITS -->
+<div id="shopProductsScroll" class="shop-products-scroll"></div>
+
+<!-- ===========================
+MODALE COMMANDE
+=========================== -->
+<div id="orderModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeOrderModal()">&times;</span>
+    <h3>Renseignez vos informations de livraison</h3>
+    
+    <label>Adresse de livraison *</label>
+    <input id="orderAddress" type="text" placeholder="Adresse complète">
+
+    <label>Téléphone *</label>
+    <input id="orderPhone" type="text" placeholder="Numéro de téléphone">
+
+    <label>Note (optionnelle)</label>
+    <textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
+
+    <button id="createOrderBtn">Créer la commande</button>
+  </div>
+</div>
+
+<!-- ===========================
+MODALE PAIEMENT
+=========================== -->
+<div id="paymentModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closePaymentModal()">&times;</span>
+    <h3>Paiement de la commande</h3>
+    
+    <p>Montant : <strong><span id="paymentAmount">0</span> FCFA</strong></p>
+    <p>L’argent sera bloqué en escrow jusqu’à livraison.</p>
+
+    <button id="payOrderBtn">Payer maintenant</button>
+  </div>
+</div>
  
   
 <script type="module">
@@ -2692,73 +2829,190 @@ function formatAvailability(value) {
   return map[value] || "⏳ Indisponible";
 }
 
-   
-    // ================= CHARGER PRODUITS =================
-    let query = supabase
-      .from('shop_products')
-      .select('*')
-      .eq('shop_id', shop.id)
-      .order('created_at', { ascending: false });
+   // ==============================
+// VARIABLES GLOBALES
+// ==============================
+let currentProduct = {};
+let currentOrderId = null;
 
-    // 🔹 Si ouverture depuis favoris
-    if (shop.fromFavorites && currentUser) {
-      const { data: favData, error: favError } = await supabase
-        .from('favorite_products')
-        .select('product_id')
-        .eq('user_id', currentUser.id);
+// Conteneur où les produits seront injectés
+const shopProductsScroll = document.getElementById("shopProductsScroll");
 
-      if (!favError && favData && favData.length > 0) {
-        const favIds = favData.map(f => f.product_id);
-        query = query.in('id', favIds);
-      } else {
-        shopProductsScroll.innerHTML =
-          "<p>Aucun produit suivi dans cette boutique.</p>";
-        return;
-      }
-    }
+// ==============================
+// MODALES
+// ==============================
+function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
+function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
 
-    const { data: products, error: prodError } = await query;
+function openPaymentModal(orderId, amount) {
+  currentOrderId = orderId;
+  document.getElementById("paymentAmount").textContent = amount;
+  document.getElementById("paymentModal").style.display = "flex";
+}
+function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
 
-    shopProductsScroll.innerHTML = "";
-
-    if (prodError) {
-      shopProductsScroll.innerHTML =
-        "<p style='color:red;'>Erreur chargement produits</p>";
-    } else if (!products || products.length === 0) {
-      shopProductsScroll.innerHTML =
-        "<p>Aucun produit disponible</p>";
-    } else {
-      products.forEach(p => {
-  const div = document.createElement("div");
-  div.className = "productCard";
-
-  div.innerHTML = `
-    <img src="${p.image_url || 'https://via.placeholder.com/150'}"
-         alt="${p.name || 'Produit'}">
-
-    <h5>${p.name || 'Produit'}</h5>
-
-    <!-- 📝 DESCRIPTION -->
-    ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
-
-    <!-- 📦 DISPONIBILITÉ -->
-    <p class="productAvailability">
-      ${formatAvailability(p.availability)}
-    </p>
-
-    <!-- 💰 PRIX -->
-    <p class="productPrice">
-      <strong>${p.price || '-'} FCFA</strong>
-    </p>
-
-    <!-- ❤️ FAVORIS -->
-    <button class="favoriteProductBtn" data-id="${p.id}">
-      🤍
-    </button>
-  `;
-
-  shopProductsScroll.appendChild(div);
+// Fermer modales si clic en dehors
+window.addEventListener("click", (event) => {
+  if (event.target.id === "orderModal") closeOrderModal();
+  if (event.target.id === "paymentModal") closePaymentModal();
 });
+
+// ==============================
+// FONCTION AFFICHAGE PRODUITS
+// ==============================
+function displayProducts(products) {
+  shopProductsScroll.innerHTML = "";
+
+  if (!products || products.length === 0) {
+    shopProductsScroll.innerHTML = "<p>Aucun produit disponible</p>";
+    return;
+  }
+
+  products.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "productCard";
+
+    div.innerHTML = `
+      <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name || 'Produit'}">
+      <h5>${p.name || 'Produit'}</h5>
+      ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
+      <p class="productAvailability">${formatAvailability(p.availability)}</p>
+      <p class="productPrice"><strong>${p.price || '-'} FCFA</strong></p>
+
+      <!-- ❤️ Favoris -->
+      <button class="favoriteProductBtn" data-id="${p.id}">🤍</button>
+
+      <!-- 🛒 Commander -->
+      <button class="orderBtn"
+              data-seller-id="${p.seller_id}"
+              data-product-id="${p.id}"
+              data-amount="${p.price}">
+        Commander
+      </button>
+    `;
+    shopProductsScroll.appendChild(div);
+  });
+}
+
+// ==============================
+// CHARGER PRODUITS DE LA BOUTIQUE
+// ==============================
+async function loadShopProducts(shop) {
+  let query = supabase
+    .from('shop_products')
+    .select('*')
+    .eq('shop_id', shop.id)
+    .order('created_at', { ascending: false });
+
+  // 🔹 Filtrer favoris si nécessaire
+  if (shop.fromFavorites && currentUser) {
+    const { data: favData, error: favError } = await supabase
+      .from('favorite_products')
+      .select('product_id')
+      .eq('user_id', currentUser.id);
+
+    if (!favError && favData && favData.length > 0) {
+      const favIds = favData.map(f => f.product_id);
+      query = query.in('id', favIds);
+    } else {
+      shopProductsScroll.innerHTML = "<p>Aucun produit suivi dans cette boutique.</p>";
+      return;
+    }
+  }
+
+  const { data: products, error: prodError } = await query;
+
+  if (prodError) {
+    shopProductsScroll.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
+    return;
+  }
+
+  displayProducts(products);
+}
+
+// ==============================
+// BOUTON COMMANDER (event delegation)
+// ==============================
+shopProductsScroll.addEventListener("click", (e) => {
+  const btn = e.target.closest(".orderBtn");
+  if (!btn) return;
+
+  currentProduct = {
+    sellerId: btn.dataset.sellerId,
+    productId: btn.dataset.productId,
+    amount: parseFloat(btn.dataset.amount)
+  };
+
+  openOrderModal();
+});
+
+// ==============================
+// CREER COMMANDE
+// ==============================
+document.getElementById("createOrderBtn").addEventListener("click", async () => {
+  const address = document.getElementById("orderAddress").value.trim();
+  const phone = document.getElementById("orderPhone").value.trim();
+  const note = document.getElementById("orderNote").value.trim();
+
+  if (!address || !phone) return alert("Adresse et téléphone requis");
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) return alert("Utilisateur non connecté");
+
+  try {
+    const { data: orderId, error } = await supabase.rpc("create_order", {
+      p_buyer: user.id,
+      p_seller: currentProduct.sellerId,
+      p_product: currentProduct.productId,
+      p_amount: currentProduct.amount,
+      p_address: address,
+      p_phone: phone,
+      p_note: note
+    });
+
+    if (error) throw error;
+
+    closeOrderModal();
+    alert("Commande créée ! Cliquez sur Payer maintenant pour finaliser.");
+    openPaymentModal(orderId, currentProduct.amount);
+
+  } catch(err) {
+    console.error(err);
+    alert("Erreur création commande");
+  }
+});
+
+// ==============================
+// PAYER COMMANDE
+// ==============================
+document.getElementById("payOrderBtn").addEventListener("click", async () => {
+  if (!currentOrderId) return alert("Commande invalide");
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) return alert("Utilisateur non connecté");
+
+  try {
+    const { data, error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
+    if (error) throw error;
+
+    closePaymentModal();
+    alert("Paiement effectué ! Argent bloqué en escrow.");
+    loadWallet();
+
+  } catch(err) {
+    console.error(err);
+    alert(err.message || "Erreur lors du paiement");
+  }
+});
+
+// ==============================
+// RENDRE FONCTIONS GLOBALES
+// ==============================
+window.loadShopProducts = loadShopProducts;
+window.openOrderModal = openOrderModal;
+window.closeOrderModal = closeOrderModal;
+window.openPaymentModal = openPaymentModal;
+window.closePaymentModal = closePaymentModal;
 
       // 🔹 Initialiser favoris produits
       document.querySelectorAll(".favoriteProductBtn").forEach(btn => {
