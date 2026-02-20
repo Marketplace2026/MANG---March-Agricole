@@ -2827,8 +2827,7 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-         
-// ==============================
+         // ==============================
 // VARIABLES GLOBALES
 // ==============================
 let currentProduct = null;
@@ -2848,7 +2847,6 @@ function closeOrderModal() {
 
 function openPaymentModal(orderId, amount) {
   if (!orderId) return;
-
   currentOrderId = orderId;
   document.getElementById("paymentAmount").textContent = amount;
   document.getElementById("paymentModal").style.display = "flex";
@@ -2887,7 +2885,6 @@ document.getElementById("shopProductsScroll").addEventListener("click", (e) => {
 // CREER COMMANDE
 // ==============================
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
-
   if (isProcessing) return;
   if (!currentProduct) return alert("Produit invalide");
 
@@ -2905,7 +2902,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   isProcessing = true;
 
   try {
-
+    // ✅ Crée la commande via RPC
     const { data, error } = await supabase.rpc("create_order", {
       p_buyer: user.id,
       p_seller: currentProduct.sellerId,
@@ -2919,14 +2916,27 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     if (error) throw error;
     if (!data) throw new Error("Commande non créée");
 
-    currentOrderId = data;
+    // On récupère l'ID de la commande
+    const orderId = data;
 
-    console.log("Commande créée ID :", currentOrderId);
+    console.log("Commande créée ID :", orderId);
+
+    // ✅ Crée immédiatement la transaction initiale dans wallet_transactions
+    const { error: txError } = await supabase
+      .from("wallet_transactions")
+      .insert([{
+        user_id: user.id,
+        order_id: orderId,
+        amount: currentProduct.amount,
+        transaction_type: "escrow", // type valide
+        status: "pending"           // status valide
+      }]);
+
+    if (txError) throw txError;
 
     closeOrderModal();
     alert("Commande créée ! Cliquez sur Payer maintenant.");
-
-    openPaymentModal(currentOrderId, currentProduct.amount);
+    openPaymentModal(orderId, currentProduct.amount);
 
   } catch (err) {
     console.error(err);
@@ -2940,12 +2950,8 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 // PAYER COMMANDE
 // ==============================
 document.getElementById("payOrderBtn").addEventListener("click", async () => {
-
   if (isProcessing) return;
-
-  if (!currentOrderId || currentOrderId === "undefined") {
-    return alert("Commande invalide");
-  }
+  if (!currentOrderId) return alert("Commande invalide");
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) return alert("Utilisateur non connecté");
@@ -2953,15 +2959,22 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   isProcessing = true;
 
   try {
-
+    // ✅ Appel RPC pour payer la commande
     const { error } = await supabase.rpc("pay_order", {
       p_order_id: currentOrderId
     });
-
     if (error) throw error;
 
-    closePaymentModal();
+    // ✅ Mise à jour du wallet_transaction correspondant
+    const { error: updateTxError } = await supabase
+      .from("wallet_transactions")
+      .update({ status: "success" }) // status valide
+      .eq("order_id", currentOrderId)
+      .eq("transaction_type", "escrow");
 
+    if (updateTxError) throw updateTxError;
+
+    closePaymentModal();
     alert("Paiement effectué ! Argent bloqué en escrow.");
 
     // Reset état
@@ -2979,6 +2992,7 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
 
   isProcessing = false;
 });
+
 // ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
