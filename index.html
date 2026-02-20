@@ -2835,15 +2835,11 @@ function formatAvailability(value) {
 let currentProduct = {};
 let currentOrderId = null;
 
-// Conteneur où les produits seront injectés
-const shopProductsScroll = document.getElementById("shopProductsScroll");
-
 // ==============================
 // MODALES
 // ==============================
 function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
 function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
-
 function openPaymentModal(orderId, amount) {
   currentOrderId = orderId;
   document.getElementById("paymentAmount").textContent = amount;
@@ -2851,87 +2847,14 @@ function openPaymentModal(orderId, amount) {
 }
 function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
 
-// Fermer modales si clic en dehors
+// Fermer modale si clic en dehors
 window.addEventListener("click", (event) => {
   if (event.target.id === "orderModal") closeOrderModal();
   if (event.target.id === "paymentModal") closePaymentModal();
 });
 
 // ==============================
-// FONCTION AFFICHAGE PRODUITS
-// ==============================
-function displayProducts(products) {
-  shopProductsScroll.innerHTML = "";
-
-  if (!products || products.length === 0) {
-    shopProductsScroll.innerHTML = "<p>Aucun produit disponible</p>";
-    return;
-  }
-
-  products.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "productCard";
-
-    div.innerHTML = `
-      <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name || 'Produit'}">
-      <h5>${p.name || 'Produit'}</h5>
-      ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
-      <p class="productAvailability">${formatAvailability(p.availability)}</p>
-      <p class="productPrice"><strong>${p.price || '-'} FCFA</strong></p>
-
-      <!-- ❤️ Favoris -->
-      <button class="favoriteProductBtn" data-id="${p.id}">🤍</button>
-
-      <!-- 🛒 Commander -->
-      <button class="orderBtn"
-              data-seller-id="${p.seller_id}"
-              data-product-id="${p.id}"
-              data-amount="${p.price}">
-        Commander
-      </button>
-    `;
-    shopProductsScroll.appendChild(div);
-  });
-}
-
-// ==============================
-// CHARGER PRODUITS DE LA BOUTIQUE
-// ==============================
-async function loadShopProducts(shop) {
-  let query = supabase
-    .from('shop_products')
-    .select('*')
-    .eq('shop_id', shop.id)
-    .order('created_at', { ascending: false });
-
-  // 🔹 Filtrer favoris si nécessaire
-  if (shop.fromFavorites && currentUser) {
-    const { data: favData, error: favError } = await supabase
-      .from('favorite_products')
-      .select('product_id')
-      .eq('user_id', currentUser.id);
-
-    if (!favError && favData && favData.length > 0) {
-      const favIds = favData.map(f => f.product_id);
-      query = query.in('id', favIds);
-    } else {
-      shopProductsScroll.innerHTML = "<p>Aucun produit suivi dans cette boutique.</p>";
-      return;
-    }
-  }
-
-  const { data: products, error: prodError } = await query;
-
-  if (prodError) {
-    shopProductsScroll.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
-    return;
-  }
-
-  displayProducts(products);
-}
-
-// ==============================
-// BOUTON COMMANDER (event delegation)
+// BOUTON COMMANDER
 // ==============================
 shopProductsScroll.addEventListener("click", (e) => {
   const btn = e.target.closest(".orderBtn");
@@ -3004,15 +2927,76 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
     alert(err.message || "Erreur lors du paiement");
   }
 });
+   // ================= CHARGER PRODUITS =================
+let query = supabase
+.from('shop_products')
+.select('*')
+.eq('shop_id', shop.id)
+.order('created_at', { ascending: false });
 
-// ==============================
-// RENDRE FONCTIONS GLOBALES
-// ==============================
-window.loadShopProducts = loadShopProducts;
-window.openOrderModal = openOrderModal;
-window.closeOrderModal = closeOrderModal;
-window.openPaymentModal = openPaymentModal;
-window.closePaymentModal = closePaymentModal;
+// 🔹 Si ouverture depuis favoris
+if (shop.fromFavorites && currentUser) {
+const { data: favData, error: favError } = await supabase
+.from('favorite_products')
+.select('product_id')
+.eq('user_id', currentUser.id);
+
+if (!favError && favData && favData.length > 0) {
+const favIds = favData.map(f => f.product_id);
+query = query.in('id', favIds);
+} else {
+shopProductsScroll.innerHTML =
+"<p>Aucun produit suivi dans cette boutique.</p>";
+return;
+}
+}
+
+const { data: products, error: prodError } = await query;
+
+shopProductsScroll.innerHTML = "";
+
+if (prodError) {
+shopProductsScroll.innerHTML =
+"<p style='color:red;'>Erreur chargement produits</p>";
+} else if (!products || products.length === 0) {
+shopProductsScroll.innerHTML =
+"<p>Aucun produit disponible</p>";
+} else {
+ products.forEach(p => {
+
+  const div = document.createElement("div");
+  div.className = "productCard";
+
+  div.innerHTML = `
+    <img src="${p.image_url || 'https://via.placeholder.com/150'}"    
+         alt="${p.name || 'Produit'}">
+
+    <h5>${p.name || 'Produit'}</h5>
+
+    <!-- 📝 DESCRIPTION -->
+    ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
+
+    <!-- 📦 DISPONIBILITÉ -->
+    <p class="productAvailability">${formatAvailability(p.availability)}</p>
+
+    <!-- 💰 PRIX -->
+    <p class="productPrice"><strong>${p.price || '-'} FCFA</strong></p>
+
+    <!-- ❤️ FAVORIS -->
+    <button class="favoriteProductBtn" data-id="${p.id}">🤍</button>
+
+    <!-- 🛒 COMMANDER -->
+    <button class="orderBtn"
+            data-seller-id="${p.seller_id}"
+            data-product-id="${p.id}"
+            data-amount="${p.price}">
+      Commander
+    </button>
+  `;
+
+  shopProductsScroll.appendChild(div);
+});
+
 
       // 🔹 Initialiser favoris produits
       document.querySelectorAll(".favoriteProductBtn").forEach(btn => {
