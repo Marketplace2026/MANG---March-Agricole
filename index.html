@@ -2827,7 +2827,9 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-         // ==============================
+
+
+   // ==============================
 // VARIABLES GLOBALES
 // ==============================
 let currentProduct = null;
@@ -2902,7 +2904,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   isProcessing = true;
 
   try {
-    // ✅ Crée la commande via RPC
+    // 1️⃣ Crée la commande via RPC
     const { data, error } = await supabase.rpc("create_order", {
       p_buyer: user.id,
       p_seller: currentProduct.sellerId,
@@ -2916,20 +2918,20 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     if (error) throw error;
     if (!data) throw new Error("Commande non créée");
 
-    // On récupère l'ID de la commande
     const orderId = data;
+    currentOrderId = orderId;
 
     console.log("Commande créée ID :", orderId);
 
-    // ✅ Crée immédiatement la transaction initiale dans wallet_transactions
+    // 2️⃣ Crée la transaction initiale dans wallet_transactions
     const { error: txError } = await supabase
       .from("wallet_transactions")
       .insert([{
         user_id: user.id,
         order_id: orderId,
         amount: currentProduct.amount,
-        transaction_type: "escrow", // type valide
-        status: "pending"           // status valide
+        transaction_type: "escrow", // ✅ type valide
+        status: "pending"           // ✅ status valide
       }]);
 
     if (txError) throw txError;
@@ -2959,16 +2961,10 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   isProcessing = true;
 
   try {
-    // ✅ Appel RPC pour payer la commande
-    const { error } = await supabase.rpc("pay_order", {
-      p_order_id: currentOrderId
-    });
-    if (error) throw error;
-
-    // ✅ Mise à jour du wallet_transaction correspondant
+    // 1️⃣ Met à jour le status de la transaction escrow
     const { error: updateTxError } = await supabase
       .from("wallet_transactions")
-      .update({ status: "success" }) // status valide
+      .update({ status: "success" }) // ✅ status valide
       .eq("order_id", currentOrderId)
       .eq("transaction_type", "escrow");
 
@@ -2992,7 +2988,6 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
 
   isProcessing = false;
 });
-
 // ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
