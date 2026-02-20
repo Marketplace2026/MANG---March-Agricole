@@ -2830,40 +2830,6 @@ function formatAvailability(value) {
 }
 
    
-
-// ==============================
-// VARIABLES GLOBALES
-// ==============================
-let currentProduct = null;
-let currentOrderId = null;
-
-// ==============================
-// MODALES
-// ==============================
-function openOrderModal() {
-  document.getElementById("orderModal").style.display = "flex";
-}
-
-function closeOrderModal() {
-  document.getElementById("orderModal").style.display = "none";
-}
-
-function openPaymentModal(orderId, amount) {
-  currentOrderId = orderId;
-  document.getElementById("paymentAmount").textContent = amount;
-  document.getElementById("paymentModal").style.display = "flex";
-}
-
-function closePaymentModal() {
-  document.getElementById("paymentModal").style.display = "none";
-}
-
-// Fermer modale si clic en dehors
-window.addEventListener("click", (event) => {
-  if (event.target.id === "orderModal") closeOrderModal();
-  if (event.target.id === "paymentModal") closePaymentModal();
-});
-
 // ==============================
 // CHARGER PRODUITS
 // ==============================
@@ -2874,7 +2840,7 @@ async function loadProducts(shop, shopProductsScroll, currentUser) {
     .eq('shop_id', shop.id)
     .order('created_at', { ascending: false });
 
-  // Si ouverture depuis favoris
+  // 🔹 Si ouverture depuis favoris
   if (shop.fromFavorites && currentUser) {
     const { data: favData, error: favError } = await supabase
       .from('favorite_products')
@@ -2902,6 +2868,7 @@ async function loadProducts(shop, shopProductsScroll, currentUser) {
     return;
   }
 
+  // Boucle pour afficher chaque produit
   products.forEach(p => {
     const div = document.createElement("div");
     div.className = "productCard";
@@ -2925,6 +2892,7 @@ async function loadProducts(shop, shopProductsScroll, currentUser) {
 
     shopProductsScroll.appendChild(div);
   });
+
 // 🔹 Initialiser favoris produits
       document.querySelectorAll(".favoriteProductBtn").forEach(btn => {
         const productId = btn.dataset.id;
@@ -2949,92 +2917,6 @@ async function loadProducts(shop, shopProductsScroll, currentUser) {
   }
 }
 
-// ==============================
-// BOUTON COMMANDER
-// ==============================
-shopProductsScroll.addEventListener("click", (e) => {
-  const btn = e.target.closest(".orderBtn");
-  if (!btn) return;
-
-  const sellerId = btn.dataset.sellerId;
-  const productId = btn.dataset.productId;
-  const amount = parseFloat(btn.dataset.amount);
-
-  if (!sellerId || !productId || isNaN(amount)) {
-    return alert("Impossible de commander : informations produit manquantes.");
-  }
-
-  currentProduct = { sellerId, productId, amount };
-  openOrderModal();
-});
-
-// ==============================
-// CREER COMMANDE
-// ==============================
-document.getElementById("createOrderBtn").addEventListener("click", async () => {
-  if (!currentProduct) return alert("Produit invalide");
-
-  const address = document.getElementById("orderAddress").value.trim();
-  const phone = document.getElementById("orderPhone").value.trim();
-  const note = document.getElementById("orderNote").value.trim();
-
-  if (!address || !phone) return alert("Adresse et téléphone requis");
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) return alert("Utilisateur non connecté");
-
-  try {
-    // Appel à ton RPC create_order
-    const { data, error } = await supabase.rpc("create_order", {
-      p_buyer: user.id,
-      p_seller: currentProduct.sellerId,
-      p_product: currentProduct.productId,
-      p_amount: currentProduct.amount,
-      p_address: address,
-      p_phone: phone,
-      p_note: note
-    });
-
-    if (error) throw error;
-    if (!data || !data[0]) throw new Error("Commande non créée");
-
-    const orderId = data[0].id; // L'ID doit être retourné par ton RPC
-    closeOrderModal();
-    alert("Commande créée ! Cliquez sur Payer maintenant pour finaliser.");
-    openPaymentModal(orderId, currentProduct.amount);
-
-  } catch(err) {
-    console.error(err);
-    alert(err.message || "Erreur création commande");
-  }
-});
-
-// ==============================
-// PAYER COMMANDE
-// ==============================
-document.getElementById("payOrderBtn").addEventListener("click", async () => {
-  if (!currentOrderId) return alert("Commande invalide");
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) return alert("Utilisateur non connecté");
-
-  try {
-    const { data, error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
-    if (error) throw error;
-
-    closePaymentModal();
-    alert("Paiement effectué ! Argent bloqué en escrow.");
-    loadWallet();
-
-  } catch(err) {
-    console.error(err);
-    alert(err.message || "Erreur lors du paiement");
-  }
-});
-  
-
-
-      
 
 // ===================== FONCTIONS FAVORIS PRODUITS =====================
 async function toggleFavoriteProduct(productId, btn, productOwnerId) {
