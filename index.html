@@ -1393,7 +1393,7 @@ border: 2px solid #ffeb3b;
   <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>
 </div>
 
- <!-- CONTENEUR PRODUITS -->
+<!-- CONTENEUR PRODUITS -->
 <div id="shopProductsScroll" class="shop-products-scroll"></div>
 
 <!-- ===========================
@@ -1413,6 +1413,7 @@ MODALE COMMANDE
     <label>Note (optionnelle)</label>
     <textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
 
+    <!-- Bouton pour créer la commande -->
     <button id="createOrderBtn">Créer la commande</button>
   </div>
 </div>
@@ -1431,7 +1432,6 @@ MODALE PAIEMENT
     <button id="payOrderBtn">Payer maintenant</button>
   </div>
 </div>
- 
   
 <script type="module">
 import { supabase } from './supabase.js';
@@ -2829,32 +2829,24 @@ function formatAvailability(value) {
   return map[value] || "⏳ Indisponible";
 }
 
-   // ==============================
+   
+// ==============================
 // VARIABLES GLOBALES
 // ==============================
-let currentProduct = {};
+let currentProduct = null;
 let currentOrderId = null;
 
 // ==============================
 // MODALES
 // ==============================
-function openOrderModal() {
-  document.getElementById("orderModal").style.display = "flex";
-}
-
-function closeOrderModal() {
-  document.getElementById("orderModal").style.display = "none";
-}
-
+function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
+function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
 function openPaymentModal(orderId, amount) {
   currentOrderId = orderId;
   document.getElementById("paymentAmount").textContent = amount;
   document.getElementById("paymentModal").style.display = "flex";
 }
-
-function closePaymentModal() {
-  document.getElementById("paymentModal").style.display = "none";
-}
+function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
 
 // Fermer modale si clic en dehors
 window.addEventListener("click", (event) => {
@@ -2863,27 +2855,84 @@ window.addEventListener("click", (event) => {
 });
 
 // ==============================
+// CHARGER PRODUITS
+// ==============================
+async function loadProducts(shop, shopProductsScroll, currentUser) {
+  let query = supabase
+    .from('shop_products')
+    .select('*')
+    .eq('shop_id', shop.id)
+    .order('created_at', { ascending: false });
+
+  // Si ouverture depuis favoris
+  if (shop.fromFavorites && currentUser) {
+    const { data: favData, error: favError } = await supabase
+      .from('favorite_products')
+      .select('product_id')
+      .eq('user_id', currentUser.id);
+
+    if (!favError && favData && favData.length > 0) {
+      const favIds = favData.map(f => f.product_id);
+      query = query.in('id', favIds);
+    } else {
+      shopProductsScroll.innerHTML = "<p>Aucun produit suivi dans cette boutique.</p>";
+      return;
+    }
+  }
+
+  const { data: products, error: prodError } = await query;
+
+  shopProductsScroll.innerHTML = "";
+
+  if (prodError) {
+    shopProductsScroll.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
+    return;
+  } else if (!products || products.length === 0) {
+    shopProductsScroll.innerHTML = "<p>Aucun produit disponible</p>";
+    return;
+  }
+
+  products.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "productCard";
+
+    div.innerHTML = `
+      <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name || 'Produit'}">
+      <h5>${p.name || 'Produit'}</h5>
+      ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
+      <p class="productAvailability">${formatAvailability(p.availability)}</p>
+      <p class="productPrice"><strong>${p.price || '-'} FCFA</strong></p>
+      <button class="favoriteProductBtn" data-id="${p.id}">🤍</button>
+
+      <!-- Commander -->
+      <button class="orderBtn"
+              data-seller-id="${p.seller_id || ''}"
+              data-product-id="${p.id || ''}"
+              data-amount="${p.price || 0}">
+        Commander
+      </button>
+    `;
+
+    shopProductsScroll.appendChild(div);
+  });
+}
+
+// ==============================
 // BOUTON COMMANDER
 // ==============================
 shopProductsScroll.addEventListener("click", (e) => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
 
-  // Vérifier que toutes les datas existent
   const sellerId = btn.dataset.sellerId;
   const productId = btn.dataset.productId;
   const amount = parseFloat(btn.dataset.amount);
 
-  if (!sellerId || !productId || isNaN(amount)) {
-    return alert("Impossible de commander ce produit. Données manquantes.");
+  if (!sellerId || !productId || !amount) {
+    return alert("Impossible de commander : informations produit manquantes.");
   }
 
-  currentProduct = {
-    sellerId,
-    productId,
-    amount
-  };
-
+  currentProduct = { sellerId, productId, amount };
   openOrderModal();
 });
 
@@ -2891,6 +2940,8 @@ shopProductsScroll.addEventListener("click", (e) => {
 // CREER COMMANDE
 // ==============================
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
+  if (!currentProduct) return alert("Produit invalide");
+
   const address = document.getElementById("orderAddress").value.trim();
   const phone = document.getElementById("orderPhone").value.trim();
   const note = document.getElementById("orderNote").value.trim();
@@ -2899,8 +2950,6 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) return alert("Utilisateur non connecté");
-
-  console.log("Création commande pour:", currentProduct, "utilisateur:", user.id);
 
   try {
     const { data, error } = await supabase.rpc("create_order", {
@@ -2913,20 +2962,17 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
       p_note: note
     });
 
-    if (error) {
-      console.error("Erreur SQL create_order:", error);
-      return alert("Erreur création commande: " + error.message);
-    }
+    if (error) throw error;
+    if (!data || !data[0]) throw new Error("Commande non créée");
 
-    // data retourne l'ID de la commande
-    const orderId = data;
+    const orderId = data[0].id; // Assure-toi que ton RPC retourne l'ID de la commande
     closeOrderModal();
     alert("Commande créée ! Cliquez sur Payer maintenant pour finaliser.");
     openPaymentModal(orderId, currentProduct.amount);
 
-  } catch (err) {
-    console.error("Exception JS create_order:", err);
-    alert("Erreur création commande: " + err.message);
+  } catch(err) {
+    console.error(err);
+    alert(err.message || "Erreur création commande");
   }
 });
 
@@ -2939,24 +2985,20 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) return alert("Utilisateur non connecté");
 
-  console.log("Paiement commande ID:", currentOrderId, "par utilisateur:", user.id);
-
   try {
     const { data, error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
-    if (error) {
-      console.error("Erreur SQL pay_order:", error);
-      return alert("Erreur paiement: " + error.message);
-    }
+    if (error) throw error;
 
     closePaymentModal();
     alert("Paiement effectué ! Argent bloqué en escrow.");
     loadWallet();
 
-  } catch (err) {
-    console.error("Exception JS pay_order:", err);
-    alert("Erreur lors du paiement: " + err.message);
+  } catch(err) {
+    console.error(err);
+    alert(err.message || "Erreur lors du paiement");
   }
 });
+    
    // ================= CHARGER PRODUITS =================
 let query = supabase
 .from('shop_products')
