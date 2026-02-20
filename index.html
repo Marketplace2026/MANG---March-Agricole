@@ -2941,10 +2941,7 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   }
 });
    
-
-         // ==============================
-// CHARGER PRODUITS
-// ==============================
+// ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
   .select('*')
@@ -2980,24 +2977,19 @@ if (prodError) {
     const div = document.createElement("div");
     div.className = "productCard";
 
-    // ⚠️ Sécurisation des données pour éviter undefined/null
-    const sellerId = p.seller_id ?? '';
-    const productId = p.id ?? '';
-    const amount = p.price ?? 0;
-
     div.innerHTML = `
       <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name || 'Produit'}">
       <h5>${p.name || 'Produit'}</h5>
       ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
       <p class="productAvailability">${formatAvailability(p.availability)}</p>
-      <p class="productPrice"><strong>${p.price ?? '-'} FCFA</strong></p>
-      <button class="favoriteProductBtn" data-id="${productId}">🤍</button>
+      <p class="productPrice"><strong>${p.price || '-'} FCFA</strong></p>
+      <button class="favoriteProductBtn" data-id="${p.id}">🤍</button>
 
       <!-- Commander -->
       <button class="orderBtn"
-              data-seller-id="${sellerId}"
-              data-product-id="${productId}"
-              data-amount="${amount}">
+              data-seller-id="${p.owner_id || ''}"   <!-- ici, owner_id -->
+              data-product-id="${p.id || ''}"
+              data-amount="${p.price || 0}">
         Commander
       </button>
     `;
