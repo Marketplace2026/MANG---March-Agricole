@@ -2962,13 +2962,8 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   isProcessing = true;
 
   try {
-    // 1️⃣ Appel RPC pour payer la commande
-    const { error: payError } = await supabase.rpc("pay_order", {
-      p_order_id: currentOrderId
-    });
-    if (payError) throw payError;
 
-    // 2️⃣ Récupérer la transaction correspondante
+    // 1️⃣ Récupérer la transaction escrow
     const { data: txData, error: txError } = await supabase
       .from("wallet_transactions")
       .select("*")
@@ -2979,7 +2974,7 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
     if (txError) throw txError;
     if (!txData) throw new Error("Transaction escrow introuvable");
 
-    // 3️⃣ Marquer la transaction comme payée
+    // 2️⃣ Mettre la transaction en success
     const { error: updateTxError } = await supabase
       .from("wallet_transactions")
       .update({ status: "success" })
@@ -2987,20 +2982,28 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
 
     if (updateTxError) throw updateTxError;
 
-    // 4️⃣ Mettre à jour le solde du vendeur
-    const { error: updateWalletError } = await supabase
-      .from("wallets") // ou "users" si solde stocké dans users
-      .update({
-        balance: supabase.raw("balance + ?", [txData.amount])
-      })
-      .eq("user_id", txData.user_id); // ici user_id = vendeur
-    if (updateWalletError) throw updateWalletError;
+    // 3️⃣ Récupérer le wallet du vendeur
+    const { data: walletData, error: walletFetchError } = await supabase
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", txData.user_id) // vendeur
+      .single();
 
-    // 5️⃣ Fermer le modal et notifier
+    if (walletFetchError) throw walletFetchError;
+
+    const newBalance = Number(walletData.balance) + Number(txData.amount);
+
+    // 4️⃣ Mettre à jour le solde
+    const { error: walletUpdateError } = await supabase
+      .from("wallets")
+      .update({ balance: newBalance })
+      .eq("user_id", txData.user_id);
+
+    if (walletUpdateError) throw walletUpdateError;
+
     closePaymentModal();
-    alert("Paiement effectué ! Solde du vendeur mis à jour.");
+    alert("Paiement effectué ! Solde vendeur mis à jour.");
 
-    // Reset état
     currentOrderId = null;
     currentProduct = null;
 
