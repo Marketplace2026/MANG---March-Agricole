@@ -2827,139 +2827,74 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-
-// ==============================
 // VARIABLES GLOBALES
-// ==============================
 let currentProduct = null;
 let currentOrderId = null;
 let isProcessing = false;
 
-// ==============================
 // MODALES
-// ==============================
-function openOrderModal() {
-  document.getElementById("orderModal").style.display = "flex";
-}
-
-function closeOrderModal() {
-  document.getElementById("orderModal").style.display = "none";
-}
-
+function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
+function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
 function openPaymentModal(orderId, amount) {
-  if (!orderId) return;
   currentOrderId = orderId;
   document.getElementById("paymentAmount").textContent = amount + " FCFA";
   document.getElementById("paymentModal").style.display = "flex";
 }
-
-function closePaymentModal() {
-  document.getElementById("paymentModal").style.display = "none";
-}
-
-window.addEventListener("click", (event) => {
-  if (event.target.id === "orderModal") closeOrderModal();
-  if (event.target.id === "paymentModal") closePaymentModal();
+function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
+window.addEventListener("click", e => {
+  if (e.target.id === "orderModal") closeOrderModal();
+  if (e.target.id === "paymentModal") closePaymentModal();
 });
 
-// ==============================
 // BOUTON COMMANDER
-// ==============================
 document.getElementById("shopProductsScroll").addEventListener("click", (e) => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
-
   const productId = btn.dataset.productId?.trim();
   const amount = parseFloat(btn.dataset.amount);
-
-  if (!productId || isNaN(amount) || amount <= 0) {
-    return alert("Informations produit invalides.");
-  }
-
+  if (!productId || isNaN(amount) || amount <= 0) return alert("Produit invalide");
   currentProduct = { productId, amount };
   openOrderModal();
 });
 
-// ==============================
 // CREER COMMANDE
-// ==============================
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
-
-  if (isProcessing) return;
-  if (!currentProduct) return alert("Produit invalide");
-
-  const address = document.getElementById("orderAddress").value.trim();
-  const phone = document.getElementById("orderPhone").value.trim();
-  const note = document.getElementById("orderNote").value.trim();
-
-  if (!address || !phone) return alert("Adresse et téléphone requis");
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) return alert("Utilisateur non connecté");
-
+  if (isProcessing || !currentProduct) return;
   isProcessing = true;
-
   try {
-    // 🔐 Crée commande via RPC
     const { data: orderId, error } = await supabase.rpc("create_order", {
-      p_buyer: user.id,
-      p_product_id: currentProduct.productId,
-      p_address: address,
-      p_phone: phone,
-      p_note: note
+      p_buyer: (await supabase.auth.getUser()).data.user.id,
+      p_product_id: currentProduct.productId
     });
-
     if (error) throw error;
-    if (!orderId) throw new Error("Commande non créée");
-
     currentOrderId = orderId;
     closeOrderModal();
-
     alert("Commande créée ! Argent bloqué en escrow.");
     openPaymentModal(orderId, currentProduct.amount);
-
   } catch (err) {
     console.error(err);
     alert(err.message || "Erreur création commande");
   }
-
   isProcessing = false;
 });
 
-// ==============================
 // PAYER COMMANDE
-// ==============================
 document.getElementById("payOrderBtn").addEventListener("click", async () => {
-
-  if (isProcessing) return;
-  if (!currentOrderId) return alert("Commande invalide");
-
+  if (isProcessing || !currentOrderId) return;
   isProcessing = true;
-
   try {
-    const { error } = await supabase.rpc("pay_order", {
-      p_order_id: currentOrderId
-    });
-
+    const { error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
     if (error) throw error;
-
     closePaymentModal();
-    alert("Paiement effectué avec succès !");
-
-    if (typeof loadWallet === "function") {
-      await loadWallet();
-    }
-
-    currentOrderId = null;
-    currentProduct = null;
-
+    alert("Paiement effectué ! Solde vendeur et commission mis à jour.");
+    if (typeof loadWallet === "function") await loadWallet();
   } catch (err) {
     console.error(err);
     alert(err.message || "Erreur lors du paiement");
   }
-
   isProcessing = false;
 });
+
    
 // ================= CHARGER PRODUITS =================
 let query = supabase
