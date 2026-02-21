@@ -109,6 +109,23 @@ button:disabled{
   text-align:center;
   opacity:0.9;
 }
+   .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+
+  .btn-primary {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #45a049;
+  }
 </style>
 </head>
 
@@ -142,6 +159,11 @@ button:disabled{
 </div>
 
 <div class="card">
+  <!-- Bouton Mes Commandes -->
+<button id="btnMesCommandes" class="btn btn-primary">
+  Mes Commandes
+</button>
+  
   <button class="wallet" onclick="goWallet()">💳 Mon Portefeuille</button>
   <button class="password" id="changePassBtn" onclick="goChangePassword()">🔒 Modifier mon mot de passe</button>
   <button class="logout" onclick="logout()">🚪 Déconnexion</button>
@@ -193,6 +215,9 @@ window.goWallet=function(){
   window.location.href="dashboard.html";
 }
 
+  document.getElementById("btnMesCommandes").addEventListener("click", () => {
+    window.location.href = "commande.html";
+  });
 /* 🔐 VERSION PRO RESET */
 window.goChangePassword=async function(){
 
@@ -224,6 +249,7 @@ window.logout=async function(){
   await supabase.auth.signOut();
   window.location.href="login.html";
 }
+  
 </script>
 
 </body>
