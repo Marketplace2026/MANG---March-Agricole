@@ -153,6 +153,10 @@ async function init() {
   console.log("ORDERS:", orders);
   console.log("ORDERS ERROR:", err2);
 }
+  await supabase.auth.signInWithPassword({
+  email: "tonemail@test.com",
+  password: "tonmotdepasse"
+});
 
 // ================= LOAD ORDERS =================
 async function loadOrders(){
