@@ -8,55 +8,95 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif}
-body{background:#f4f6f9}
-header{background:#4CAF50;color:white;padding:15px;text-align:center}
-main{max-width:1100px;margin:30px auto;padding:0 15px}
-
-.user-email{
-margin-top:8px;
-font-size:14px;
-opacity:0.9;
+body{
+  background:#0f2027;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  min-height:100vh;
+  color:white;
 }
 
-h2{margin:20px 0 10px}
+/* ================= HEADER ================= */
+.header{
+  padding:30px 20px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.avatar{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  color:#2c5364;
+  font-weight:bold;
+}
+
+.header-info h1{
+  font-size:22px;
+  font-weight:700;
+}
+
+.header-info p{
+  font-size:14px;
+  opacity:0.8;
+}
+
+/* ================= MAIN ================= */
+main{
+  background:#f4f6f9;
+  border-top-left-radius:30px;
+  border-top-right-radius:30px;
+  padding:25px 20px;
+  margin-top:20px;
+  color:#333;
+}
+
+h2{
+  margin:20px 0 10px;
+}
 
 .orders-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
-gap:15px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:15px;
 }
 
 .order-card{
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 4px 10px rgba(0,0,0,0.05);
-transition:0.2s;
+  background:white;
+  padding:15px;
+  border-radius:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.08);
 }
 
-.order-card:hover{
-transform:translateY(-3px);
-box-shadow:0 6px 15px rgba(0,0,0,0.08);
+.order-card p{
+  font-size:14px;
+  margin:5px 0;
 }
-
-.order-card p{margin:5px 0;font-size:14px}
 
 .empty{
-padding:20px;
-background:white;
-border-radius:8px;
-text-align:center;
-color:#888;
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+  color:#888;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-<h1>Mes Commandes</h1>
-<p class="user-email" id="userEmail"></p>
-</header>
+<div class="header">
+  <div class="avatar" id="userAvatar">U</div>
+  <div class="header-info">
+    <h1>Mes Commandes</h1>
+    <p id="userEmail"></p>
+  </div>
+</div>
 
 <main>
 
@@ -73,27 +113,21 @@ import { supabase } from './supabase.js';
 
 let currentUser = null;
 
-// ==============================
-// IDENTIFICATION UTILISATEUR
-// ==============================
-async function init() {
+async function init(){
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data:{session} } = await supabase.auth.getSession();
 
-  if (!session) {
-    alert("Vous devez être connecté.");
-    window.location.href = "login.html";
+  if(!session){
+    alert("Vous devez être connecté");
+    window.location.href="login.html";
     return;
   }
 
   currentUser = session.user;
 
-  // 🔥 Affiche l'email ici
-  document.getElementById("userEmail").innerText =
-    "Connecté en tant que : " + currentUser.email;
-
-  console.log("Utilisateur connecté :", currentUser.id);
-  console.log("Email :", currentUser.email);
+  document.getElementById("userEmail").innerText = currentUser.email;
+  document.getElementById("userAvatar").innerText =
+    currentUser.email.charAt(0).toUpperCase();
 
   loadOrders();
 }
@@ -101,62 +135,66 @@ async function init() {
 init();
 
 
-// ==============================
-// CHARGEMENT DES COMMANDES
-// ==============================
-async function loadOrders() {
+async function loadOrders(){
 
   const buyerDiv = document.getElementById("buyerOrders");
   const sellerDiv = document.getElementById("sellerOrders");
 
-  buyerDiv.innerHTML = "";
-  sellerDiv.innerHTML = "";
+  buyerDiv.innerHTML="";
+  sellerDiv.innerHTML="";
 
-  // 🔹 Commandes acheteur
-  const { data: buyerOrders } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("buyer_id", currentUser.id);
+  // ================= ACHETEUR =================
+  const { data:buyerOrders } = await supabase
+  .from("orders")
+  .select(`
+    *,
+    seller:profiles!orders_seller_id_fkey(username,email)
+  `)
+  .eq("buyer_id",currentUser.id);
 
-  // 🔹 Commandes vendeur
-  const { data: sellerOrders } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("seller_id", currentUser.id);
+  // ================= VENDEUR =================
+  const { data:sellerOrders } = await supabase
+  .from("orders")
+  .select(`
+    *,
+    buyer:profiles!orders_buyer_id_fkey(username,email)
+  `)
+  .eq("seller_id",currentUser.id);
+
 
   // ===== AFFICHAGE ACHETEUR =====
-  if (!buyerOrders || buyerOrders.length === 0) {
-    buyerDiv.innerHTML = "<div class='empty'>Aucune commande trouvée.</div>";
-  } else {
-    buyerOrders.forEach(order => {
-      buyerDiv.innerHTML += `
+  if(!buyerOrders || buyerOrders.length===0){
+    buyerDiv.innerHTML="<div class='empty'>Aucune commande trouvée</div>";
+  }else{
+    buyerOrders.forEach(order=>{
+      buyerDiv.innerHTML+=`
         <div class="order-card">
-          <p><strong>ID:</strong> ${order.id}</p>
-          <p><strong>Montant:</strong> ${order.amount} FCFA</p>
-          <p><strong>Status:</strong> ${order.status}</p>
-          <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+          <p><strong>Vendeur :</strong> ${order.seller?.username || "Inconnu"}</p>
+          <p><strong>Email :</strong> ${order.seller?.email || "N/A"}</p>
+          <p><strong>Montant :</strong> ${order.amount} FCFA</p>
+          <p><strong>Status :</strong> ${order.status}</p>
         </div>
       `;
     });
   }
 
   // ===== AFFICHAGE VENDEUR =====
-  if (!sellerOrders || sellerOrders.length === 0) {
-    sellerDiv.innerHTML = "<div class='empty'>Aucune commande reçue.</div>";
-  } else {
-    sellerOrders.forEach(order => {
-      sellerDiv.innerHTML += `
+  if(!sellerOrders || sellerOrders.length===0){
+    sellerDiv.innerHTML="<div class='empty'>Aucune commande reçue</div>";
+  }else{
+    sellerOrders.forEach(order=>{
+      sellerDiv.innerHTML+=`
         <div class="order-card">
-          <p><strong>ID:</strong> ${order.id}</p>
-          <p><strong>Montant:</strong> ${order.amount} FCFA</p>
-          <p><strong>Status:</strong> ${order.status}</p>
-          <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+          <p><strong>Acheteur :</strong> ${order.buyer?.username || "Inconnu"}</p>
+          <p><strong>Email :</strong> ${order.buyer?.email || "N/A"}</p>
+          <p><strong>Montant :</strong> ${order.amount} FCFA</p>
+          <p><strong>Status :</strong> ${order.status}</p>
         </div>
       `;
     });
   }
-}
 
+}
 </script>
 
 </body>
