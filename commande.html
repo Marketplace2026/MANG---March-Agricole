@@ -133,13 +133,26 @@ let currentOrderId=null;
 let isProcessing=false;
 
 // ================= INIT =================
-async function init(){
-const {data:{user}}=await supabase.auth.getUser();
-if(!user)return alert("Connecte-toi");
-currentUser=user;
-loadOrders();
+async function init() {
+  const { data, error } = await supabase.auth.getUser();
+
+  console.log("USER:", data);
+  console.log("ERROR:", error);
+
+  if (!data?.user) {
+    alert("Utilisateur non connecté");
+    return;
+  }
+
+  currentUser = data.user;
+
+  const { data: orders, error: err2 } = await supabase
+    .from("orders")
+    .select("*");
+
+  console.log("ORDERS:", orders);
+  console.log("ORDERS ERROR:", err2);
 }
-init();
 
 // ================= LOAD ORDERS =================
 async function loadOrders(){
