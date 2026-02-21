@@ -2827,27 +2827,42 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
+
+
+   // ==============================
 // VARIABLES GLOBALES
+// ==============================
 let currentProduct = null;
 let currentOrderId = null;
 let isProcessing = false;
 
+// ==============================
 // MODALES
-function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
-function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
+// ==============================
+function openOrderModal() {
+  document.getElementById("orderModal").style.display = "flex";
+}
+function closeOrderModal() {
+  document.getElementById("orderModal").style.display = "none";
+}
 function openPaymentModal(orderId, amount) {
+  if (!orderId) return;
   currentOrderId = orderId;
   document.getElementById("paymentAmount").textContent = amount + " FCFA";
   document.getElementById("paymentModal").style.display = "flex";
 }
-function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
+function closePaymentModal() {
+  document.getElementById("paymentModal").style.display = "none";
+}
 window.addEventListener("click", e => {
   if (e.target.id === "orderModal") closeOrderModal();
   if (e.target.id === "paymentModal") closePaymentModal();
 });
 
+// ==============================
 // BOUTON COMMANDER
-document.getElementById("shopProductsScroll").addEventListener("click", (e) => {
+// ==============================
+document.getElementById("shopProductsScroll").addEventListener("click", e => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
   const productId = btn.dataset.productId?.trim();
@@ -2857,45 +2872,61 @@ document.getElementById("shopProductsScroll").addEventListener("click", (e) => {
   openOrderModal();
 });
 
-// CREER COMMANDE
+// ==============================
+// CREER COMMANDE (VERSION PRO)
+// ==============================
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
   if (isProcessing || !currentProduct) return;
   isProcessing = true;
+
   try {
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userData.user) throw new Error("Utilisateur non connecté");
+
     const { data: orderId, error } = await supabase.rpc("create_order", {
-      p_buyer: (await supabase.auth.getUser()).data.user.id,
+      p_buyer: userData.user.id,
       p_product_id: currentProduct.productId
     });
+
     if (error) throw error;
+    if (!orderId) throw new Error("Commande non créée");
+
     currentOrderId = orderId;
     closeOrderModal();
     alert("Commande créée ! Argent bloqué en escrow.");
     openPaymentModal(orderId, currentProduct.amount);
+
   } catch (err) {
     console.error(err);
     alert(err.message || "Erreur création commande");
   }
+
   isProcessing = false;
 });
 
-// PAYER COMMANDE
+// ==============================
+// PAYER COMMANDE (VERSION PRO)
+// ==============================
 document.getElementById("payOrderBtn").addEventListener("click", async () => {
   if (isProcessing || !currentOrderId) return;
   isProcessing = true;
+
   try {
     const { error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
     if (error) throw error;
+
     closePaymentModal();
     alert("Paiement effectué ! Solde vendeur et commission mis à jour.");
+
     if (typeof loadWallet === "function") await loadWallet();
+
   } catch (err) {
     console.error(err);
     alert(err.message || "Erreur lors du paiement");
   }
+
   isProcessing = false;
 });
-
-   
 // ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
