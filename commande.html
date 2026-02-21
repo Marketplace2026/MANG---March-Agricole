@@ -89,7 +89,7 @@
   </div>
 </div>
 
-<script type="module">
+    <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js';
 const supabase = createClient('https://YOUR_PROJECT.supabase.co', 'PUBLIC_ANON_KEY');
 
@@ -100,9 +100,12 @@ let currentOrderId = null;
 // INIT
 // ==============================
 async function init() {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) return alert("Utilisateur non connecté");
-  currentUser = user;
+  // 🔹 Récupérer la session active
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !session) return alert("Utilisateur non connecté");
+
+  currentUser = session.user;
+
   await loadOrders();
 }
 
@@ -114,7 +117,11 @@ function openPaymentModal(orderId, amount) {
   document.getElementById("paymentAmount").textContent = amount + " FCFA";
   document.getElementById("paymentModal").style.display = "flex";
 }
-function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
+
+function closePaymentModal() {
+  document.getElementById("paymentModal").style.display = "none";
+}
+
 window.addEventListener("click", e => {
   if (e.target.id === "paymentModal") closePaymentModal();
 });
@@ -125,7 +132,7 @@ window.addEventListener("click", e => {
 async function loadOrders() {
   if (!currentUser) return;
 
-  // ACHETEUR
+  // 🛒 Commandes que l'utilisateur a faites (acheteur)
   const { data: buyerOrders } = await supabase
     .from('orders')
     .select(`id, product_id, amount, status, seller_id, shop_products(name)`)
@@ -159,7 +166,7 @@ async function loadOrders() {
     buyerContainer.appendChild(tr);
   }
 
-  // VENDEUR
+  // 🏪 Commandes reçues (utilisateur est vendeur)
   const { data: sellerOrders } = await supabase
     .from('orders')
     .select(`id, product_id, amount, status, buyer_id, shop_products(name)`)
@@ -202,14 +209,14 @@ async function acceptOrder(orderId) {
   const { error } = await supabase.rpc('accept_order', { p_order_id: orderId });
   if (error) return alert(error.message);
   alert('Commande acceptée ! Argent bloqué en escrow.');
-  loadOrders();
+  await loadOrders();
 }
 
 async function refuseOrder(orderId) {
   const { error } = await supabase.rpc('refuse_order', { p_order_id: orderId });
   if (error) return alert(error.message);
   alert('Commande refusée.');
-  loadOrders();
+  await loadOrders();
 }
 
 // ==============================
@@ -219,7 +226,7 @@ async function receiveProducts(orderId) {
   const { error } = await supabase.rpc('complete_order', { p_order_id: orderId });
   if (error) return alert(error.message);
   alert('Paiement transféré au vendeur !');
-  loadOrders();
+  await loadOrders();
 }
 
 // ==============================
@@ -232,7 +239,7 @@ document.getElementById('payOrderBtn').addEventListener('click', async () => {
     if (error) throw error;
     closePaymentModal();
     alert('Paiement effectué !');
-    loadOrders();
+    await loadOrders();
   } catch (err) {
     console.error(err);
     alert(err.message || 'Erreur paiement');
@@ -243,7 +250,4 @@ document.getElementById('payOrderBtn').addEventListener('click', async () => {
 // INIT
 // ==============================
 init();
-</script>
-
-</body>
-</html>
+    </script>
