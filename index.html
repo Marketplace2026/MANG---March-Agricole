@@ -2949,63 +2949,25 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 });
 
 // ==============================
-// PAYER COMMANDE
+// PAYER COMMANDE (VERSION PRO)
 // ==============================
 document.getElementById("payOrderBtn").addEventListener("click", async () => {
 
   if (isProcessing) return;
   if (!currentOrderId) return alert("Commande invalide");
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) return alert("Utilisateur non connecté");
-
   isProcessing = true;
 
   try {
 
-    // 1️⃣ Récupérer la transaction escrow
-    const { data: txData, error: txError } = await supabase
-      .from("wallet_transactions")
-      .select("*")
-      .eq("order_id", currentOrderId)
-      .eq("transaction_type", "escrow")
-      .single();
+    const { error } = await supabase.rpc("pay_order", {
+      p_order_id: currentOrderId
+    });
 
-    if (txError) throw txError;
-    if (!txData) throw new Error("Transaction escrow introuvable");
-
-    // 2️⃣ Mettre la transaction en success
-    const { error: updateTxError } = await supabase
-      .from("wallet_transactions")
-      .update({ status: "success" })
-      .eq("id", txData.id);
-
-    if (updateTxError) throw updateTxError;
-
-    // 3️⃣ Récupérer le wallet du vendeur
-    const { data: walletData, error: walletFetchError } = await supabase
-      .from("wallets")
-      .select("balance")
-      .eq("user_id", txData.user_id) // vendeur
-      .single();
-
-    if (walletFetchError) throw walletFetchError;
-
-    const newBalance = Number(walletData.balance) + Number(txData.amount);
-
-    // 4️⃣ Mettre à jour le solde
-    const { error: walletUpdateError } = await supabase
-      .from("wallets")
-      .update({ balance: newBalance })
-      .eq("user_id", txData.user_id);
-
-    if (walletUpdateError) throw walletUpdateError;
+    if (error) throw error;
 
     closePaymentModal();
-    alert("Paiement effectué ! Solde vendeur mis à jour.");
-
-    currentOrderId = null;
-    currentProduct = null;
+    alert("Paiement effectué avec succès !");
 
     if (typeof loadWallet === "function") {
       await loadWallet();
