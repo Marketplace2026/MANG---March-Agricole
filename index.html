@@ -2812,15 +2812,16 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-
-
-   
-      let currentProduct = null;
+let currentProduct = null;
 let isProcessing = false;
 
 // MODALES
-function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
-function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
+function openOrderModal() {
+  document.getElementById("orderModal").style.display = "flex";
+}
+function closeOrderModal() {
+  document.getElementById("orderModal").style.display = "none";
+}
 
 window.addEventListener("click", e => {
   if (e.target.id === "orderModal") closeOrderModal();
@@ -2830,10 +2831,15 @@ window.addEventListener("click", e => {
 document.getElementById("shopProductsScroll").addEventListener("click", e => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
+
   const productId = btn.dataset.productId?.trim();
+  const sellerId = btn.dataset.sellerId?.trim(); // Ajouter sellerId
   const amount = parseFloat(btn.dataset.amount);
-  if (!productId || isNaN(amount) || amount <= 0) return alert("Produit invalide");
-  currentProduct = { productId, amount };
+
+  if (!productId || !sellerId || isNaN(amount) || amount <= 0)
+    return alert("Produit invalide");
+
+  currentProduct = { productId, sellerId, amount };
   openOrderModal();
 });
 
@@ -2850,13 +2856,17 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   isProcessing = true;
   try {
     // Récupération utilisateur connecté
-    const { data: userData } = await supabase.auth.getUser();
-    const buyerId = userData.user.id;
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData?.session?.user) throw new Error("Utilisateur non connecté");
 
-    // Appel à la fonction SQL pour créer la commande
-    const { data: orderData, error } = await supabase.rpc("create_order", {
-      p_buyer: buyerId,
+    const buyerId = sessionData.session.user.id;
+
+    // Appel à la fonction SQL pour créer la commande avec escrow
+    const { data: orderData, error } = await supabase.rpc("create_order_with_escrow", {
+      p_buyer_id: buyerId,
+      p_seller_id: currentProduct.sellerId,
       p_product_id: currentProduct.productId,
+      p_amount: currentProduct.amount,
       p_delivery_address: address,
       p_delivery_phone: phone,
       p_note: note
@@ -2866,18 +2876,20 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
     closeOrderModal();
     alert("Commande créée avec succès ! L'argent est bloqué en escrow chez l'admin.");
-    
-    // Optionnel : recharge la liste de commandes
+
+    // Recharge la liste de commandes si fonction disponible
     if (typeof loadOrders === "function") loadOrders();
 
   } catch (err) {
     console.error(err);
     alert(err.message || "Erreur lors de la création de la commande");
   }
+
   isProcessing = false;
 });
+
    
-   
+      
 // ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
