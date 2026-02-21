@@ -1392,7 +1392,6 @@ border: 2px solid #ffeb3b;
   <div id="mediaContent" style="max-width:90%; max-height:90%;"></div>
   <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>
 </div>
-
 <!-- CONTENEUR PRODUITS -->
 <div id="shopProductsScroll" class="shop-products-scroll"></div>
 
@@ -1416,22 +1415,8 @@ MODALE COMMANDE
     <button id="createOrderBtn">Créer la commande</button>
   </div>
 </div>
+ 
 
-<!-- ===========================
-MODALE PAIEMENT
-=========================== -->
-<div id="paymentModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" onclick="closePaymentModal()">&times;</span>
-    <h3>Paiement de la commande</h3>
-    
-    <p>Montant : <strong><span id="paymentAmount">0</span> FCFA</strong></p>
-    <p>L’argent sera bloqué en escrow jusqu’à livraison.</p>
-
-    <button id="payOrderBtn">Payer maintenant</button>
-  </div>
-</div>
-  
 <script type="module">
 import { supabase } from './supabase.js';
 
@@ -2829,25 +2814,19 @@ function formatAvailability(value) {
 }
 
 
-   let currentProduct = null;
-let currentOrderId = null;
+   
+      let currentProduct = null;
 let isProcessing = false;
 
 // MODALES
 function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
 function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
-function openPaymentModal(orderId, amount) {
-  currentOrderId = orderId;
-  document.getElementById("paymentAmount").textContent = amount + " FCFA";
-  document.getElementById("paymentModal").style.display = "flex";
-}
-function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
+
 window.addEventListener("click", e => {
   if (e.target.id === "orderModal") closeOrderModal();
-  if (e.target.id === "paymentModal") closePaymentModal();
 });
 
-// BOUTON COMMANDER
+// BOUTON COMMANDER SUR LES PRODUITS
 document.getElementById("shopProductsScroll").addEventListener("click", e => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
@@ -2858,62 +2837,45 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   openOrderModal();
 });
 
-// CREER COMMANDE
+// CREER COMMANDE (argent bloqué en escrow directement)
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
   if (isProcessing || !currentProduct) return;
+
   const address = document.getElementById("orderAddress").value.trim();
   const phone = document.getElementById("orderPhone").value.trim();
+  const note = document.getElementById("orderNote").value.trim();
+
   if (!address || !phone) return alert("Adresse et téléphone requis");
 
   isProcessing = true;
   try {
+    // Récupération utilisateur connecté
     const { data: userData } = await supabase.auth.getUser();
-    const { data: orderId, error } = await supabase.rpc("create_order", {
-      p_buyer: userData.user.id,
-      p_product_id: currentProduct.productId
+    const buyerId = userData.user.id;
+
+    // Appel à la fonction SQL pour créer la commande
+    const { data: orderData, error } = await supabase.rpc("create_order", {
+      p_buyer: buyerId,
+      p_product_id: currentProduct.productId,
+      p_delivery_address: address,
+      p_delivery_phone: phone,
+      p_note: note
     });
+
     if (error) throw error;
-    currentOrderId = orderId;
+
     closeOrderModal();
-    alert("Commande créée ! Argent bloqué en escrow.");
-    openPaymentModal(orderId, currentProduct.amount);
+    alert("Commande créée avec succès ! L'argent est bloqué en escrow chez l'admin.");
+    
+    // Optionnel : recharge la liste de commandes
+    if (typeof loadOrders === "function") loadOrders();
+
   } catch (err) {
     console.error(err);
-    alert(err.message || "Erreur création commande");
+    alert(err.message || "Erreur lors de la création de la commande");
   }
   isProcessing = false;
 });
-
-// PAYER COMMANDE
-document.getElementById("payOrderBtn").addEventListener("click", async () => {
-  if (isProcessing || !currentOrderId) return;
-  isProcessing = true;
-  try {
-    const { error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
-    if (error) throw error;
-    closePaymentModal();
-    alert("Paiement effectué ! Argent bloqué en escrow chez admin.");
-    if (typeof loadWallet === "function") await loadWallet();
-  } catch (err) {
-    console.error(err);
-    alert(err.message || "Erreur paiement");
-  }
-  isProcessing = false;
-});
-
-// LIBERER ESCROW (bouton admin)
-async function releaseOrder(orderId) {
-  if (!orderId) return;
-  try {
-    const { error } = await supabase.rpc("release_order", { p_order_id: orderId });
-    if (error) throw error;
-    alert("Argent libéré vers le vendeur et commission admin mise à jour !");
-    if (typeof loadWallet === "function") await loadWallet();
-  } catch (err) {
-    console.error(err);
-    alert(err.message || "Erreur libération escrow");
-  }
-}
    
    
 // ================= CHARGER PRODUITS =================
