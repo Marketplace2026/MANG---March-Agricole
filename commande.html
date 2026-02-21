@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mes Commandes</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================== */
+  /* GLOBAL */
+  /* ============================== */
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+  body { background: #f5f6fa; color: #333; }
+  header { background: #4caf50; color: white; padding: 1rem 0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+
+  h2 { margin: 1.5rem 0 0.5rem; color: #2f3640; }
+
+  /* ============================== */
+  /* CARDS TABLE STYLE */
+  /* ============================== */
+  .orders-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1rem; }
+
+  .order-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+
+  .order-info { margin-bottom: 1rem; }
+  .order-info p { margin: 0.3rem 0; font-size: 0.95rem; }
+
+  .order-status { font-weight: 500; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; }
+  .status-pending { background: #ffeaa7; color: #2d3436; }
+  .status-accepted { background: #74b9ff; color: #fff; }
+  .status-paid { background: #00b894; color: #fff; }
+  .status-refused { background: #d63031; color: #fff; }
+
+  /* ============================== */
+  /* BUTTONS */
+  /* ============================== */
+  .btn { padding: 0.4rem 0.8rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s; margin-right: 0.3rem; }
+  .btn-accept { background: #4caf50; color: white; }
+  .btn-accept:hover { background: #43a047; }
+  .btn-refuse { background: #f44336; color: white; }
+  .btn-refuse:hover { background: #e53935; }
+  .btn-received { background: #2196f3; color: white; }
+  .btn-received:hover { background: #1976d2; }
+  .btn-disabled { background: #ccc; cursor: not-allowed; }
+
+  /* ============================== */
+  /* MODALS */
+  /* ============================== */
+  .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+  .modal-content { background: white; padding: 1.5rem; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mes Commandes</h1>
+</header>
+
+<main>
+  <h2>Commandes que j'ai faites</h2>
+  <div class="orders-container" id="buyerOrdersContainer"></div>
+
+  <h2>Commandes reçues (je suis vendeur)</h2>
+  <div class="orders-container" id="sellerOrdersContainer"></div>
+</main>
+
+<!-- Modal paiement -->
+<div class="modal" id="paymentModal">
+  <div class="modal-content">
+    <h3>Paiement de la commande</h3>
+    <p>Montant : <span id="paymentAmount"></span></p>
+    <button id="payOrderBtn" class="btn btn-accept">Payer maintenant</button>
+    <button onclick="closePaymentModal()" class="btn btn-refuse">Annuler</button>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+const supabase = createClient('https://YOUR_PROJECT.supabase.co', 'PUBLIC_ANON_KEY');
+
+let currentUser = null;
+let currentOrderId = null;
+
+// ==============================
+// INIT
+// ==============================
+async function init() {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return alert("Utilisateur non connecté");
+  currentUser = user;
+  await loadOrders();
+}
+
+// ==============================
+// MODALES
+// ==============================
+function openPaymentModal(orderId, amount) {
+  currentOrderId = orderId;
+  document.getElementById("paymentAmount").textContent = amount + " FCFA";
+  document.getElementById("paymentModal").style.display = "flex";
+}
+function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
+window.addEventListener("click", e => {
+  if (e.target.id === "paymentModal") closePaymentModal();
+});
+
+// ==============================
+// CHARGER COMMANDES
+// ==============================
+async function loadOrders() {
+  if (!currentUser) return;
+
+  // ACHETEUR
+  const { data: buyerOrders } = await supabase
+    .from('orders')
+    .select(`id, product_id, amount, status, seller_id, shop_products(name)`)
+    .eq('buyer_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  const buyerContainer = document.getElementById('buyerOrdersContainer');
+  buyerContainer.innerHTML = '';
+  for (let order of buyerOrders || []) {
+    const productName = order.shop_products?.name || 'Produit inconnu';
+    const tr = document.createElement('div');
+    tr.className = 'order-card';
+    let statusClass = order.status === 'pending' ? 'status-pending' :
+                      order.status === 'accepted' ? 'status-accepted' :
+                      order.status === 'paid' ? 'status-paid' :
+                      'status-refused';
+    tr.innerHTML = `
+      <div class="order-info">
+        <p><strong>Produit :</strong> ${productName}</p>
+        <p><strong>Vendeur :</strong> ${order.seller_id}</p>
+        <p><strong>Montant :</strong> ${order.amount} FCFA</p>
+        <p><span class="order-status ${statusClass}">${order.status}</span></p>
+      </div>
+      <div>
+        ${order.status === 'accepted' ? '<button class="btn btn-received">Produits reçus</button>' : ''}
+      </div>
+    `;
+    if (order.status === 'accepted') {
+      tr.querySelector('.btn-received').addEventListener('click', () => receiveProducts(order.id));
+    }
+    buyerContainer.appendChild(tr);
+  }
+
+  // VENDEUR
+  const { data: sellerOrders } = await supabase
+    .from('orders')
+    .select(`id, product_id, amount, status, buyer_id, shop_products(name)`)
+    .eq('seller_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  const sellerContainer = document.getElementById('sellerOrdersContainer');
+  sellerContainer.innerHTML = '';
+  for (let order of sellerOrders || []) {
+    const productName = order.shop_products?.name || 'Produit inconnu';
+    const tr = document.createElement('div');
+    tr.className = 'order-card';
+    let statusClass = order.status === 'pending' ? 'status-pending' :
+                      order.status === 'accepted' ? 'status-accepted' :
+                      order.status === 'paid' ? 'status-paid' :
+                      'status-refused';
+    tr.innerHTML = `
+      <div class="order-info">
+        <p><strong>Produit :</strong> ${productName}</p>
+        <p><strong>Acheteur :</strong> ${order.buyer_id}</p>
+        <p><strong>Montant :</strong> ${order.amount} FCFA</p>
+        <p><span class="order-status ${statusClass}">${order.status}</span></p>
+      </div>
+      <div>
+        ${order.status === 'pending' ? '<button class="btn btn-accept">Accepter</button><button class="btn btn-refuse">Refuser</button>' : ''}
+      </div>
+    `;
+    if (order.status === 'pending') {
+      tr.querySelector('.btn-accept').addEventListener('click', () => acceptOrder(order.id));
+      tr.querySelector('.btn-refuse').addEventListener('click', () => refuseOrder(order.id));
+    }
+    sellerContainer.appendChild(tr);
+  }
+}
+
+// ==============================
+// ACTIONS VENDEUR
+// ==============================
+async function acceptOrder(orderId) {
+  const { error } = await supabase.rpc('accept_order', { p_order_id: orderId });
+  if (error) return alert(error.message);
+  alert('Commande acceptée ! Argent bloqué en escrow.');
+  loadOrders();
+}
+
+async function refuseOrder(orderId) {
+  const { error } = await supabase.rpc('refuse_order', { p_order_id: orderId });
+  if (error) return alert(error.message);
+  alert('Commande refusée.');
+  loadOrders();
+}
+
+// ==============================
+// ACTIONS ACHETEUR
+// ==============================
+async function receiveProducts(orderId) {
+  const { error } = await supabase.rpc('complete_order', { p_order_id: orderId });
+  if (error) return alert(error.message);
+  alert('Paiement transféré au vendeur !');
+  loadOrders();
+}
+
+// ==============================
+// PAIEMENT ESCROW
+// ==============================
+document.getElementById('payOrderBtn').addEventListener('click', async () => {
+  if (!currentOrderId) return;
+  try {
+    const { error } = await supabase.rpc('pay_order', { p_order_id: currentOrderId });
+    if (error) throw error;
+    closePaymentModal();
+    alert('Paiement effectué !');
+    loadOrders();
+  } catch (err) {
+    console.error(err);
+    alert(err.message || 'Erreur paiement');
+  }
+});
+
+// ==============================
+// INIT
+// ==============================
+init();
+</script>
+
+</body>
+</html>
