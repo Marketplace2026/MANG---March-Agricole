@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mes Commandes</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif}
 body{
@@ -14,15 +13,13 @@ body{
   min-height:100vh;
   color:white;
 }
-
 /* ================= HEADER ================= */
 .header{
-  padding:30px 20px;
+  padding:25px 20px;
   display:flex;
   align-items:center;
   gap:15px;
 }
-
 .avatar{
   width:60px;
   height:60px;
@@ -35,17 +32,14 @@ body{
   color:#2c5364;
   font-weight:bold;
 }
-
 .header-info h1{
   font-size:22px;
   font-weight:700;
 }
-
 .header-info p{
   font-size:14px;
   opacity:0.8;
 }
-
 /* ================= MAIN ================= */
 main{
   background:#f4f6f9;
@@ -55,29 +49,36 @@ main{
   margin-top:20px;
   color:#333;
 }
-
-h2{
-  margin:20px 0 10px;
-}
-
+h2{margin:20px 0 10px;}
 .orders-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
   gap:15px;
 }
-
 .order-card{
   background:white;
   padding:15px;
   border-radius:15px;
   box-shadow:0 4px 15px rgba(0,0,0,0.08);
+  display:flex;
+  flex-direction:column;
 }
-
 .order-card p{
   font-size:14px;
   margin:5px 0;
 }
-
+.btn{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+  margin-top:8px;
+  width:100px;
+}
+.accept-btn{background:#4CAF50;color:white;}
+.refuse-btn{background:#e74c3c;color:white;}
+.pay-btn{background:#2ecc71;color:white;}
 .empty{
   background:white;
   padding:15px;
@@ -87,7 +88,6 @@ h2{
 }
 </style>
 </head>
-
 <body>
 
 <div class="header">
@@ -112,11 +112,11 @@ h2{
 import { supabase } from './supabase.js';
 
 let currentUser = null;
+let isProcessing = false;
 
+// ================= INIT =================
 async function init(){
-
-  const { data:{session} } = await supabase.auth.getSession();
-
+  const { data:{ session } } = await supabase.auth.getSession();
   if(!session){
     alert("Vous devez être connecté");
     window.location.href="login.html";
@@ -134,7 +134,7 @@ async function init(){
 
 init();
 
-
+// ================= LOAD ORDERS =================
 async function loadOrders(){
 
   const buyerDiv = document.getElementById("buyerOrders");
@@ -143,7 +143,7 @@ async function loadOrders(){
   buyerDiv.innerHTML="";
   sellerDiv.innerHTML="";
 
-  // ================= ACHETEUR =================
+  // ===== ACHETEUR =====
   const { data:buyerOrders } = await supabase
   .from("orders")
   .select(`
@@ -152,7 +152,7 @@ async function loadOrders(){
   `)
   .eq("buyer_id",currentUser.id);
 
-  // ================= VENDEUR =================
+  // ===== VENDEUR =====
   const { data:sellerOrders } = await supabase
   .from("orders")
   .select(`
@@ -161,18 +161,22 @@ async function loadOrders(){
   `)
   .eq("seller_id",currentUser.id);
 
-
   // ===== AFFICHAGE ACHETEUR =====
   if(!buyerOrders || buyerOrders.length===0){
     buyerDiv.innerHTML="<div class='empty'>Aucune commande trouvée</div>";
   }else{
     buyerOrders.forEach(order=>{
+      let payButton = '';
+      if(order.status==='accepted'){
+        payButton = `<button class="btn pay-btn" onclick="payOrder('${order.id}')">Payer</button>`;
+      }
       buyerDiv.innerHTML+=`
         <div class="order-card">
           <p><strong>Vendeur :</strong> ${order.seller?.username || "Inconnu"}</p>
           <p><strong>Email :</strong> ${order.seller?.email || "N/A"}</p>
           <p><strong>Montant :</strong> ${order.amount} FCFA</p>
           <p><strong>Status :</strong> ${order.status}</p>
+          ${payButton}
         </div>
       `;
     });
@@ -183,17 +187,52 @@ async function loadOrders(){
     sellerDiv.innerHTML="<div class='empty'>Aucune commande reçue</div>";
   }else{
     sellerOrders.forEach(order=>{
+      let actionButtons = '';
+      if(order.status==='pending'){
+        actionButtons = `
+          <button class="btn accept-btn" onclick="acceptOrder('${order.id}')">Accepter</button>
+          <button class="btn refuse-btn" onclick="refuseOrder('${order.id}')">Refuser</button>
+        `;
+      }
       sellerDiv.innerHTML+=`
         <div class="order-card">
           <p><strong>Acheteur :</strong> ${order.buyer?.username || "Inconnu"}</p>
           <p><strong>Email :</strong> ${order.buyer?.email || "N/A"}</p>
           <p><strong>Montant :</strong> ${order.amount} FCFA</p>
           <p><strong>Status :</strong> ${order.status}</p>
+          ${actionButtons}
         </div>
       `;
     });
   }
+}
 
+// ================= ACTIONS =================
+async function acceptOrder(id){
+  if(isProcessing) return;
+  isProcessing = true;
+  const { error } = await supabase.rpc("accept_order",{p_order_id:id});
+  if(error) alert(error.message);
+  loadOrders();
+  isProcessing=false;
+}
+
+async function refuseOrder(id){
+  if(isProcessing) return;
+  isProcessing = true;
+  const { error } = await supabase.rpc("refuse_order",{p_order_id:id});
+  if(error) alert(error.message);
+  loadOrders();
+  isProcessing=false;
+}
+
+async function payOrder(id){
+  if(isProcessing) return;
+  isProcessing = true;
+  const { error } = await supabase.rpc("pay_order",{p_order_id:id});
+  if(error) alert(error.message);
+  loadOrders();
+  isProcessing=false;
 }
 </script>
 
