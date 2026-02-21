@@ -2829,39 +2829,25 @@ function formatAvailability(value) {
 }
 
 
-   // ==============================
-// VARIABLES GLOBALES
-// ==============================
-let currentProduct = null;
+   let currentProduct = null;
 let currentOrderId = null;
 let isProcessing = false;
 
-// ==============================
 // MODALES
-// ==============================
-function openOrderModal() {
-  document.getElementById("orderModal").style.display = "flex";
-}
-function closeOrderModal() {
-  document.getElementById("orderModal").style.display = "none";
-}
+function openOrderModal() { document.getElementById("orderModal").style.display = "flex"; }
+function closeOrderModal() { document.getElementById("orderModal").style.display = "none"; }
 function openPaymentModal(orderId, amount) {
-  if (!orderId) return;
   currentOrderId = orderId;
   document.getElementById("paymentAmount").textContent = amount + " FCFA";
   document.getElementById("paymentModal").style.display = "flex";
 }
-function closePaymentModal() {
-  document.getElementById("paymentModal").style.display = "none";
-}
+function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
 window.addEventListener("click", e => {
   if (e.target.id === "orderModal") closeOrderModal();
   if (e.target.id === "paymentModal") closePaymentModal();
 });
 
-// ==============================
 // BOUTON COMMANDER
-// ==============================
 document.getElementById("shopProductsScroll").addEventListener("click", e => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
@@ -2872,61 +2858,64 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   openOrderModal();
 });
 
-// ==============================
-// CREER COMMANDE (VERSION PRO)
-// ==============================
+// CREER COMMANDE
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
   if (isProcessing || !currentProduct) return;
+  const address = document.getElementById("orderAddress").value.trim();
+  const phone = document.getElementById("orderPhone").value.trim();
+  if (!address || !phone) return alert("Adresse et téléphone requis");
+
   isProcessing = true;
-
   try {
-    const { data: userData, error: userErr } = await supabase.auth.getUser();
-    if (userErr || !userData.user) throw new Error("Utilisateur non connecté");
-
+    const { data: userData } = await supabase.auth.getUser();
     const { data: orderId, error } = await supabase.rpc("create_order", {
       p_buyer: userData.user.id,
       p_product_id: currentProduct.productId
     });
-
     if (error) throw error;
-    if (!orderId) throw new Error("Commande non créée");
-
     currentOrderId = orderId;
     closeOrderModal();
     alert("Commande créée ! Argent bloqué en escrow.");
     openPaymentModal(orderId, currentProduct.amount);
-
   } catch (err) {
     console.error(err);
     alert(err.message || "Erreur création commande");
   }
-
   isProcessing = false;
 });
 
-// ==============================
-// PAYER COMMANDE (VERSION PRO)
-// ==============================
+// PAYER COMMANDE
 document.getElementById("payOrderBtn").addEventListener("click", async () => {
   if (isProcessing || !currentOrderId) return;
   isProcessing = true;
-
   try {
     const { error } = await supabase.rpc("pay_order", { p_order_id: currentOrderId });
     if (error) throw error;
-
     closePaymentModal();
-    alert("Paiement effectué ! Solde vendeur et commission mis à jour.");
-
+    alert("Paiement effectué ! Argent bloqué en escrow chez admin.");
     if (typeof loadWallet === "function") await loadWallet();
-
   } catch (err) {
     console.error(err);
-    alert(err.message || "Erreur lors du paiement");
+    alert(err.message || "Erreur paiement");
   }
-
   isProcessing = false;
 });
+
+// LIBERER ESCROW (bouton admin)
+async function releaseOrder(orderId) {
+  if (!orderId) return;
+  try {
+    const { error } = await supabase.rpc("release_order", { p_order_id: orderId });
+    if (error) throw error;
+    alert("Argent libéré vers le vendeur et commission admin mise à jour !");
+    if (typeof loadWallet === "function") await loadWallet();
+  } catch (err) {
+    console.error(err);
+    alert(err.message || "Erreur libération escrow");
+  }
+}
+   
+   
 // ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
