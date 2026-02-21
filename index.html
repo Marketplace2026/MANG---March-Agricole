@@ -2952,6 +2952,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 // PAYER COMMANDE
 // ==============================
 document.getElementById("payOrderBtn").addEventListener("click", async () => {
+
   if (isProcessing) return;
   if (!currentOrderId) return alert("Commande invalide");
 
@@ -2961,17 +2962,43 @@ document.getElementById("payOrderBtn").addEventListener("click", async () => {
   isProcessing = true;
 
   try {
-    // 1️⃣ Met à jour le status de la transaction escrow
+    // 1️⃣ Appel RPC pour payer la commande
+    const { error: payError } = await supabase.rpc("pay_order", {
+      p_order_id: currentOrderId
+    });
+    if (payError) throw payError;
+
+    // 2️⃣ Récupérer la transaction correspondante
+    const { data: txData, error: txError } = await supabase
+      .from("wallet_transactions")
+      .select("*")
+      .eq("order_id", currentOrderId)
+      .eq("transaction_type", "escrow")
+      .single();
+
+    if (txError) throw txError;
+    if (!txData) throw new Error("Transaction escrow introuvable");
+
+    // 3️⃣ Marquer la transaction comme payée
     const { error: updateTxError } = await supabase
       .from("wallet_transactions")
-      .update({ status: "success" }) // ✅ status valide
-      .eq("order_id", currentOrderId)
-      .eq("transaction_type", "escrow");
+      .update({ status: "success" })
+      .eq("id", txData.id);
 
     if (updateTxError) throw updateTxError;
 
+    // 4️⃣ Mettre à jour le solde du vendeur
+    const { error: updateWalletError } = await supabase
+      .from("wallets") // ou "users" si solde stocké dans users
+      .update({
+        balance: supabase.raw("balance + ?", [txData.amount])
+      })
+      .eq("user_id", txData.user_id); // ici user_id = vendeur
+    if (updateWalletError) throw updateWalletError;
+
+    // 5️⃣ Fermer le modal et notifier
     closePaymentModal();
-    alert("Paiement effectué ! Argent bloqué en escrow.");
+    alert("Paiement effectué ! Solde du vendeur mis à jour.");
 
     // Reset état
     currentOrderId = null;
