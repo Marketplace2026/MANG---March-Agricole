@@ -4,16 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mes Commandes</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-body{font-family:Arial;background:#f4f6f9;margin:0}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif}
+body{background:#f4f6f9}
 header{background:#4CAF50;color:white;padding:15px;text-align:center}
 main{max-width:1100px;margin:30px auto;padding:0 15px}
+
+.user-email{
+margin-top:8px;
+font-size:14px;
+opacity:0.9;
+}
+
 h2{margin:20px 0 10px}
 
 .orders-grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
 gap:15px;
 }
 
@@ -22,36 +31,23 @@ background:white;
 padding:15px;
 border-radius:10px;
 box-shadow:0 4px 10px rgba(0,0,0,0.05);
+transition:0.2s;
 }
 
-.status{
-padding:4px 8px;
-border-radius:6px;
-font-size:12px;
-font-weight:600;
-display:inline-block;
+.order-card:hover{
+transform:translateY(-3px);
+box-shadow:0 6px 15px rgba(0,0,0,0.08);
 }
 
-.pending{background:#ffeaa7}
-.accepted{background:#74b9ff;color:white}
-.paid{background:#00b894;color:white}
-.refused{background:#d63031;color:white}
+.order-card p{margin:5px 0;font-size:14px}
 
-.btn{
-padding:6px 10px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-size:13px;
-margin-top:8px;
-margin-right:5px;
-color:white;
+.empty{
+padding:20px;
+background:white;
+border-radius:8px;
+text-align:center;
+color:#888;
 }
-
-.accept-btn{background:#4CAF50}
-.refuse-btn{background:#e74c3c}
-.receive-btn{background:#3498db}
-.pay-btn{background:#2ecc71}
 </style>
 </head>
 
@@ -59,6 +55,7 @@ color:white;
 
 <header>
 <h1>Mes Commandes</h1>
+<p class="user-email" id="userEmail"></p>
 </header>
 
 <main>
@@ -76,142 +73,90 @@ import { supabase } from './supabase.js';
 
 let currentUser = null;
 
-// ================= INIT =================
-async function init(){
-  console.log("INIT START");
+// ==============================
+// IDENTIFICATION UTILISATEUR
+// ==============================
+async function init() {
 
-  const { data, error } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  console.log("USER:", data);
-  console.log("ERROR:", error);
-
-  if(!data?.user){
-    alert("Utilisateur non connecté");
+  if (!session) {
+    alert("Vous devez être connecté.");
+    window.location.href = "login.html";
     return;
   }
 
-  currentUser = data.user;
-  console.log("Current User ID:", currentUser.id);
+  currentUser = session.user;
 
-  await loadOrders();
+  // 🔥 Affiche l'email ici
+  document.getElementById("userEmail").innerText =
+    "Connecté en tant que : " + currentUser.email;
+
+  console.log("Utilisateur connecté :", currentUser.id);
+  console.log("Email :", currentUser.email);
+
+  loadOrders();
 }
 
 init();
 
-// ================= LOAD ORDERS =================
-async function loadOrders(){
-  console.log("LOADING ORDERS...");
 
-  // ACHETEUR
-  const { data: buyerOrders, error: buyerError } = await supabase
-  .from("orders")
-  .select(`
-    id,
-    amount,
-    status,
-    created_at,
-    shop_products(name)
-  `)
-  .eq("buyer_id", currentUser.id)
-  .order("created_at",{ascending:false});
-
-  console.log("BUYER ORDERS:", buyerOrders);
-  console.log("BUYER ERROR:", buyerError);
-
-  // VENDEUR
-  const { data: sellerOrders, error: sellerError } = await supabase
-  .from("orders")
-  .select(`
-    id,
-    amount,
-    status,
-    created_at,
-    shop_products(name)
-  `)
-  .eq("seller_id", currentUser.id)
-  .order("created_at",{ascending:false});
-
-  console.log("SELLER ORDERS:", sellerOrders);
-  console.log("SELLER ERROR:", sellerError);
+// ==============================
+// CHARGEMENT DES COMMANDES
+// ==============================
+async function loadOrders() {
 
   const buyerDiv = document.getElementById("buyerOrders");
   const sellerDiv = document.getElementById("sellerOrders");
 
-  buyerDiv.innerHTML="";
-  sellerDiv.innerHTML="";
+  buyerDiv.innerHTML = "";
+  sellerDiv.innerHTML = "";
 
-  if(!buyerOrders?.length){
-    buyerDiv.innerHTML="<p>Aucune commande trouvée.</p>";
+  // 🔹 Commandes acheteur
+  const { data: buyerOrders } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("buyer_id", currentUser.id);
+
+  // 🔹 Commandes vendeur
+  const { data: sellerOrders } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("seller_id", currentUser.id);
+
+  // ===== AFFICHAGE ACHETEUR =====
+  if (!buyerOrders || buyerOrders.length === 0) {
+    buyerDiv.innerHTML = "<div class='empty'>Aucune commande trouvée.</div>";
+  } else {
+    buyerOrders.forEach(order => {
+      buyerDiv.innerHTML += `
+        <div class="order-card">
+          <p><strong>ID:</strong> ${order.id}</p>
+          <p><strong>Montant:</strong> ${order.amount} FCFA</p>
+          <p><strong>Status:</strong> ${order.status}</p>
+          <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+        </div>
+      `;
+    });
   }
 
-  if(!sellerOrders?.length){
-    sellerDiv.innerHTML="<p>Aucune commande reçue.</p>";
+  // ===== AFFICHAGE VENDEUR =====
+  if (!sellerOrders || sellerOrders.length === 0) {
+    sellerDiv.innerHTML = "<div class='empty'>Aucune commande reçue.</div>";
+  } else {
+    sellerOrders.forEach(order => {
+      sellerDiv.innerHTML += `
+        <div class="order-card">
+          <p><strong>ID:</strong> ${order.id}</p>
+          <p><strong>Montant:</strong> ${order.amount} FCFA</p>
+          <p><strong>Status:</strong> ${order.status}</p>
+          <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+        </div>
+      `;
+    });
   }
-
-  // Affichage acheteur
-  buyerOrders?.forEach(order=>{
-    buyerDiv.innerHTML+=`
-    <div class="order-card">
-      <p><strong>Produit:</strong> ${order.shop_products?.name||"Produit"}</p>
-      <p><strong>Montant:</strong> ${order.amount} FCFA</p>
-      <p><span class="status ${order.status}">${order.status}</span></p>
-
-      ${order.status==="pending" ?
-      `<button class="btn pay-btn" onclick="payOrder('${order.id}')">Payer</button>`
-      : ""}
-
-      ${order.status==="accepted" ?
-      `<button class="btn receive-btn" onclick="completeOrder('${order.id}')">Produits reçus</button>`
-      : ""}
-    </div>`;
-  });
-
-  // Affichage vendeur
-  sellerOrders?.forEach(order=>{
-    sellerDiv.innerHTML+=`
-    <div class="order-card">
-      <p><strong>Produit:</strong> ${order.shop_products?.name||"Produit"}</p>
-      <p><strong>Montant:</strong> ${order.amount} FCFA</p>
-      <p><span class="status ${order.status}">${order.status}</span></p>
-
-      ${order.status==="pending" ?
-      `<button class="btn accept-btn" onclick="acceptOrder('${order.id}')">Accepter</button>
-       <button class="btn refuse-btn" onclick="refuseOrder('${order.id}')">Refuser</button>`
-      : ""}
-    </div>`;
-  });
 }
 
-// ================= ACTIONS =================
-window.acceptOrder = async function(id){
-  console.log("ACCEPT:", id);
-  const { error } = await supabase.rpc("accept_order",{p_order_id:id});
-  console.log("ACCEPT ERROR:", error);
-  loadOrders();
-}
-
-window.refuseOrder = async function(id){
-  console.log("REFUSE:", id);
-  const { error } = await supabase.rpc("refuse_order",{p_order_id:id});
-  console.log("REFUSE ERROR:", error);
-  loadOrders();
-}
-
-window.completeOrder = async function(id){
-  console.log("COMPLETE:", id);
-  const { error } = await supabase.rpc("complete_order",{p_order_id:id});
-  console.log("COMPLETE ERROR:", error);
-  alert("Paiement transféré au vendeur !");
-  loadOrders();
-}
-
-window.payOrder = async function(id){
-  console.log("PAY:", id);
-  const { error } = await supabase.rpc("pay_order",{p_order_id:id});
-  console.log("PAY ERROR:", error);
-  alert("Paiement effectué !");
-  loadOrders();
-}
 </script>
 
 </body>
