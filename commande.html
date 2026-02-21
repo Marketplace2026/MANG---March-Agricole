@@ -119,6 +119,7 @@ h2{margin:25px 0 15px}
   justify-content:center;
   align-items:center;
   padding:20px;
+  z-index:9999;
 }
 
 .modal-content{
@@ -162,13 +163,11 @@ h2{margin:25px 0 15px}
 </div>
 
 <main>
-
 <h2>🛒 Mes achats</h2>
 <div class="orders-grid" id="buyerOrders"></div>
 
 <h2>🏪 Commandes reçues</h2>
 <div class="orders-grid" id="sellerOrders"></div>
-
 </main>
 
 <div class="modal" id="orderModal">
@@ -182,98 +181,80 @@ h2{margin:25px 0 15px}
 <script type="module">
 import { supabase } from './supabase.js';
 
-let currentUser=null;
-let isProcessing=false;
-let allOrders=[]; // ✅ stockage global
+let currentUser = null;
+let isProcessing = false;
+let allOrders = [];
 
 async function init(){
   const { data:{ session } } = await supabase.auth.getSession();
   if(!session){
-    window.location.href="login.html";
+    window.location.href = "login.html";
     return;
   }
-  currentUser=session.user;
-  document.getElementById("userEmail").innerText=currentUser.email;
-  document.getElementById("userAvatar").innerText=currentUser.email.charAt(0).toUpperCase();
-  loadOrders();
+  currentUser = session.user;
+  document.getElementById("userEmail").innerText = currentUser.email;
+  document.getElementById("userAvatar").innerText = currentUser.email.charAt(0).toUpperCase();
+  await loadOrders();
 }
 init();
 
 /* ================= LOAD ================= */
 async function loadOrders(){
-  const buyerDiv=document.getElementById("buyerOrders");
-  const sellerDiv=document.getElementById("sellerOrders");
-  buyerDiv.innerHTML="";
-  sellerDiv.innerHTML="";
+  const buyerDiv = document.getElementById("buyerOrders");
+  const sellerDiv = document.getElementById("sellerOrders");
+  buyerDiv.innerHTML = "";
+  sellerDiv.innerHTML = "";
 
-  const { data:buyerOrders } = await supabase
-  .from("orders")
-  .select(`
-    *,
-    seller:profiles!orders_seller_id_fkey(username,email)
-  `)
-  .eq("buyer_id",currentUser.id)
-  .order("created_at",{ascending:false});
+  const { data: buyerOrders } = await supabase
+    .from("orders")
+    .select(`*, seller:profiles!orders_seller_id_fkey(username,email)`)
+    .eq("buyer_id", currentUser.id)
+    .order("created_at",{ascending:false});
 
-  const { data:sellerOrders } = await supabase
-  .from("orders")
-  .select(`
-    *,
-    buyer:profiles!orders_buyer_id_fkey(username,email)
-  `)
-  .eq("seller_id",currentUser.id)
-  .order("created_at",{ascending:false});
+  const { data: sellerOrders } = await supabase
+    .from("orders")
+    .select(`*, buyer:profiles!orders_buyer_id_fkey(username,email)`)
+    .eq("seller_id", currentUser.id)
+    .order("created_at",{ascending:false});
 
-  allOrders=[...(buyerOrders||[]),...(sellerOrders||[])];
+  allOrders = [...(buyerOrders||[]), ...(sellerOrders||[])];
 
   renderOrders(buyerOrders,buyerDiv,true);
   renderOrders(sellerOrders,sellerDiv,false);
 }
 
 /* ================= RENDER ================= */
-function renderOrders(orders,container,isBuyer){
-
-  if(!orders || orders.length===0){
-    container.innerHTML="<div class='empty'>Aucune commande</div>";
+function renderOrders(orders, container, isBuyer){
+  if(!orders || orders.length === 0){
+    container.innerHTML = "<div class='empty'>Aucune commande</div>";
     return;
   }
 
-  orders.forEach(order=>{
+  orders.forEach(order => {
+    const status = order.status?.toLowerCase();
+    let bandClass = "status-pending";
+    let bandText = "En attente";
 
-    let bandClass="status-pending";
-    let bandText="En attente";
+    if(status === "accepted"){ bandClass="status-accepted"; bandText="Livraison acceptée"; }
+    if(status === "refused"){ bandClass="status-refused"; bandText="Livraison refusée"; }
+    if(status === "paid"){ bandClass="status-paid"; bandText="Commande payée"; }
 
-    if(order.status==="accepted"){
-      bandClass="status-accepted";
-      bandText="Livraison acceptée";
-    }
+    let buttons = "";
 
-    if(order.status==="refused"){
-      bandClass="status-refused";
-      bandText="Livraison refusée";
-    }
-
-    if(order.status==="paid"){
-      bandClass="status-paid";
-      bandText="Commande payée";
-    }
-
-    let buttons="";
-
-    if(!isBuyer && order.status==="pending"){
-      buttons=`
+    if(!isBuyer && status === "pending"){
+      buttons = `
         <button class="btn accept-btn" onclick="event.stopPropagation();acceptOrder('${order.id}')">Accepter</button>
         <button class="btn refuse-btn" onclick="event.stopPropagation();refuseOrder('${order.id}')">Refuser</button>
       `;
     }
 
-    if(isBuyer && order.status==="accepted"){
-      buttons=`
+    if(isBuyer && status === "accepted"){
+      buttons = `
         <button class="btn pay-btn" onclick="event.stopPropagation();payOrder('${order.id}')">Payer</button>
       `;
     }
 
-    container.innerHTML+=`
+    container.innerHTML += `
       <div class="order-card" onclick="showDetails('${order.id}')">
         <div class="status-band ${bandClass}">${bandText}</div>
         <p><strong>Montant :</strong> ${order.amount} FCFA</p>
@@ -286,35 +267,35 @@ function renderOrders(orders,container,isBuyer){
 
 /* ================= ACTIONS ================= */
 async function acceptOrder(id){
-  if(isProcessing)return;
-  isProcessing=true;
-  await supabase.rpc("accept_order",{p_order_id:id});
-  loadOrders();
-  isProcessing=false;
+  if(isProcessing) return;
+  isProcessing = true;
+  await supabase.rpc("accept_order", { p_order_id: id });
+  await loadOrders();
+  isProcessing = false;
 }
 
 async function refuseOrder(id){
-  if(isProcessing)return;
-  isProcessing=true;
-  await supabase.rpc("refuse_order",{p_order_id:id});
-  loadOrders();
-  isProcessing=false;
+  if(isProcessing) return;
+  isProcessing = true;
+  await supabase.rpc("refuse_order", { p_order_id: id });
+  await loadOrders();
+  isProcessing = false;
 }
 
 async function payOrder(id){
-  if(isProcessing)return;
-  isProcessing=true;
-  await supabase.rpc("pay_order",{p_order_id:id});
-  loadOrders();
-  isProcessing=false;
+  if(isProcessing) return;
+  isProcessing = true;
+  await supabase.rpc("pay_order", { p_order_id: id });
+  await loadOrders();
+  isProcessing = false;
 }
 
 /* ================= MODAL ================= */
 function showDetails(orderId){
-  const order=allOrders.find(o=>o.id===orderId);
-  if(!order)return;
+  const order = allOrders.find(o => String(o.id) === String(orderId));
+  if(!order) return;
 
-  document.getElementById("orderDetails").innerHTML=`
+  document.getElementById("orderDetails").innerHTML = `
     <p><strong>ID :</strong> ${order.id}</p>
     <p><strong>Montant :</strong> ${order.amount} FCFA</p>
     <p><strong>Status :</strong> ${order.status}</p>
@@ -324,12 +305,19 @@ function showDetails(orderId){
     <p><strong>Note :</strong> ${order.delivery_note || order.note || "N/A"}</p>
     <p><strong>Commission :</strong> ${order.commission_amount || 0} FCFA</p>
   `;
-  document.getElementById("orderModal").style.display="flex";
+  document.getElementById("orderModal").style.display = "flex";
 }
 
 function closeModal(){
-  document.getElementById("orderModal").style.display="none";
+  document.getElementById("orderModal").style.display = "none";
 }
+
+/* ================= ACCESS GLOBAL ================= */
+window.acceptOrder = acceptOrder;
+window.refuseOrder = refuseOrder;
+window.payOrder = payOrder;
+window.showDetails = showDetails;
+window.closeModal = closeModal;
 </script>
 
 </body>
