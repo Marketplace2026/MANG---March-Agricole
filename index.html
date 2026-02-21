@@ -2812,13 +2812,15 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-let currentProduct = null;
+
+   let currentProduct = null;
 let isProcessing = false;
 
 // MODALES
 function openOrderModal() {
   document.getElementById("orderModal").style.display = "flex";
 }
+
 function closeOrderModal() {
   document.getElementById("orderModal").style.display = "none";
 }
@@ -2833,17 +2835,19 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   if (!btn) return;
 
   const productId = btn.dataset.productId?.trim();
-  const sellerId = btn.dataset.sellerId?.trim(); // Ajouter sellerId
+  const sellerId = btn.dataset.sellerId?.trim();
   const amount = parseFloat(btn.dataset.amount);
 
-  if (!productId || !sellerId || isNaN(amount) || amount <= 0)
-    return alert("Produit invalide");
+  if (!productId || !sellerId || isNaN(amount) || amount <= 0) {
+    alert("Produit invalide");
+    return;
+  }
 
   currentProduct = { productId, sellerId, amount };
   openOrderModal();
 });
 
-// CREER COMMANDE (argent bloqué en escrow directement)
+// CREER COMMANDE
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
   if (isProcessing || !currentProduct) return;
 
@@ -2851,19 +2855,23 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   const phone = document.getElementById("orderPhone").value.trim();
   const note = document.getElementById("orderNote").value.trim();
 
-  if (!address || !phone) return alert("Adresse et téléphone requis");
+  if (!address || !phone) {
+    alert("Adresse et téléphone requis");
+    return;
+  }
 
   isProcessing = true;
+
   try {
-    // Récupération utilisateur connecté
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !sessionData?.session?.user) throw new Error("Utilisateur non connecté");
+    // Vérifier utilisateur connecté
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    const buyerId = sessionData.session.user.id;
+    if (userError || !user) {
+      throw new Error("Utilisateur non connecté");
+    }
 
-    // Appel à la fonction SQL pour créer la commande avec escrow
-    const { data: orderData, error } = await supabase.rpc("create_order_with_escrow", {
-      p_buyer_id: buyerId,
+    // ⚠️ On ne passe PLUS p_buyer_id
+    const { data, error } = await supabase.rpc("create_order_with_escrow", {
       p_seller_id: currentProduct.sellerId,
       p_product_id: currentProduct.productId,
       p_amount: currentProduct.amount,
@@ -2875,20 +2883,19 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     if (error) throw error;
 
     closeOrderModal();
-    alert("Commande créée avec succès ! L'argent est bloqué en escrow chez l'admin.");
+    alert("Commande créée avec succès ! L'argent est bloqué en escrow.");
 
-    // Recharge la liste de commandes si fonction disponible
-    if (typeof loadOrders === "function") loadOrders();
+    if (typeof loadOrders === "function") {
+      loadOrders();
+    }
 
   } catch (err) {
-    console.error(err);
+    console.error("Erreur commande:", err);
     alert(err.message || "Erreur lors de la création de la commande");
   }
 
   isProcessing = false;
 });
-
-   
       
 // ================= CHARGER PRODUITS =================
 let query = supabase
