@@ -2903,9 +2903,19 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   try {
 
+    // 🔐 récupérer utilisateur connecté
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Utilisateur non connecté");
+
     // 🔐 Appel sécurisé backend
     const { data: orderId, error } = await supabase.rpc("create_order", {
-      p_product_id: currentProduct.productId
+      p_buyer: user.id,
+      p_seller: null, // sera déterminé côté SQL
+      p_product: currentProduct.productId,
+      p_amount: currentProduct.amount,
+      p_address: address,
+      p_phone: phone,
+      p_note: note
     });
 
     if (error) throw error;
@@ -2917,7 +2927,6 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
     alert("Commande créée ! Argent bloqué en escrow.");
 
-    // Ouvrir modale paiement
     openPaymentModal(orderId, currentProduct.amount);
 
   } catch (err) {
@@ -2927,7 +2936,6 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   isProcessing = false;
 });
-
 // ==============================
 // PAYER COMMANDE (VERSION PRO)
 // ==============================
