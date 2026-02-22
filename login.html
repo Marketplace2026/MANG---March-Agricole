@@ -442,12 +442,13 @@ section h3{
 </div>
 
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
-  
-<script type="module">
+
+          
+    <script type="module">
 import { supabase } from './supabase.js';
 
-// ===== Code principal =====
 document.addEventListener('DOMContentLoaded', () => {
+
   const sidebar = document.getElementById('sidebar');
   const closeSidebar = document.getElementById('closeSidebar');
   const loginBtn = document.getElementById('loginBtn');
@@ -464,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLogin = true;
 
-  // ===== UI =====
+  /* ===== UI ===== */
   loginBtn.onclick = () => {
     isLogin = true;
     sidebar.classList.add('open');
@@ -494,10 +495,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   togglePass.onclick = () => {
-    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    passwordInput.type =
+      passwordInput.type === "password" ? "text" : "password";
   };
 
-  // ===== Mot de passe oublié =====
+  /* ===== Mot de passe oublié ===== */
   forgotPassword.onclick = async () => {
     const email = emailInput.value.trim();
     if (!email) {
@@ -517,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alert("📩 Un email de réinitialisation a été envoyé !");
   };
 
-  // ===== Auth =====
+  /* ===== Auth ===== */
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
 
@@ -531,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isLogin) {
-      // ===== LOGIN =====
+      /* ===== LOGIN ===== */
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         errorMsg.textContent = error.message;
@@ -541,51 +543,45 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // ===== SIGNUP =====
-    try {
-      // 🔹 Créer l'utilisateur Supabase Auth
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username } }
-      });
-      if (signUpError) throw signUpError;
+    /* ===== SIGNUP ===== */
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username } }
+    });
 
-      const userId = signUpData.user.id;
-      const now = new Date().toISOString();
-
-      // 🔹 Créer le profil minimal dans "profiles"
-      const { error: insertProfileError } = await supabase.from("profiles").insert({
-        id: userId,
-        username: username || "Utilisateur",
-        email: email,
-        is_acheteur: true,
-        is_vendeur: true,
-        created_at: now,
-        last_seen: now,
-        coins: 0,
-        role: 'user',
-        premium_level: 'free',
-        premium_start: null,
-        premium_end: null,
-        pin: null
-      });
-      if (insertProfileError) throw insertProfileError;
-
-      alert("✅ Compte créé ! Tu peux maintenant te connecter.");
-      sidebar.classList.remove('open');
-      emailInput.value = "";
-      passwordInput.value = "";
-      usernameInput.value = "";
-      errorMsg.textContent = "";
-
-    } catch (err) {
-      console.error("Erreur création utilisateur :", err);
-      alert("❌ Erreur création utilisateur : " + (err.message || JSON.stringify(err)));
-      errorMsg.textContent = "❌ Impossible de créer le compte, vérifie la console";
+    if (signUpError) {
+      errorMsg.textContent = signUpError.message;
+      return;
     }
+
+    /* ===== Créer profil immédiatement ===== */
+    const userId = signUpData.user.id;
+    const now = new Date().toISOString();
+
+    const { error: insertError } = await supabase.from("profiles").insert({
+      id: userId,
+      username: username || "Utilisateur",
+      email: email,
+      is_acheteur: true,
+      is_vendeur: true,
+      created_at: now,
+      last_seen: now,
+      wallet_balance: 0,
+      premium_level: 0,
+      premium_start: null,
+      premium_end: null
+    });
+
+    if (insertError) {
+      console.error("Impossible de créer le profil :", insertError);
+    }
+
+    alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+    sidebar.classList.remove('open');
   };
+
 });
-</script>
+    </script>
 </body>
 </html>
