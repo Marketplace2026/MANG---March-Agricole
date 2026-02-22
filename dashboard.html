@@ -576,7 +576,129 @@ async function loadWallet(){
 
   loadTransactions();
 }
+ /* ======================
+   TRANSFERT D'ARGENT
+===================== */
 
+// 🔹 Ouvrir le modal
+function openTransferModal() {
+  const modal = document.getElementById("transferModal");
+  if (modal) modal.style.display = "flex";
+}
+
+// 🔹 Fermer le modal et réinitialiser les champs
+function closeTransferModal() {
+  const modal = document.getElementById("transferModal");
+  if (modal) modal.style.display = "none";
+
+  const info = document.getElementById("receiverInfo");
+  if (info) info.innerHTML = "";
+
+  document.getElementById("receiverNumber").value = "";
+  document.getElementById("transferAmount").value = "";
+  document.getElementById("transferPin").value = "";
+}
+
+// 🔹 Bouton pour ouvrir le modal
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("openTransferModal");
+  if (btn) btn.addEventListener("click", openTransferModal);
+});
+
+// 🔎 Vérification automatique du destinataire
+document.addEventListener("input", async (e) => {
+  if (e.target.id !== "receiverNumber") return;
+
+  const number = e.target.value.replace(/\s/g, "").trim();
+  if (number.length < 6) return;
+
+  try {
+    // Récupérer l'utilisateur à partir du wallet_number
+    const { data: walletData } = await supabase
+      .from("wallets")
+      .select("user_id")
+      .eq("wallet_number", number)
+      .maybeSingle(); // ✅ use maybeSingle pour éviter l'erreur
+
+    const info = document.getElementById("receiverInfo");
+    if (!info) return;
+
+    if (!walletData) {
+      info.innerHTML = "Numéro introuvable";
+      return;
+    }
+
+    // Récupérer l'email du destinataire
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", walletData.user_id)
+      .maybeSingle();
+
+    if (profileData) {
+      info.innerHTML = `Destinataire : <b>${profileData.email}</b>`;
+    } else {
+      info.innerHTML = "Destinataire trouvé";
+    }
+
+  } catch (err) {
+    console.error("Erreur vérification destinataire :", err);
+  }
+});
+
+// 🔹 Confirmer le transfert
+async function confirmTransfer() {
+  if (!confirm("Êtes-vous sûr de vouloir effectuer ce transfert ?")) return;
+  await sendMoney();
+}
+
+// 🔹 Envoyer l'argent
+async function sendMoney() {
+  const loader = document.getElementById("transferLoader");
+  if (loader) loader.style.display = "block";
+
+  try {
+    const receiverNumber = document.getElementById("receiverNumber")?.value.replace(/\s/g, "").trim();
+    const amount = parseFloat(document.getElementById("transferAmount")?.value);
+    const pin = document.getElementById("transferPin")?.value.trim();
+
+    if (!receiverNumber || !amount || !pin) throw new Error("Veuillez remplir tous les champs");
+
+    // 🔹 Récupérer l'utilisateur connecté
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Utilisateur non connecté");
+
+    // 🔹 Appel RPC transfer_money
+    const { error: rpcError } = await supabase.rpc("transfer_money", {
+      sender_uuid: user.id,
+      receiver_wallet_number: receiverNumber,
+      transfer_amount: amount,
+      user_pin: pin
+    });
+
+    if (rpcError) throw rpcError;
+
+    // 🔹 Succès
+    alert("✅ Transfert réussi !");
+    closeTransferModal();
+    await loadWallet();
+    await loadTransactions(); // recharge les transactions
+
+  } catch (err) {
+    alert("❌ " + err.message);
+    console.error("Erreur transfert :", err);
+  } finally {
+    if (loader) loader.style.display = "none";
+  }
+}
+
+// 🔹 Export des fonctions pour le HTML
+window.openTransferModal = openTransferModal;
+window.closeTransferModal = closeTransferModal;
+window.confirmTransfer = confirmTransfer;
+window.sendMoney = sendMoney;
+
+    
 /* ================= TRANSACTIONS ================= */
 
 async function loadTransactions(){
