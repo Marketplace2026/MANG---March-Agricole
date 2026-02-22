@@ -746,10 +746,9 @@ async function loadWallet() {
   if (!currentUser) return;
 
   try {
-    // 🔹 Récupération des informations depuis wallets
     const { data, error } = await supabase
       .from("wallets")
-      .select("balance, available_balance")
+      .select("balance, available_balance, wallet_number") // ✅ ajouté
       .eq("user_id", currentUser.id)
       .single();
 
@@ -758,23 +757,26 @@ async function loadWallet() {
 
     const balance = Number(data.balance) || 0;
     const available = Number(data.available_balance) || 0;
+    const walletNumber = data.wallet_number || "";
 
-    // ===== Solde principal =====
+    // Solde principal
     const balanceMain = document.getElementById("balance");
     if (balanceMain) balanceMain.innerText = formatMoney(balance) + " FCFA";
 
-    // ===== Solde secondaire (disponible) =====
+    // Solde disponible
     const walletBalanceEl = document.getElementById("walletBalance");
     if (walletBalanceEl) walletBalanceEl.textContent = formatMoney(available) + " FCFA";
 
-    // Charger les transactions
+    // 🔥 Affichage du numéro wallet
+    const walletNumberEl = document.getElementById("walletNumber");
+    if (walletNumberEl) walletNumberEl.textContent = walletNumber;
+
     await loadTransactions();
 
   } catch (err) {
     console.error("Erreur loadWallet:", err);
   }
 }
-
 /* ======================
    CREATE PIN
 ===================== */
