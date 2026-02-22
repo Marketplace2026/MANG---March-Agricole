@@ -498,6 +498,26 @@ document.addEventListener('DOMContentLoaded', () => {
       passwordInput.type === "password" ? "text" : "password";
   };
 
+  
+  // ===== Mot de passe oublié =====
+  forgotPassword.onclick = async () => {
+    const email = emailInput.value.trim();
+    if (!email) {
+      errorMsg.textContent = "Entre ton email pour réinitialiser le mot de passe";
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://marketplace2026.github.io/MANG---March-Agricole//reset-password.html"
+    });
+
+    if (error) {
+      errorMsg.textContent = error.message;
+      return;
+    }
+
+    alert("📩 Un email de réinitialisation a été envoyé !");
+  };
   /* ===== Auth ===== */
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
@@ -577,23 +597,20 @@ document.addEventListener('DOMContentLoaded', () => {
       errorMsg.textContent = "Erreur création wallet";
       return;
     }
-alert("✅ Compte créé avec wallet ! Tu peux maintenant te connecter.");
-
-// 🔁 Basculer automatiquement vers le mode connexion
-isLogin = true;
-
-usernameInput.style.display = 'none';
-formTitle.textContent = "Connexion";
-actionBtn.textContent = "Se connecter";
-forgotPassword.style.display = "block";
-
-// ✅ On garde email et mot de passe déjà remplis
-// ❌ On ne ferme pas le sidebar
-
-errorMsg.textContent = "";
     
-  };
+alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+      sidebar.classList.remove('open');
+      emailInput.value = "";
+      passwordInput.value = "";
+      usernameInput.value = "";
+      errorMsg.textContent = "";
 
+    } catch (err) {
+      console.error("Erreur création utilisateur :", err);
+      alert("❌ Erreur création utilisateur : " + (err.message || JSON.stringify(err)));
+      errorMsg.textContent = "❌ Impossible de créer le compte, vérifie la console";
+    }
+  };
 });
 </script>
     
