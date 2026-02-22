@@ -577,9 +577,21 @@ document.addEventListener('DOMContentLoaded', () => {
       errorMsg.textContent = "Erreur création wallet";
       return;
     }
+alert("✅ Compte créé avec wallet ! Tu peux maintenant te connecter.");
 
-    alert("✅ Compte créé avec wallet !");
-    sidebar.classList.remove('open');
+// 🔁 Basculer automatiquement vers le mode connexion
+isLogin = true;
+
+usernameInput.style.display = 'none';
+formTitle.textContent = "Connexion";
+actionBtn.textContent = "Se connecter";
+forgotPassword.style.display = "block";
+
+// ✅ On garde email et mot de passe déjà remplis
+// ❌ On ne ferme pas le sidebar
+
+errorMsg.textContent = "";
+    
   };
 
 });
