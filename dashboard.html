@@ -412,7 +412,7 @@ MODALES
 </head>
 
 <body>
-
+<!-- ================= TOPBAR ================= -->
 <div class="topbar">
   <div class="profile">
     <div class="profile-circle">👤</div>
@@ -422,148 +422,46 @@ MODALES
     </div>
   </div>
   <div class="back" onclick="window.location.href='profile.html'">⬅ Retour</div>
-
 </div>
-  
+
+<!-- ================= WALLET CONTAINER ================= -->
+<div id="walletContainer" style="display:none;">
+
   <div class="card">
-  <div class="balance-title">Solde disponible</div>
-  <div class="balance"><span id="balance">0</span></div>
+    <div class="balance-title">Solde disponible</div>
+    <div class="balance"><span id="balance">0</span></div>
 
-  
-<div class="actions">
-  <button class="deposit" onclick="openDeposit()">Recharger</button>
-  <button class="withdraw" onclick="openWithdraw()">Retirer</button>
-</div>
-  </div>
-<!-- ========================= -->
-<!-- MODAL RECHARGER -->
-<!-- ========================= -->
-<div id="depositModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeDeposit()">&times;</span>
-    <h3>Recharger mon portefeuille</h3>
-
-    <label>Opérateur</label>
-    <div class="operator-select">
-      <label><input type="radio" name="depositOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
-      <label><input type="radio" name="depositOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
-      <label><input type="radio" name="depositOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
+    <div class="actions">
+      <button class="deposit" onclick="openDeposit()">Recharger</button>
+      <button class="withdraw" onclick="openWithdraw()">Retirer</button>
     </div>
-
-    <input id="depositPhone" type="text" placeholder="Numéro Mobile Money">
-    <input id="depositAmount" type="number" placeholder="Montant à recharger">
-    <button id="depositBtn" onclick="submitDeposit()">Recharger</button>
-    <span id="depositLoader" style="display:none;">⏳ Traitement...</span>
   </div>
-</div>
-
-<!-- ========================= -->
-<!-- MODAL RETRAIT -->
-<!-- ========================= -->
-<div id="withdrawModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeWithdraw()">&times;</span>
-    <h3>Retirer de mon portefeuille</h3>
-
-    <label>Opérateur</label>
-    <div class="operator-select">
-      <label><input type="radio" name="withdrawOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
-      <label><input type="radio" name="withdrawOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
-      <label><input type="radio" name="withdrawOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
-    </div>
-
-    <input id="withdrawPhone" type="text" placeholder="Numéro Mobile Money">
-    <input id="withdrawAmount" type="number" placeholder="Montant à retirer">
-    <button id="withdrawBtn" onclick="submitWithdraw()">Retirer</button>
-    <span id="withdrawLoader" style="display:none;">⏳ Traitement...</span>
-  </div>
-</div>
-    
-
-<div class="container">
-
-  
 
   <div class="wallet-box">
-  <h3>Mon numéro de portefeuille</h3>
-  <div id="walletNumber">Chargement...</div>
-
-  <button onclick="copyWalletNumber()">Copier</button>
-
+    <h3>Mon numéro de portefeuille</h3>
+    <div id="walletNumber">Chargement...</div>
+    <button onclick="copyWalletNumber()">Copier</button>
   </div>
-  
- <button id="openTransferModal" class="send-btn">
-  💸 Envoyer de l'argent
-</button>
-  
- <!-- MODAL TRANSFERT -->
-<div id="transferModal" class="modal">
-  <div class="modal-content slide-up">
 
-    <span class="close" onclick="closeTransferModal()">&times;</span>
-
-    <h3>Transférer de l'argent</h3>
-
-    <input type="text" id="receiverNumber" placeholder="Numéro du portefeuille" maxlength="10">
-    
-    <div id="receiverInfo" class="receiver-info"></div>
-
-    <input type="number" id="transferAmount" placeholder="Montant">
-    <input type="password" id="transferPin" placeholder="Votre PIN" maxlength="4">
-
-    <button id="confirmTransferBtn" onclick="confirmTransfer()">
-      Envoyer
-    </button>
-
-    <div id="transferLoader" class="loader" style="display:none;"></div>
-
-  </div>
-</div>
+  <button id="openTransferModal" class="send-btn">
+    💸 Envoyer de l'argent
+  </button>
 
   <div class="card">
     <h3>Historique</h3>
-    <div style="margin:15px 0;display:flex;gap:10px;flex-wrap:wrap">
-  <select id="filterType" onchange="loadTransactions()" style="padding:8px;border-radius:8px;">
-    <option value="">Toutes</option>
-    <option value="deposit">Rechargement</option>
-    <option value="withdraw">Retrait</option>
-    <option value="purchase">Achat</option>
-    <option value="premium">Premium</option>
-    <option value="transfer">Transfert</option>
-  </select>
-</div>
+    <select id="filterType">
+      <option value="">Toutes</option>
+      <option value="deposit">Rechargement</option>
+      <option value="withdraw">Retrait</option>
+      <option value="transfer">Transfert</option>
+    </select>
 
-<canvas id="walletChart" height="120"></canvas>
+    <canvas id="walletChart" height="120"></canvas>
     <div id="transactions"></div>
   </div>
 
 </div>
 
- <!-- MODAL -->
-<div class="modal" id="paymentModal">
-  <div class="modal-content">
-    <h3 id="modalTitle"></h3>
-
-    <input type="number" id="amountInput" placeholder="Montant (FCFA)">
-    <input type="text" id="phoneInput" placeholder="Numéro Mobile Money">
-
-    <div class="operator">
-      <div onclick="selectOperator(this,'MTN')">🟡 MTN</div>
-      <div onclick="selectOperator(this,'MOOV')">🔵 Moov</div>
-      <div onclick="selectOperator(this,'CELTIS')">🟢 Celtis</div>
-    </div>
-
-    <button onclick="submitTransaction()">Confirmer</button>
-  </div>
-</div>
-<!-- MODAL DETAIL TRANSACTION -->
-<div class="modal" id="detailModal">
-  <div class="modal-content">
-    <h3>Détails de la transaction</h3>
-    <div id="transactionDetails"></div>
-    <button onclick="closeDetail()">Fermer</button>
-  </div>
-</div>
 <!-- ================= PIN CREATION ================= -->
 <div class="modal" id="createPinModal">
   <div class="modal-content">
@@ -581,7 +479,7 @@ MODALES
     <button onclick="verifyPin()">Valider</button>
   </div>
 </div>
-  
+
         <script type="module">
       import { supabase } from './supabase.js';
 
