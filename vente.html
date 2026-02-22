@@ -1457,13 +1457,20 @@ async function updateCoinsAndWallet(newCoins, newWallet) {
 // ===== Achat de pièces depuis modal =====
 document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
   btn.addEventListener("click", async () => {
+
+    if (!currentUser) {
+      alert("Utilisateur non connecté");
+      return;
+    }
+
     const coinsToBuy = Number(btn.dataset.coins);
     const priceFCFA = Number(btn.dataset.price);
 
-    if (!currentUser) return alert("Utilisateur non connecté");
+    if (!confirm(`Confirmer l'achat de ${coinsToBuy} pièces pour ${priceFCFA} FCFA ?`)) return;
 
     try {
-      // 🔹 Récupérer le wallet
+
+      // 🔹 1️⃣ Récupérer wallet réel depuis la base
       const { data: walletData, error: walletError } = await supabase
         .from("wallets")
         .select("balance, available_balance")
@@ -1472,39 +1479,60 @@ document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
 
       if (walletError || !walletData) throw walletError || new Error("Wallet introuvable");
 
-      const wallet = Number(walletData.balance || 0);
-      const coins = Number(currentProfile.coins || 0);
+      const currentWallet = Number(walletData.balance || 0);
 
-      if (!confirm(`Confirmer l'achat de ${coinsToBuy} pièces pour ${priceFCFA} FCFA ?`)) return;
-
-      if (wallet < priceFCFA) {
-        return alert(`❌ Solde wallet insuffisant !\nVotre solde : ${wallet.toLocaleString()} FCFA`);
+      if (currentWallet < priceFCFA) {
+        alert(`❌ Solde insuffisant.\nSolde actuel : ${currentWallet.toLocaleString()} FCFA`);
+        return;
       }
 
-      // 🔹 Calcul des nouveaux montants
-      const newCoins = coins + coinsToBuy;
-      const newWallet = wallet - priceFCFA;
+      // 🔹 2️⃣ Récupérer coins réels depuis la base
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("coins")
+        .eq("id", currentUser.id)
+        .single();
 
-      // 🔹 Mettre à jour wallet et profiles
-      await updateCoinsAndWallet(newCoins, newWallet);
+      if (profileError || !profileData) throw profileError || new Error("Profil introuvable");
 
-      // 🔹 Ajouter transaction historique
-      const { error: txError } = await supabase
-        .from("wallet_transactions")
-        .insert({
-          user_id: currentUser.id,
-          amount: -priceFCFA, // débit
-          transaction_type: "purchase_coins",
-          description: `${coinsToBuy} pièces achetées`,
-          status: "success",
-          created_at: new Date().toISOString()
-        });
+      const currentCoins = Number(profileData.coins || 0);
 
-      if (txError) console.warn("Erreur transaction historique :", txError);
+      const newCoins = currentCoins + coinsToBuy;
+      const newWallet = currentWallet - priceFCFA;
 
-      alert(`✅ Achat réussi ! Vous avez maintenant ${newCoins} pièces et ${newWallet} FCFA`);
-      
-      // 🔹 Fermer modal
+      // 🔹 3️⃣ Mise à jour sécurisée
+      const [{ error: coinsError }, { error: walletUpdateError }] = await Promise.all([
+        supabase.from("profiles")
+          .update({ coins: newCoins })
+          .eq("id", currentUser.id),
+
+        supabase.from("wallets")
+          .update({
+            balance: newWallet,
+            available_balance: newWallet
+          })
+          .eq("user_id", currentUser.id)
+      ]);
+
+      if (coinsError) throw coinsError;
+      if (walletUpdateError) throw walletUpdateError;
+
+      // 🔹 4️⃣ Historique transaction
+      await supabase.from("wallet_transactions").insert({
+        user_id: currentUser.id,
+        amount: -priceFCFA,
+        transaction_type: "purchase_coins",
+        description: `${coinsToBuy} pièces achetées`,
+        status: "success",
+        created_at: new Date().toISOString()
+      });
+
+      // 🔹 5️⃣ Mise à jour frontend
+      if (coinsText) coinsText.textContent = newCoins.toString().padStart(2, "0");
+      if (walletText) walletText.textContent = newWallet.toLocaleString() + " FCFA";
+
+      alert(`✅ Achat réussi !\n${newCoins} pièces\n${newWallet} FCFA`);
+
       if (coinsModal) {
         coinsModal.style.display = "none";
         document.body.style.overflow = "auto";
@@ -1512,8 +1540,9 @@ document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
 
     } catch (err) {
       console.error("Erreur achat pièces :", err);
-      alert("❌ Une erreur est survenue lors de l'achat");
+      alert("❌ Erreur lors de l'achat");
     }
+
   });
 });
     
