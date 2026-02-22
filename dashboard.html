@@ -860,9 +860,14 @@ function showTransactionDetail(tx) {
     <p><strong>Description :</strong><br>
       ${tx.description || "Aucun détail"}
     </p>
+     <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
+      Télécharger PDF
+    </button>
   `;
 
   document.getElementById("detailModal").style.display = "flex";
+  document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
+  
 }
 
 /* ======================
