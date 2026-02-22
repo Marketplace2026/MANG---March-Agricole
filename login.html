@@ -440,38 +440,13 @@ section h3{
   </p>
   <div class="error" id="errorMsg"></div>
 </div>
+
+<!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
+  
 <script type="module">
 import { supabase } from './supabase.js';
 
-
-  // ===== Vérifier les tables =====
-async function checkProfilesColumns() {
-  try {
-    const { data, error } = await supabase.from('profiles').select('*').limit(1);
-    if (error) throw error;
-    console.log("Test profiles OK :", data);
-  } catch (err) {
-    console.error("Erreur profiles :", err);
-  }
-}
-
-async function checkWalletsColumns() {
-  try {
-    const { data, error } = await supabase.from('wallets').select('*').limit(1);
-    if (error) throw error;
-    console.log("Test wallets OK :", data);
-  } catch (err) {
-    console.error("Erreur wallets :", err);
-  }
-}
-
-// Appel immédiat pour tester
-checkProfilesColumns();
-checkWalletsColumns();
-
-// ===== Ton code d'inscription / login peut suivre ici =====
 document.addEventListener('DOMContentLoaded', () => {
-  // ton code pour sidebar, login, signup..
 
   const sidebar = document.getElementById('sidebar');
   const closeSidebar = document.getElementById('closeSidebar');
@@ -489,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLogin = true;
 
-  // ===== UI =====
+  /* ===== UI ===== */
   loginBtn.onclick = () => {
     isLogin = true;
     sidebar.classList.add('open');
@@ -519,9 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   togglePass.onclick = () => {
-    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    passwordInput.type =
+      passwordInput.type === "password" ? "text" : "password";
   };
 
+  
   // ===== Mot de passe oublié =====
   forgotPassword.onclick = async () => {
     const email = emailInput.value.trim();
@@ -541,8 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     alert("📩 Un email de réinitialisation a été envoyé !");
   };
-
-  // ===== Auth =====
+  /* ===== Auth ===== */
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
 
@@ -556,7 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isLogin) {
-      // ===== LOGIN =====
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         errorMsg.textContent = error.message;
@@ -566,41 +541,64 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // ===== SIGNUP =====
-    try {
-      // 🔹 Créer l'utilisateur Supabase Auth
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username } }
-      });
-      if (signUpError) throw signUpError;
+    /* ===== SIGNUP ===== */
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username } }
+    });
 
-      const userId = signUpData.user.id;
-      const now = new Date().toISOString();
+    if (signUpError) {
+      errorMsg.textContent = signUpError.message;
+      return;
+    }
 
-      // 🔹 Créer le profil minimal dans "profiles"
-      const { error: insertProfileError } = await supabase.from("profiles").insert({
-        id: userId,
-        username: username || "Utilisateur",
-        email: email,
-        is_acheteur: true,
-        is_vendeur: true,
-        created_at: now,
-        last_seen: now,
-        coins: 0,
-        role: 'user',
-        premium_level: 'free',
-        premium_start: null,
-        premium_end: null,
-        pin: null // pin est nullable
-      });
-      if (insertProfileError) throw insertProfileError;
+    const user = signUpData.user;
 
-      // 🔹 Créer le wallet associé automatiquement
-      await createWalletForUser(userId);
+    if (!user) {
+      alert("📩 Vérifie ton email pour confirmer ton compte.");
+      return;
+    }
 
-      alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+    const userId = user.id;
+    const now = new Date().toISOString();
+
+    /* ===== Créer profil ===== */
+    const { error: profileError } = await supabase.from("profiles").insert({
+      id: userId,
+      username: username || "Utilisateur",
+      email: email,
+      is_acheteur: true,
+      is_vendeur: true,
+      created_at: now,
+      last_seen: now,
+      wallet_balance: 0,
+      premium_level: 0,
+      premium_start: null,
+      premium_end: null
+    });
+
+    if (profileError) {
+      console.error("Impossible de créer le profil :", profileError);
+      errorMsg.textContent = "Erreur création profil";
+      return;
+    }
+
+    /* ===== Créer WALLET ===== */
+    const { error: walletError } = await supabase.from("wallets").insert({
+      user_id: userId,
+      balance: 0,
+      available_balance: 0,
+      escrow_balance: 0
+    });
+
+    if (walletError) {
+      console.error("Impossible de créer le wallet :", walletError);
+      errorMsg.textContent = "Erreur création wallet";
+      return;
+    }
+    
+alert("✅ Compte créé ! Tu peux maintenant te connecter.");
       sidebar.classList.remove('open');
       emailInput.value = "";
       passwordInput.value = "";
@@ -609,33 +607,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (err) {
       console.error("Erreur création utilisateur :", err);
+      alert("❌ Erreur création utilisateur : " + (err.message || JSON.stringify(err)));
       errorMsg.textContent = "❌ Impossible de créer le compte, vérifie la console";
     }
   };
-
 });
-
-// ===== Générer un wallet_number unique =====
-function generateWalletNumber() {
-  return Math.floor(1000000000 + Math.random() * 9000000000).toString();
-}
-
-// ===== Fonction pour créer le wallet automatiquement =====
-async function createWalletForUser(userId) {
-  try {
-    const { error } = await supabase.from("wallets").insert({
-      user_id: userId,
-      balance: 0,
-      available_balance: 0,
-      wallet_number: generateWalletNumber()
-    });
-    if (error) throw error;
-  } catch (err) {
-    console.error("Erreur création wallet :", err);
-    throw err;
-  }
-}
 </script>
-  
-</body>
+    
+        </body>
 </html>
