@@ -555,33 +555,58 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    /* ===== Créer profil immédiatement ===== */
     const userId = signUpData.user.id;
     const now = new Date().toISOString();
 
-    const { error: insertError } = await supabase.from("profiles").insert({
-      id: userId,
-      username: username || "Utilisateur",
-      email: email,
-      is_acheteur: true,
-      is_vendeur: true,
-      created_at: now,
-      last_seen: now,
-      wallet_balance: 0,
-      premium_level: 0,
-      premium_start: null,
-      premium_end: null
-    });
+    try {
+      /* ===== Créer profil minimal dans profiles ===== */
+      const { error: insertProfileError } = await supabase.from("profiles").insert({
+        id: userId,
+        username: username || "Utilisateur",
+        email: email,
+        is_acheteur: true,
+        is_vendeur: true,
+        created_at: now,
+        last_seen: now,
+        coins: 0,           // coins dans profiles
+        premium_level: 'free',
+        premium_start: null,
+        premium_end: null
+      });
+      if (insertProfileError) throw insertProfileError;
 
-    if (insertError) {
-      console.error("Impossible de créer le profil :", insertError);
+      /* ===== Créer wallet associé dans wallets ===== */
+      const { error: insertWalletError } = await supabase.from("wallets").insert({
+        user_id: userId,
+        balance: 0,
+        available_balance: 0,
+        coins: 0,                  // si tu veux suivre les coins aussi dans wallet
+        wallet_number: generateWalletNumber()
+      });
+      if (insertWalletError) throw insertWalletError;
+
+      alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+      sidebar.classList.remove('open');
+      emailInput.value = "";
+      passwordInput.value = "";
+      usernameInput.value = "";
+      errorMsg.textContent = "";
+
+    } catch (err) {
+      console.error("Erreur création utilisateur :", err);
+      errorMsg.textContent = "❌ Impossible de créer le compte, vérifie la console";
     }
 
-    alert("✅ Compte créé ! Tu peux maintenant te connecter.");
-    sidebar.classList.remove('open');
   };
 
 });
+
+/* ===== Générer un wallet_number unique ===== */
+function generateWalletNumber() {
+  // Exemple : 10 chiffres aléatoires
+  return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+}
     </script>
+
 </body>
 </html>
