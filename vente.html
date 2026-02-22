@@ -1365,9 +1365,13 @@ function renderUserIdentity() {
     window.location.href = 'index.html';
   });
 
-  async function updateCoins(newCoins) {
+  
+    /* ======================
+   GESTION DES COINS ET ACHAT
+===================== */
+
+async function updateCoins(newCoins) {
   try {
-    // 🔹 Vérifier que newCoins est bien un nombre
     newCoins = Number(newCoins);
     if (isNaN(newCoins) || newCoins < 0) throw new Error("Nombre de pièces invalide");
 
@@ -1376,11 +1380,9 @@ function renderUserIdentity() {
 
     // 🔹 Mettre à jour le badge frontend
     const coinsElement = document.getElementById("userCoins");
-    if (coinsElement) {
-      coinsElement.textContent = newCoins;
-    }
+    if (coinsElement) coinsElement.textContent = newCoins;
 
-    // 🔹 Mettre à jour dans Supabase
+    // 🔹 Mettre à jour dans Supabase (table profiles)
     const { error } = await supabase
       .from("profiles")
       .update({ coins: newCoins })
@@ -1394,57 +1396,59 @@ function renderUserIdentity() {
     alert("❌ Impossible de mettre à jour vos pièces, vérifiez la console");
   }
 }
-    // ===== Sélection des éléments =====
+
+// ===== Sélection des éléments =====
 const userCoinsBtn = document.getElementById("userCoinsBtn");
 const coinsModal = document.getElementById("coinsModal");
 const closeCoinsModal = document.getElementById("closeCoinsModal");
 const coinsText = document.querySelector(".user-coins .coin-text");
-const walletText = document.getElementById("walletBalance"); // Si tu veux afficher le solde
+const walletText = document.getElementById("walletBalance"); 
 
 // ===== Ouvrir/fermer la modale =====
-userCoinsBtn.addEventListener("click", () => {
+if (userCoinsBtn) userCoinsBtn.addEventListener("click", () => {
   coinsModal.style.display = "flex";
   document.body.style.overflow = "hidden";
 });
-closeCoinsModal.addEventListener("click", () => {
+
+if (closeCoinsModal) closeCoinsModal.addEventListener("click", () => {
   coinsModal.style.display = "none";
   document.body.style.overflow = "auto";
 });
 
-// ===== Fonction pour mettre à jour le badge et Supabase =====
+// ===== Fonction pour mettre à jour coins et wallet =====
 async function updateCoinsAndWallet(newCoins, newWallet) {
   try {
     newCoins = Number(newCoins);
     newWallet = Number(newWallet);
+
     if (isNaN(newCoins) || newCoins < 0) throw new Error("Nombre de pièces invalide");
     if (isNaN(newWallet) || newWallet < 0) throw new Error("Solde wallet invalide");
 
-    // Mise à jour locale
+    // 🔹 Mise à jour locale
     currentProfile.coins = newCoins;
-    currentProfile.wallet_balance = newWallet;
 
-    // Mise à jour du front-end
+    // 🔹 Mise à jour du front-end
     if (coinsText) coinsText.textContent = newCoins.toString().padStart(2, "0");
     if (walletText) walletText.textContent = newWallet.toLocaleString() + " FCFA";
 
-    // Mise à jour Supabase
-    const { error } = await supabase
-      .from("profiles")
-      .update({ coins: newCoins, wallet_balance: newWallet })
-      .eq("id", currentUser.id);
+    // 🔹 Mise à jour Supabase
+    // coins => profiles, wallet => wallets
+    const [{ error: coinsError }, { error: walletError }] = await Promise.all([
+      supabase.from("profiles").update({ coins: newCoins }).eq("id", currentUser.id),
+      supabase.from("wallets").update({ balance: newWallet, available_balance: newWallet }).eq("user_id", currentUser.id)
+    ]);
 
-    if (error) throw error;
+    if (coinsError) throw coinsError;
+    if (walletError) throw walletError;
 
     console.log(`✅ Coins et wallet mis à jour : ${newCoins} pièces, ${newWallet} FCFA`);
   } catch (err) {
     console.error("Erreur mise à jour coins/wallet :", err);
     alert("❌ Impossible de mettre à jour vos pièces ou votre solde");
-    
   }
 }
 
-    
-// ===== Gestion achat de pièces adapté à table wallets =====
+// ===== Achat de pièces depuis modal =====
 document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
   btn.addEventListener("click", async () => {
     const coinsToBuy = Number(btn.dataset.coins);
@@ -1453,17 +1457,17 @@ document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
     if (!currentUser) return alert("Utilisateur non connecté");
 
     try {
-      // 🔹 Récupérer le wallet depuis Supabase
+      // 🔹 Récupérer le wallet
       const { data: walletData, error: walletError } = await supabase
         .from("wallets")
-        .select("balance, available_balance, coins")
+        .select("balance, available_balance")
         .eq("user_id", currentUser.id)
         .single();
 
       if (walletError || !walletData) throw walletError || new Error("Wallet introuvable");
 
       const wallet = Number(walletData.balance || 0);
-      const coins = Number(walletData.coins || 0);
+      const coins = Number(currentProfile.coins || 0);
 
       if (!confirm(`Confirmer l'achat de ${coinsToBuy} pièces pour ${priceFCFA} FCFA ?`)) return;
 
@@ -1473,19 +1477,10 @@ document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
 
       // 🔹 Calcul des nouveaux montants
       const newCoins = coins + coinsToBuy;
-      const newBalance = wallet - priceFCFA;
+      const newWallet = wallet - priceFCFA;
 
-      // 🔹 Mettre à jour le wallet
-      const { error: updateError } = await supabase
-        .from("wallets")
-        .update({
-          balance: newBalance,
-          available_balance: newBalance,
-          coins: newCoins
-        })
-        .eq("user_id", currentUser.id);
-
-      if (updateError) throw updateError;
+      // 🔹 Mettre à jour wallet et profiles
+      await updateCoinsAndWallet(newCoins, newWallet);
 
       // 🔹 Ajouter transaction historique
       const { error: txError } = await supabase
@@ -1501,10 +1496,10 @@ document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
 
       if (txError) console.warn("Erreur transaction historique :", txError);
 
-      alert(`✅ Achat réussi ! Vous avez maintenant ${newCoins} pièces et ${newBalance} FCFA`);
+      alert(`✅ Achat réussi ! Vous avez maintenant ${newCoins} pièces et ${newWallet} FCFA`);
       
-      // Fermer modal et restaurer scroll
-      if (typeof coinsModal !== "undefined") {
+      // 🔹 Fermer modal
+      if (coinsModal) {
         coinsModal.style.display = "none";
         document.body.style.overflow = "auto";
       }
@@ -1515,7 +1510,6 @@ document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
     }
   });
 });
-      
     
   // ===============================
 // INPUTS CACHÉS (déjà dans ton HTML)
