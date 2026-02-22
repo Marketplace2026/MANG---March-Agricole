@@ -440,7 +440,9 @@ section h3{
   </p>
   <div class="error" id="errorMsg"></div>
 </div>
-  <script type="module">
+
+  
+        <script type="module">
 import { supabase } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -491,8 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   togglePass.onclick = () => {
-    passwordInput.type =
-      passwordInput.type === "password" ? "text" : "password";
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
   };
 
   // ===== Mot de passe oublié =====
@@ -541,18 +542,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== SIGNUP =====
     try {
+      // 🔹 Créer l'utilisateur Supabase Auth
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { username } }
       });
-
       if (signUpError) throw signUpError;
 
       const userId = signUpData.user.id;
       const now = new Date().toISOString();
 
-      // ===== Créer profil minimal dans profiles =====
+      // 🔹 Créer le profil minimal dans "profiles"
       const { error: insertProfileError } = await supabase.from("profiles").insert({
         id: userId,
         username: username || "Utilisateur",
@@ -562,29 +563,24 @@ document.addEventListener('DOMContentLoaded', () => {
         created_at: now,
         last_seen: now,
         coins: 0,
-        role: 'user',          // role obligatoire
+        role: 'user',
         premium_level: 'free',
         premium_start: null,
-        premium_end: null
+        premium_end: null,
+        pin: null // pin est nullable
       });
       if (insertProfileError) throw insertProfileError;
-      
-// ===== Créer wallet associé dans wallets =====
-const { error: insertWalletError } = await supabase.from("wallets").insert({
-  user_id: userId,
-  balance: 0,
-  available_balance: 0,
-  wallet_number: generateWalletNumber() // seul champ supplémentaire
-});
-if (insertWalletError) throw insertWalletError;
 
-alert("✅ Compte créé ! Tu peux maintenant te connecter.");
-sidebar.classList.remove('open');
-emailInput.value = "";
-passwordInput.value = "";
-usernameInput.value = "";
-errorMsg.textContent = "";
-      
+      // 🔹 Créer le wallet associé automatiquement
+      await createWalletForUser(userId);
+
+      alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+      sidebar.classList.remove('open');
+      emailInput.value = "";
+      passwordInput.value = "";
+      usernameInput.value = "";
+      errorMsg.textContent = "";
+
     } catch (err) {
       console.error("Erreur création utilisateur :", err);
       errorMsg.textContent = "❌ Impossible de créer le compte, vérifie la console";
@@ -597,7 +593,23 @@ errorMsg.textContent = "";
 function generateWalletNumber() {
   return Math.floor(1000000000 + Math.random() * 9000000000).toString();
 }
-  </script>
+
+// ===== Fonction pour créer le wallet automatiquement =====
+async function createWalletForUser(userId) {
+  try {
+    const { error } = await supabase.from("wallets").insert({
+      user_id: userId,
+      balance: 0,
+      available_balance: 0,
+      wallet_number: generateWalletNumber()
+    });
+    if (error) throw error;
+  } catch (err) {
+    console.error("Erreur création wallet :", err);
+    throw err;
+  }
+}
+        </script>
 
 </body>
 </html>
