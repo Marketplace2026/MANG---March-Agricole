@@ -777,14 +777,42 @@ async function loadWallet() {
     console.error("Erreur loadWallet:", err);
   }
 }
-/* ======================
-   CREATE PIN
-===================== */
+async function checkPinAndOpenWallet() {
+  try {
+    // 🔹 Récupérer l'utilisateur connecté
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Utilisateur non connecté");
+
+    // 🔹 Récupérer le profil
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, pin")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    // 🔹 Si pin est null, demander de créer un PIN
+    if (!profile.pin) {
+      const modal = document.getElementById("createPinModal");
+      if (modal) modal.style.display = "flex"; // ouvrir la modal
+    } else {
+      loadWallet(); // PIN déjà existant, charger le portefeuille directement
+    }
+
+  } catch (err) {
+    console.error("Erreur check PIN :", err);
+    alert("Impossible de vérifier le PIN");
+  }
+}
+
+// ===== Création du PIN =====
 async function createPin() {
   const pinInput = document.getElementById("newPin");
   if (!pinInput) return;
 
   const pin = pinInput.value.trim();
+
   if (pin.length !== 4 || isNaN(pin)) {
     alert("Le PIN doit contenir exactement 4 chiffres");
     return;
@@ -792,27 +820,34 @@ async function createPin() {
 
   try {
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Utilisateur non connecté");
 
+    // 🔹 Mettre à jour le PIN dans profiles
     const { error } = await supabase
       .from("profiles")
-      .update({ pin: pin })
+      .update({ pin })
       .eq("id", user.id);
 
     if (error) throw error;
 
+    // 🔹 Fermer la modal
     const modal = document.getElementById("createPinModal");
     if (modal) modal.style.display = "none";
 
     alert("PIN créé avec succès !");
-    loadWallet();
+    loadWallet(); // Charger le portefeuille maintenant que le PIN est défini
 
   } catch (err) {
-    console.error("Erreur création PIN:", err);
+    console.error("Erreur création PIN :", err);
     alert("Erreur lors de la création du PIN");
   }
 }
+
+// Exposer la fonction pour le bouton
 window.createPin = createPin;
 
+// 🔹 Appeler au chargement ou à l'ouverture du portefeuille
+document.addEventListener("DOMContentLoaded", checkPinAndOpenWallet);
 /* ======================
    LOAD TRANSACTIONS
 ===================== */
@@ -873,6 +908,13 @@ async function loadTransactions() {
 }
 
 /* ======================
+CREDIT LOGIC
+===================== */
+function isPositive(tx) {
+  const type = tx.type?.toLowerCase() || "";
+  return type.includes("deposit") || type.includes("refund");
+          }
+/* ======================
    GET TITLE
 ===================== */
 function getTitle(tx) {
@@ -887,13 +929,7 @@ function getTitle(tx) {
   return "Transaction";
 }
 
-/* ======================
-   CHECK CREDIT
-===================== */
-function isPositive(tx) {
-  const type = tx.transaction_type?.toLowerCase() || "";
-  return type.includes("deposit") || type.includes("refund");
-}
+
 
 /* ======================
    FORMAT MONEY
@@ -944,19 +980,53 @@ function showTransactionDetail(tx) {
       Télécharger PDF
     </button>
   `;
+document.getElementById("detailModal").style.display = "flex";
 
-  const modal = document.getElementById("detailModal");
-  if (modal) modal.style.display = "flex";
-
-  const downloadBtn = document.getElementById("downloadPdfBtn");
-  if (downloadBtn) downloadBtn.onclick = () => downloadReceiptPDF(tx.id);
+  document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
 }
 
 window.closeDetail = () => {
-  const modal = document.getElementById("detailModal");
-  if (modal) modal.style.display = "none";
+  document.getElementById("detailModal").style.display = "none";
 };
-      
+
+  function openTransferModal() {
+  document.getElementById("transferModal").style.display = "flex";
+}
+
+function closeTransferModal() {
+  document.getElementById("transferModal").style.display = "none";
+  document.getElementById("receiverInfo").innerHTML = "";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("openTransferModal");
+  if (btn) btn.addEventListener("click", openTransferModal);
+});
+
+// 🔎 Vérifier destinataire automatiquement
+document.addEventListener("input", async (e) => {
+  if (e.target.id === "receiverNumber") {
+
+    const number = e.target.value.trim();
+    if (number.length < 6) return;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("email, wallet_number")
+      .eq("wallet_number", number)
+      .single();
+
+    const info = document.getElementById("receiverInfo");
+
+    if (data) {
+      info.innerHTML = "Destinataire : <b>" + data.email + "</b>";
+    } else {
+      info.innerHTML = "Numéro introuvable";
+    }
+  }
+});
+  
+  
       /* ======================
    TRANSFERT D'ARGENT
 ===================== */
@@ -1078,6 +1148,60 @@ window.openTransferModal = openTransferModal;
 window.closeTransferModal = closeTransferModal;
 window.confirmTransfer = confirmTransfer;
 window.sendMoney = sendMoney;
+
+
+          /* ======================
+USAGE DESCRIPTION
+===================== */
+function getUsage(tx) {
+  const desc = tx.description?.toLowerCase() || "";
+  if (tx.type === "deposit") return "Rechargement de votre portefeuille via Mobile Money.";
+  if (tx.type === "withdraw") return "Retrait envoyé vers votre numéro Mobile Money.";
+  if (tx.type === "premium" || desc.includes("premium")) return "Paiement pour activation de votre abonnement Premium.";
+  if (tx.type === "purchase") return tx.description ? `Paiement pour : ${tx.description}` : "Paiement d’un produit.";
+  if (tx.type === "transfer") return "Transfert vers un autre utilisateur.";
+  return "Transaction enregistrée.";
+}
+
+/* ======================
+CHART
+===================== */
+function renderChart(totalIn, totalOut) {
+  const ctx = document.getElementById("walletChart");
+  if (!ctx) return;
+  if (walletChart) walletChart.destroy();
+
+  walletChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Entrées", "Sorties"],
+      datasets: [{ data: [totalIn, totalOut], backgroundColor: ["#00e676", "#ff5252"] }]
+    },
+    options: { plugins: { legend: { labels: { color: "white" } } } }
+  });
+}
+async function generateHash(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+          function loadImageBase64(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = url;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+  });
+          }
 /* ======================
 PDF RECEIPT CLIENT
 ===================== */
