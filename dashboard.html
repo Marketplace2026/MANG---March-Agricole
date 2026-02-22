@@ -897,12 +897,170 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+          /* ======================
+PDF RECEIPT CLIENT
+===================== */
+      async function downloadReceiptPDF(id) {
+  try {
+
+    const { data: tx, error } = await supabase
+      .from("wallet_transactions")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !tx) throw new Error("Transaction introuvable.");
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    const primary = "#0b3d2e";
+    const success = "#16a34a";
+    const danger = "#dc2626";
+
+    const isCredit = Number(tx.amount) > 0;
+    const accent = isCredit ? success : danger;
+
+    const cleanAmount = Math.abs(Number(tx.amount));
+
+    /* ===== NUMÉRO OFFICIEL ===== */
+    const receiptNumber =
+      `MANG-${new Date().getFullYear()}-${String(tx.id).padStart(6, "0")}`;
+
+    /* ===== HASH SÉCURITÉ ===== */
+    const securityString =
+      `${receiptNumber}|${tx.amount}|${tx.created_at}`;
+    const hash = await generateHash(securityString);
+
+    /* ===== HEADER FOND ===== */
+    doc.setFillColor(primary);
+    doc.rect(0, 0, 595, 110, "F");
+
+    /* ===== LOGO ===== */
+    const logo = await loadImageBase64("assets/img/logos.png");
+    doc.addImage(logo, "PNG", 40, 25, 60, 60);
+
+    doc.setTextColor("#ffffff");
+    doc.setFontSize(20);
+    doc.text("MANG WALLET", 120, 60);
+
+    doc.setFontSize(11);
+    doc.text("Reçu Financier Officiel", 420, 60);
+
+    /* ===== CARTE PRINCIPALE ===== */
+    doc.setFillColor("#ffffff");
+    doc.roundedRect(40, 150, 515, 400, 18, 18, "F");
+
+    doc.setDrawColor(220);
+    doc.roundedRect(40, 150, 515, 400, 18, 18);
+
+    /* ===== TITRE ===== */
+    doc.setFontSize(14);
+    doc.setTextColor("#333");
+    doc.text("Détails de la transaction", 60, 190);
+
+    /* ===== MONTANT CENTRAL ===== */
+    doc.setFontSize(36);
+    doc.setTextColor(accent);
+    doc.text(
+      `${isCredit ? "+" : "-"} ${cleanAmount.toLocaleString()} FCFA`,
+      297,
+      250,
+      { align: "center" }
+    );
+
+    /* ===== BADGE TYPE ===== */
+    doc.setFillColor(accent);
+    doc.roundedRect(230, 270, 135, 30, 10, 10, "F");
+
+    doc.setTextColor("#ffffff");
+    doc.setFontSize(12);
+
+    const typeLabel =
+      tx.type === "transfer_received" ? "TRANSFERT REÇU"
+      : tx.type === "transfer_sent" ? "TRANSFERT ENVOYÉ"
+      : tx.type?.toUpperCase() || "TRANSACTION";
+
+    doc.text(typeLabel, 297, 290, { align: "center" });
+
+    /* ===== INFOS ===== */
+    doc.setTextColor("#333");
+    doc.setFontSize(12);
+
+    let y = 330;
+    const gap = 32;
+
+    const infoLine = (label, value, offset) => {
+      doc.setFont(undefined, "bold");
+      doc.text(label, 70, y + gap * offset);
+      doc.setFont(undefined, "normal");
+      doc.text(String(value), 230, y + gap * offset);
+    };
+
+    infoLine("Numéro de reçu :", receiptNumber, 0);
+    infoLine("Transaction ID :", tx.id, 1);
+    infoLine("Date :", new Date(tx.created_at).toLocaleString(), 2);
+    infoLine("Description :", tx.description || "-", 3);
+
+    /* ===== QR CODE ===== */
+    const qrCanvas = document.createElement("canvas");
+
+    await new Promise(resolve => {
+      new QRCode(qrCanvas, {
+        text: `${receiptNumber}|HASH:${hash}`,
+        width: 120,
+        height: 120,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      setTimeout(resolve, 250);
+    });
+
+    const qrData = qrCanvas.toDataURL("image/png");
+    doc.addImage(qrData, "PNG", 400, 390, 120, 120);
+
+    /* ===== CACHET OFFICIEL ===== */
+    doc.setDrawColor(primary);
+    doc.setLineWidth(2);
+    doc.circle(470, 520, 45);
+
+    doc.setFontSize(10);
+    doc.setTextColor(primary);
+    doc.text("CERTIFIÉ", 470, 525, { align: "center" });
+
+    /* ===== HASH FOOTER ===== */
+    doc.setFontSize(6);
+    doc.setTextColor("#aaaaaa");
+    doc.text(hash, 40, 830);
+
+    doc.setFontSize(9);
+    doc.setTextColor("#777");
+    doc.text(
+      "Document signé électroniquement par MANG Wallet.",
+      40,
+      800
+    );
+    doc.text(
+      "Toute modification invalide ce reçu.",
+      40,
+      815
+    );
+
+    doc.save(`${receiptNumber}.pdf`);
+
+  } catch (err) {
+    console.error(err);
+    alert("Erreur génération reçu.");
+  }
+          }
+          
 /* ================= GLOBAL ================= */
 
 window.createPin = createPin;
 window.verifyPin = verifyPin;
 window.closeDetail = closeDetail;
-
+          
+loadUser();
+          
 </script>
   
 </body>
