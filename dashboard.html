@@ -832,6 +832,18 @@ function badge(text, color) {
   `;
 }
 
+          /* ======================
+USAGE DESCRIPTION
+===================== */
+function getUsage(tx) {
+  const desc = tx.description?.toLowerCase() || "";
+  if (tx.type === "deposit") return "Rechargement de votre portefeuille via Mobile Money.";
+  if (tx.type === "withdraw") return "Retrait envoyé vers votre numéro Mobile Money.";
+  if (tx.type === "premium" || desc.includes("premium")) return "Paiement pour activation de votre abonnement Premium.";
+  if (tx.type === "purchase") return tx.description ? `Paiement pour : ${tx.description}` : "Paiement d’un produit.";
+  if (tx.type === "transfer") return "Transfert vers un autre utilisateur.";
+  return "Transaction enregistrée.";
+          }
 /* ======================
 SHOW TRANSACTION DETAIL
 ====================== */
@@ -857,10 +869,8 @@ function showTransactionDetail(tx) {
     <p><strong>Statut :</strong><br>
       ${tx.status || "Validé"}
     </p>
-    <p><strong>Description :</strong><br>
-      ${tx.description || "Aucun détail"}
-    </p>
-     <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
+    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
+    <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
       Télécharger PDF
     </button>
   `;
