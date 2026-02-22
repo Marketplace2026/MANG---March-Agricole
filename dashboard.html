@@ -986,6 +986,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // 🔎 Vérification automatique du destinataire
+
 document.addEventListener("input", async (e) => {
   if (e.target.id !== "receiverNumber") return;
 
@@ -996,26 +997,28 @@ document.addEventListener("input", async (e) => {
     .from("wallets")
     .select("user_id")
     .eq("wallet_number", number)
-    .single();
+    .maybeSingle(); // ✅ corrigé
 
   const info = document.getElementById("receiverInfo");
   if (!info) return;
 
-  if (error || !data) {
+  if (!data) {
     info.innerHTML = "Numéro introuvable";
+    return;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", data.user_id)
+    .maybeSingle(); // ✅ aussi ici
+
+  if (profile) {
+    info.innerHTML = `Destinataire : <b>${profile.email}</b>`;
   } else {
-    // Récupérer l'email de l'utilisateur
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("id", data.user_id)
-      .single();
-    
-    if (profile) info.innerHTML = `Destinataire : <b>${profile.email}</b>`;
-    else info.innerHTML = "Destinataire trouvé";
+    info.innerHTML = "Destinataire trouvé";
   }
 });
-
 // Confirmer le transfert
 async function confirmTransfer() {
   if (!confirm("Êtes-vous sûr de vouloir effectuer ce transfert ?")) return;
