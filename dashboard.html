@@ -600,6 +600,30 @@ async function loadWallet(){
 
   loadTransactions();
 }
+function copyWalletNumber() {
+  const el = document.getElementById("walletNumber");
+  if (!el) return;
+
+  const number = el.textContent.replace(/\s/g, "");
+
+  if (!number || number === "Non disponible") {
+    alert("Numéro indisponible");
+    return;
+  }
+
+  navigator.clipboard.writeText(number)
+    .then(() => {
+      alert("Numéro copié !");
+    })
+    .catch(() => {
+      alert("Impossible de copier.");
+    });
+}
+
+//  LA FONCTION GLOBALE
+window.copyWalletNumber = copyWalletNumber;
+  
+          
  /* ======================
    TRANSFERT D'ARGENT
 ===================== */
@@ -895,24 +919,41 @@ document.addEventListener("DOMContentLoaded", () => {
     filter.addEventListener("change", loadTransactions);
   }
 });
+let walletChart = null;
 
-          /* ======================
-CHART
-===================== */
 function renderChart(totalIn, totalOut) {
-  const ctx = document.getElementById("walletChart");
-  if (!ctx) return;
-  if (walletChart) walletChart.destroy();
+  const canvas = document.getElementById("walletChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  if (walletChart) {
+    walletChart.destroy();
+  }
 
   walletChart = new Chart(ctx, {
     type: "doughnut",
     data: {
       labels: ["Entrées", "Sorties"],
-      datasets: [{ data: [totalIn, totalOut], backgroundColor: ["#00e676", "#ff5252"] }]
+      datasets: [{
+        data: [totalIn, totalOut],
+        backgroundColor: ["#00e676", "#ff5252"],
+        borderWidth: 0
+      }]
     },
-    options: { plugins: { legend: { labels: { color: "white" } } } }
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            color: "#ffffff"
+          }
+        }
+      }
+    }
   });
-}
+          }
+          
           async function generateHash(text) {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
@@ -921,7 +962,7 @@ function renderChart(totalIn, totalOut) {
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
           }
 
-          const logo = await loadImageBase64("assets/img/logos.png");
+          
 
           function loadImageBase64(url) {
   return new Promise((resolve, reject) => {
