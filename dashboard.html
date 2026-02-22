@@ -406,8 +406,6 @@ MODALES
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -476,8 +474,9 @@ MODALES
   
   <div class="card">
   <h3>Historique</h3>
-
-  <select id="filterType">
+     <div style="margin:15px 0;display:flex;gap:10px;flex-wrap:wrap">
+  <select id="filterType" onchange="loadTransactions()" style="padding:8px;border-radius:8px;">
+    
     <option value="">Toutes</option>
     <option value="deposit">Rechargement</option>
     <option value="withdraw">Retrait</option>
@@ -896,6 +895,50 @@ document.addEventListener("DOMContentLoaded", () => {
     filter.addEventListener("change", loadTransactions);
   }
 });
+
+          /* ======================
+CHART
+===================== */
+function renderChart(totalIn, totalOut) {
+  const ctx = document.getElementById("walletChart");
+  if (!ctx) return;
+  if (walletChart) walletChart.destroy();
+
+  walletChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Entrées", "Sorties"],
+      datasets: [{ data: [totalIn, totalOut], backgroundColor: ["#00e676", "#ff5252"] }]
+    },
+    options: { plugins: { legend: { labels: { color: "white" } } } }
+  });
+}
+          async function generateHash(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+          }
+
+          const logo = await loadImageBase64("assets/img/logos.png");
+
+          function loadImageBase64(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+          }
 
           /* ======================
 PDF RECEIPT CLIENT
