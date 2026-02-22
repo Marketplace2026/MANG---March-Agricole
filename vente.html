@@ -1291,8 +1291,8 @@ const shopProductLimits = {
 };
 
 // ===== LOGIN & PROFIL =====
+  
   async function loadCurrentUser() {
-  // 🔹 Récupérer l'utilisateur courant
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) {
     location.href = "login.html";
@@ -1300,35 +1300,45 @@ const shopProductLimits = {
   }
   currentUser = user;
 
-  // 🔹 Récupérer le profil avec coins
+  // 🔹 Récupérer le profil (coins, premium)
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select('*, coins, wallet_balance, premium_start, premium_level')
+    .select('*, coins, premium_start, premium_level')
     .eq('id', currentUser.id)
-    .single(); // single() pour récupérer directement l'objet
+    .single();
 
   if (profileError || !profile) {
     console.error("Erreur chargement profil :", profileError);
     return;
   }
-
   currentProfile = profile;
 
-  // 🔹 Mettre à jour l'affichage du compteur de pièces
+  // 🔹 Mettre à jour le compteur de pièces
   const coinsElement = document.querySelector(".coin-text");
+  if (coinsElement) {
+    coinsElement.textContent = Number(profile.coins || 0).toString().padStart(2, "0");
+  }
 
-if (coinsElement) {
-  coinsElement.textContent = Number(profile.coins || 0)
-    .toString()
-    .padStart(2, "0");
-}
+  // 🔹 Récupérer le solde wallet
+  const { data: walletData } = await supabase
+    .from("wallets")
+    .select("balance, available_balance")
+    .eq("user_id", currentUser.id)
+    .single();
+
+  if (walletData) {
+    const walletText = document.getElementById("walletBalance");
+    if (walletText) {
+      walletText.textContent = Number(walletData.available_balance || 0).toLocaleString() + " FCFA";
+    }
+  }
+
   // 🔹 Vérifier expiration premium (30 jours)
   if (currentProfile.premium_start) {
     const start = new Date(currentProfile.premium_start);
     const now = new Date();
     const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
     if (diffDays >= 30) {
-      // Expiration
       await supabase.from('profiles').update({
         premium_level: 'free',
         premium_start: null
@@ -1337,14 +1347,10 @@ if (coinsElement) {
     }
   }
 
-  // 🔹 Mettre à jour d'autres parties de l'UI
+  // 🔹 Mettre à jour UI
   renderUserIdentity();
   loadMyShops();
-}
-  
-
-  
-  
+  }
 // ===== AFFICHAGE EMAIL + BADGES PREMIUM =====
 function renderUserIdentity() {
   let stars = "";
