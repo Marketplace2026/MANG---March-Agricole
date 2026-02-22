@@ -739,12 +739,6 @@ async function submitWithdraw() {
 }
 
 
-// ==============================
-// Globales pour HTML
-// ==============================
-window.submitDeposit = submitDeposit;
-window.submitWithdraw = submitWithdraw;
- 
 /* ======================
    LOAD WALLET
 ===================== */
@@ -767,17 +761,12 @@ async function loadWallet() {
 
     // ===== Solde principal =====
     const balanceMain = document.getElementById("balance");
-    if (balanceMain) {
-      balanceMain.innerText = formatMoney(balance) + " FCFA";
-    }
+    if (balanceMain) balanceMain.innerText = formatMoney(balance) + " FCFA";
 
     // ===== Solde secondaire (disponible) =====
     const walletBalanceEl = document.getElementById("walletBalance");
-    if (walletBalanceEl) {
-      walletBalanceEl.textContent = formatMoney(available) + " FCFA";
-    }
+    if (walletBalanceEl) walletBalanceEl.textContent = formatMoney(available) + " FCFA";
 
-    
     // Charger les transactions
     await loadTransactions();
 
@@ -790,12 +779,10 @@ async function loadWallet() {
    CREATE PIN
 ===================== */
 async function createPin() {
-
   const pinInput = document.getElementById("newPin");
   if (!pinInput) return;
 
   const pin = pinInput.value.trim();
-
   if (pin.length !== 4 || isNaN(pin)) {
     alert("Le PIN doit contenir exactement 4 chiffres");
     return;
@@ -815,8 +802,6 @@ async function createPin() {
     if (modal) modal.style.display = "none";
 
     alert("PIN créé avec succès !");
-
-    // 🔄 Recharger wallet après création
     loadWallet();
 
   } catch (err) {
@@ -824,19 +809,11 @@ async function createPin() {
     alert("Erreur lors de la création du PIN");
   }
 }
-
-// IMPORTANT si tu utilises type="module"
 window.createPin = createPin;
 
-
 /* ======================
-   START
+   LOAD TRANSACTIONS
 ===================== */
-document.addEventListener("DOMContentLoaded", loadUser);
-/* ======================
-LOAD TRANSACTIONS
-===================== */
-
 async function loadTransactions() {
   if (!currentUser) return;
 
@@ -848,7 +825,6 @@ async function loadTransactions() {
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
 
-  // 🔹 Filtrer par transaction_type si sélectionné
   if (filter) query = query.ilike("transaction_type", `%${filter}%`);
 
   const { data, error } = await query;
@@ -866,7 +842,7 @@ async function loadTransactions() {
 
   data.forEach(tx => {
     const amount = Number(tx.amount) || 0;
-    const isCredit = amount > 0; // positif = entrée
+    const isCredit = amount > 0;
 
     const absAmount = Math.abs(amount);
     if (isCredit) totalIn += absAmount;
@@ -882,7 +858,6 @@ async function loadTransactions() {
         <small>${new Date(tx.created_at).toLocaleString()}</small><br>
         ${statusBadge(tx.status)}
       </div>
-
       <div class="amount ${isCredit ? 'plus' : 'minus'}">
         ${isCredit ? '+' : '-'}${formatMoney(absAmount)} FCFA
       </div>
@@ -895,7 +870,9 @@ async function loadTransactions() {
   renderChart(totalIn, totalOut);
 }
 
-// 🔹 Adapte getTitle pour transaction_type
+/* ======================
+   GET TITLE
+===================== */
 function getTitle(tx) {
   const type = tx.transaction_type?.toLowerCase() || "";
   const desc = tx.description?.toLowerCase() || "";
@@ -906,25 +883,25 @@ function getTitle(tx) {
   if (type.includes("purchase")) return tx.description || "Paiement produit";
   if (type.includes("transfer")) return "Transfert utilisateur";
   return "Transaction";
-              }
+}
+
 /* ======================
-CREDIT LOGIC
+   CHECK CREDIT
 ===================== */
 function isPositive(tx) {
-  const type = tx.type?.toLowerCase() || "";
+  const type = tx.transaction_type?.toLowerCase() || "";
   return type.includes("deposit") || type.includes("refund");
 }
 
-
 /* ======================
-FORMAT MONEY
+   FORMAT MONEY
 ===================== */
 function formatMoney(amount) {
   return Number(amount || 0).toLocaleString("fr-FR");
 }
 
 /* ======================
-STATUS BADGE
+   STATUS BADGE
 ===================== */
 function statusBadge(status) {
   if (!status) return badge("Validé", "#00c853");
@@ -937,11 +914,11 @@ function badge(text, color) {
 }
 
 /* ======================
-DETAIL MODAL
+   SHOW TRANSACTION DETAIL
 ===================== */
 function showTransactionDetail(tx) {
   const amount = Number(tx.amount) || 0;
-  const isCredit = amount > 0; // positif = entrée
+  const isCredit = amount > 0;
   const absAmount = Math.abs(amount);
   const sign = isCredit ? "+" : "-";
   const color = isCredit ? "#00e676" : "#ff5252";
@@ -966,91 +943,98 @@ function showTransactionDetail(tx) {
     </button>
   `;
 
-  document.getElementById("detailModal").style.display = "flex";
+  const modal = document.getElementById("detailModal");
+  if (modal) modal.style.display = "flex";
 
-  // Bouton pour télécharger le reçu PDF
   const downloadBtn = document.getElementById("downloadPdfBtn");
-  if (downloadBtn) {
-    downloadBtn.onclick = () => downloadReceiptPDF(tx.id);
-  }
+  if (downloadBtn) downloadBtn.onclick = () => downloadReceiptPDF(tx.id);
 }
 
-// Fermeture du modal
 window.closeDetail = () => {
   const modal = document.getElementById("detailModal");
   if (modal) modal.style.display = "none";
 };
+      
+      /* ======================
+   TRANSFERT D'ARGENT
+===================== */
 
-  function openTransferModal() {
-  document.getElementById("transferModal").style.display = "flex";
+// Ouvrir / fermer le modal
+function openTransferModal() {
+  const modal = document.getElementById("transferModal");
+  if (modal) modal.style.display = "flex";
 }
 
 function closeTransferModal() {
-  document.getElementById("transferModal").style.display = "none";
-  document.getElementById("receiverInfo").innerHTML = "";
+  const modal = document.getElementById("transferModal");
+  if (modal) modal.style.display = "none";
+
+  const info = document.getElementById("receiverInfo");
+  if (info) info.innerHTML = "";
+
+  document.getElementById("receiverNumber").value = "";
+  document.getElementById("transferAmount").value = "";
+  document.getElementById("transferPin").value = "";
 }
 
+// Bouton ouverture
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("openTransferModal");
   if (btn) btn.addEventListener("click", openTransferModal);
 });
 
-// 🔎 Vérifier destinataire automatiquement
+// 🔎 Vérification automatique du destinataire
 document.addEventListener("input", async (e) => {
-  if (e.target.id === "receiverNumber") {
+  if (e.target.id !== "receiverNumber") return;
 
-    const number = e.target.value.trim();
-    if (number.length < 6) return;
+  const number = e.target.value.replace(/\s/g, "").trim();
+  if (number.length < 6) return;
 
-    const { data } = await supabase
+  const { data, error } = await supabase
+    .from("wallets")
+    .select("user_id")
+    .eq("wallet_number", number)
+    .single();
+
+  const info = document.getElementById("receiverInfo");
+  if (!info) return;
+
+  if (error || !data) {
+    info.innerHTML = "Numéro introuvable";
+  } else {
+    // Récupérer l'email de l'utilisateur
+    const { data: profile } = await supabase
       .from("profiles")
-      .select("email, wallet_number")
-      .eq("wallet_number", number)
+      .select("email")
+      .eq("id", data.user_id)
       .single();
-
-    const info = document.getElementById("receiverInfo");
-
-    if (data) {
-      info.innerHTML = "Destinataire : <b>" + data.email + "</b>";
-    } else {
-      info.innerHTML = "Numéro introuvable";
-    }
+    
+    if (profile) info.innerHTML = `Destinataire : <b>${profile.email}</b>`;
+    else info.innerHTML = "Destinataire trouvé";
   }
 });
-  
-  async function confirmTransfer() {
 
+// Confirmer le transfert
+async function confirmTransfer() {
   if (!confirm("Êtes-vous sûr de vouloir effectuer ce transfert ?")) return;
-
   await sendMoney();
 }
-async function sendMoney() {
 
+// Envoyer l'argent
+async function sendMoney() {
   const loader = document.getElementById("transferLoader");
-  loader.style.display = "block";
+  if (loader) loader.style.display = "block";
 
   try {
+    const receiverNumber = document.getElementById("receiverNumber")?.value.replace(/\s/g, "").trim();
+    const amount = parseFloat(document.getElementById("transferAmount")?.value);
+    const pin = document.getElementById("transferPin")?.value.trim();
 
-    const receiverNumber = document
-      .getElementById("receiverNumber")
-      .value.replace(/\s/g, "")
-      .trim();
-
-    const amount = parseFloat(
-      document.getElementById("transferAmount").value
-    );
-
-    const pin = document
-      .getElementById("transferPin")
-      .value
-      .trim();
-
-    if (!receiverNumber || !amount || !pin) {
-      throw new Error("Veuillez remplir tous les champs");
-    }
+    if (!receiverNumber || !amount || !pin) throw new Error("Veuillez remplir tous les champs");
 
     const { data: { user } } = await supabase.auth.getUser();
 
+    // Appel RPC Supabase pour transfert
     const { error } = await supabase.rpc("transfer_money", {
       sender_id: user.id,
       receiver_wallet: receiverNumber,
@@ -1060,74 +1044,21 @@ async function sendMoney() {
 
     if (error) throw error;
 
-    alert("Transfert réussi !");
-
+    alert("✅ Transfert réussi !");
     closeTransferModal();
     loadWallet();
 
   } catch (err) {
-    alert(err.message);
+    alert("❌ " + err.message);
   }
 
-  loader.style.display = "none";
+  if (loader) loader.style.display = "none";
 }
 
-
+window.openTransferModal = openTransferModal;
 window.closeTransferModal = closeTransferModal;
-  window.confirmTransfer = confirmTransfer;
+window.confirmTransfer = confirmTransfer;
 window.sendMoney = sendMoney;
-/* ======================
-USAGE DESCRIPTION
-===================== */
-function getUsage(tx) {
-  const desc = tx.description?.toLowerCase() || "";
-  if (tx.type === "deposit") return "Rechargement de votre portefeuille via Mobile Money.";
-  if (tx.type === "withdraw") return "Retrait envoyé vers votre numéro Mobile Money.";
-  if (tx.type === "premium" || desc.includes("premium")) return "Paiement pour activation de votre abonnement Premium.";
-  if (tx.type === "purchase") return tx.description ? `Paiement pour : ${tx.description}` : "Paiement d’un produit.";
-  if (tx.type === "transfer") return "Transfert vers un autre utilisateur.";
-  return "Transaction enregistrée.";
-}
-
-/* ======================
-CHART
-===================== */
-function renderChart(totalIn, totalOut) {
-  const ctx = document.getElementById("walletChart");
-  if (!ctx) return;
-  if (walletChart) walletChart.destroy();
-
-  walletChart = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["Entrées", "Sorties"],
-      datasets: [{ data: [totalIn, totalOut], backgroundColor: ["#00e676", "#ff5252"] }]
-    },
-    options: { plugins: { legend: { labels: { color: "white" } } } }
-  });
-}
-async function generateHash(text) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-}
-          function loadImageBase64(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = url;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      canvas.getContext("2d").drawImage(img, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
-    };
-    img.onerror = reject;
-  });
-          }
 /* ======================
 PDF RECEIPT CLIENT
 ===================== */
