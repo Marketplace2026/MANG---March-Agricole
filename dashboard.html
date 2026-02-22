@@ -752,56 +752,42 @@ async function loadWallet() {
   if (!currentUser) return;
 
   try {
+    // 🔹 Récupération des informations depuis wallets
     const { data, error } = await supabase
-      .from("profiles")
-      .select("wallet_balance, wallet_number, pin")
-      .eq("id", currentUser.id)
+      .from("wallets")
+      .select("balance, available_balance")
+      .eq("user_id", currentUser.id)
       .single();
 
     if (error) throw error;
     if (!data) return;
 
-    // 🔐 Vérifier si le PIN existe
-    if (!data.pin) {
-      const modal = document.getElementById("createPinModal");
-      if (modal) modal.style.display = "flex";
-      return; // ⛔ Stop ici tant que PIN non créé
-    }
-
-    const balance = data.wallet_balance || 0;
-    const walletNumber = data.wallet_number || "";
+    const balance = Number(data.balance) || 0;
+    const available = Number(data.available_balance) || 0;
 
     // ===== Solde principal =====
     const balanceMain = document.getElementById("balance");
     if (balanceMain) {
-      balanceMain.innerText = formatMoney(balance);
+      balanceMain.innerText = formatMoney(balance) + " FCFA";
     }
 
-    // ===== Solde secondaire =====
+    // ===== Solde secondaire (disponible) =====
     const walletBalanceEl = document.getElementById("walletBalance");
     if (walletBalanceEl) {
-      walletBalanceEl.extContent =
-        Number(balance).toLocaleString() + " FCFA";
+      walletBalanceEl.textContent = formatMoney(available) + " FCFA";
     }
 
-    // ===== Numéro portefeuille =====
-    const walletNumberEl = document.getElementById("walletNumber");
-    if (walletNumberEl) {
-      if (walletNumber.length > 0) {
-        const formatted = walletNumber.replace(/(\d{2})(?=\d)/g, "$1 ");
-        walletNumberEl.textContent = formatted;
-      } else {
-        walletNumberEl.textContent = "Non disponible";
-      }
-    }
+    // 🔹 Si tu veux afficher un numéro de portefeuille, il faut l’ajouter dans wallets
+    // const walletNumberEl = document.getElementById("walletNumber");
+    // if (walletNumberEl) { walletNumberEl.textContent = "Non disponible"; }
 
+    // Charger les transactions
     await loadTransactions();
 
   } catch (err) {
     console.error("Erreur loadWallet:", err);
   }
 }
-
 
 /* ======================
    CREATE PIN
@@ -853,7 +839,10 @@ document.addEventListener("DOMContentLoaded", loadUser);
 /* ======================
 LOAD TRANSACTIONS
 ===================== */
+
 async function loadTransactions() {
+  if (!currentUser) return;
+
   const filter = document.getElementById("filterType")?.value || "";
 
   let query = supabase
@@ -862,7 +851,8 @@ async function loadTransactions() {
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
 
-  if (filter) query = query.ilike("type", `%${filter}%`);
+  // 🔹 Filtrer par transaction_type si sélectionné
+  if (filter) query = query.ilike("transaction_type", `%${filter}%`);
 
   const { data, error } = await query;
   const container = document.getElementById("transactions");
@@ -875,41 +865,51 @@ async function loadTransactions() {
   }
 
   let totalIn = 0;
-let totalOut = 0;
+  let totalOut = 0;
 
-data.forEach(tx => {
+  data.forEach(tx => {
+    const amount = Number(tx.amount) || 0;
+    const isCredit = amount > 0; // positif = entrée
 
-  const amount = Number(tx.amount);
-  const isCredit = amount > 0; // 🔥 clé principale
+    const absAmount = Math.abs(amount);
+    if (isCredit) totalIn += absAmount;
+    else totalOut += absAmount;
 
-  const absAmount = Math.abs(amount);
+    const div = document.createElement("div");
+    div.className = "transaction";
+    div.style.cursor = "pointer";
 
-  if (isCredit) totalIn += absAmount;
-  else totalOut += absAmount;
+    div.innerHTML = `
+      <div>
+        <strong>${getTitle(tx)}</strong><br>
+        <small>${new Date(tx.created_at).toLocaleString()}</small><br>
+        ${statusBadge(tx.status)}
+      </div>
 
-  const div = document.createElement("div");
-  div.className = "transaction";
-  div.style.cursor = "pointer";
+      <div class="amount ${isCredit ? 'plus' : 'minus'}">
+        ${isCredit ? '+' : '-'}${formatMoney(absAmount)} FCFA
+      </div>
+    `;
 
-  div.innerHTML = `
-    <div>
-      <strong>${getTitle(tx)}</strong><br>
-      <small>${new Date(tx.created_at).toLocaleString()}</small><br>
-      ${statusBadge(tx.status)}
-    </div>
+    div.onclick = () => showTransactionDetail(tx);
+    container.appendChild(div);
+  });
 
-    <div class="amount ${isCredit ? 'plus' : 'minus'}">
-      ${isCredit ? '+' : '-'}${formatMoney(absAmount)} FCFA
-    </div>
-  `;
-
-  div.onclick = () => showTransactionDetail(tx);
-  container.appendChild(div);
-});
-
-renderChart(totalIn, totalOut);
+  renderChart(totalIn, totalOut);
 }
 
+// 🔹 Adapte getTitle pour transaction_type
+function getTitle(tx) {
+  const type = tx.transaction_type?.toLowerCase() || "";
+  const desc = tx.description?.toLowerCase() || "";
+
+  if (type.includes("deposit")) return "Rechargement Mobile Money";
+  if (type.includes("withdraw")) return "Retrait Mobile Money";
+  if (type.includes("premium") || desc.includes("premium")) return "Abonnement Premium";
+  if (type.includes("purchase")) return tx.description || "Paiement produit";
+  if (type.includes("transfer")) return "Transfert utilisateur";
+  return "Transaction";
+              }
 /* ======================
 CREDIT LOGIC
 ===================== */
@@ -918,20 +918,6 @@ function isPositive(tx) {
   return type.includes("deposit") || type.includes("refund");
 }
 
-/* ======================
-GET TITLE
-===================== */
-function getTitle(tx) {
-  const type = tx.type?.toLowerCase() || "";
-  const desc = tx.description?.toLowerCase() || "";
-
-  if (type.includes("deposit")) return "Rechargement Mobile Money";
-  if (type.includes("withdraw")) return "Retrait Mobile Money";
-  if (type.includes("premium") || desc.includes("premium")) return "Abonnement Premium MANG";
-  if (type.includes("purchase")) return tx.description || "Paiement produit";
-  if (type.includes("transfer")) return "Transfert utilisateur";
-  return "Transaction";
-}
 
 /* ======================
 FORMAT MONEY
@@ -957,32 +943,45 @@ function badge(text, color) {
 DETAIL MODAL
 ===================== */
 function showTransactionDetail(tx) {
-  const isCredit = isPositive(tx);
-  const amount = Math.abs(Number(tx.amount));
+  const amount = Number(tx.amount) || 0;
+  const isCredit = amount > 0; // positif = entrée
+  const absAmount = Math.abs(amount);
   const sign = isCredit ? "+" : "-";
   const color = isCredit ? "#00e676" : "#ff5252";
 
   const detail = document.getElementById("transactionDetails");
+  if (!detail) return;
+
   detail.innerHTML = `
     <h4>${getTitle(tx)}</h4>
-    <div style="font-size:22px;font-weight:700;color:${color}">${sign}${formatMoney(amount)} FCFA</div>
+    <div style="font-size:22px;font-weight:700;color:${color}">
+      ${sign}${formatMoney(absAmount)} FCFA
+    </div>
     <hr>
     <p><strong>Date :</strong><br>${new Date(tx.created_at).toLocaleString()}</p>
     <p><strong>Statut :</strong><br>${tx.status || "Validé"}</p>
     ${tx.operator ? `<p><strong>Opérateur :</strong><br>${tx.operator}</p>` : ""}
     ${tx.phone ? `<p><strong>Numéro :</strong><br>${tx.phone}</p>` : ""}
     <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
-    <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
+    <button id="downloadPdfBtn"
+      style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
       Télécharger PDF
     </button>
   `;
+
   document.getElementById("detailModal").style.display = "flex";
 
-  document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
+  // Bouton pour télécharger le reçu PDF
+  const downloadBtn = document.getElementById("downloadPdfBtn");
+  if (downloadBtn) {
+    downloadBtn.onclick = () => downloadReceiptPDF(tx.id);
+  }
 }
 
+// Fermeture du modal
 window.closeDetail = () => {
-  document.getElementById("detailModal").style.display = "none";
+  const modal = document.getElementById("detailModal");
+  if (modal) modal.style.display = "none";
 };
 
   function openTransferModal() {
