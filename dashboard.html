@@ -412,6 +412,8 @@ MODALES
 </head>
 
 <body>
+
+
 <!-- ================= TOPBAR ================= -->
 <div class="topbar">
   <div class="profile">
@@ -479,12 +481,8 @@ MODALES
     <button onclick="verifyPin()">Valider</button>
   </div>
 </div>
-
         <script type="module">
-      import { supabase } from './supabase.js';
-
-
-let walletChart = null;
+import { supabase } from './supabase.js';
 
 let currentUser = null;
 let currentProfile = null;
@@ -559,6 +557,7 @@ function unlockWallet(){
   document.getElementById("walletContainer").style.display = "block";
   loadWallet();
 }
+
 /* ================= WALLET ================= */
 
 async function loadWallet(){
@@ -578,624 +577,48 @@ async function loadWallet(){
   loadTransactions();
 }
 
-  
-  // =========================
-// MODALES RECHARGER / RETIRER
-// =========================
-window.openDeposit = () => document.getElementById("depositModal").style.display = "flex";
-window.closeDeposit = () => document.getElementById("depositModal").style.display = "none";
-window.openWithdraw = () => document.getElementById("withdrawModal").style.display = "flex";
-window.closeWithdraw = () => document.getElementById("withdrawModal").style.display = "none";
+/* ================= TRANSACTIONS ================= */
 
-window.addEventListener("click", (event) => {
-  if (event.target.id === "depositModal") window.closeDeposit();
-  if (event.target.id === "withdrawModal") window.closeWithdraw();
-});
+async function loadTransactions(){
 
-// ==============================
-// RECHARGE LIVE (Deposit)
-// ==============================
-async function submitDeposit() {
-  const amount = Number(document.getElementById("depositAmount").value);
-  const phone = document.getElementById("depositPhone").value.trim();
-  const operatorEl = document.querySelector('input[name="depositOperator"]:checked');
-  const operator = operatorEl ? operatorEl.value : null;
-
-  if (!amount || amount <= 0) return alert("Montant invalide");
-  if (!phone) return alert("Veuillez saisir le numéro Mobile Money");
-  if (!operator) return alert("Veuillez sélectionner un opérateur");
-
-  const loader = document.getElementById("depositLoader");
-  const btn = document.getElementById("depositBtn");
-  loader.style.display = "inline";
-  btn.disabled = true;
-
-  try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) return alert("Utilisateur non connecté");
-
-    // 🔹 Créer transaction sur ton serveur qui appelle CinetPay
-    const res = await fetch('https://wallet-backend-jx12.onrender.com/init-deposit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, amount, operator, phone })
-    });
-
-    const result = await res.json();
-    if (!result.success) throw new Error(result.error || "Erreur création transaction");
-
-    // 🔹 Redirection utilisateur vers CinetPay pour paiement
-    window.location.href = result.payment_url;
-
-  } catch (err) {
-    console.error("Erreur submitDeposit:", err);
-    alert(err.message || "Erreur serveur");
-  } finally {
-    loader.style.display = "none";
-    btn.disabled = false;
-  }
-}
-
-// ==============================
-// RETRAIT LIVE (Withdrawal)
-// ==============================
-async function submitWithdraw() {
-  const amount = Number(document.getElementById("withdrawAmount").value);
-  const phone = document.getElementById("withdrawPhone").value.trim();
-  const operatorEl = document.querySelector('input[name="withdrawOperator"]:checked');
-  const operator = operatorEl ? operatorEl.value : null;
-
-  if (!amount || amount <= 0) return alert("Montant invalide");
-  if (!phone) return alert("Veuillez saisir le numéro Mobile Money");
-  if (!operator) return alert("Veuillez sélectionner un opérateur");
-
-  const loader = document.getElementById("withdrawLoader");
-  const btn = document.getElementById("withdrawBtn");
-  loader.style.display = "inline";
-  btn.disabled = true;
-
-  try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) return alert("Utilisateur non connecté");
-
-    // 🔹 Créer transaction retrait sur ton serveur
-    const res = await fetch('https://wallet-backend-jx12.onrender.com/request-withdrawal', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, amount, operator, phone })
-    });
-
-    const result = await res.json();
-    if (!result.success) throw new Error(result.error || "Erreur création retrait");
-
-    alert("Retrait initié ! L’argent sera transféré vers votre compte Mobile Money.");
-    loadWallet();
-    closeWithdraw();
-
-  } catch (err) {
-    console.error(err);
-    alert(err.message || "Erreur serveur");
-  } finally {
-    loader.style.display = "none";
-    btn.disabled = false;
-  }
-}
-
-
-/* ======================
-   LOAD TRANSACTIONS
-===================== */
-async function loadTransactions() {
-  if (!currentUser) return;
-
-  const filter = document.getElementById("filterType")?.value || "";
-
-  let query = supabase
+  const { data } = await supabase
     .from("wallet_transactions")
     .select("*")
     .eq("user_id", currentUser.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending:false });
 
-  if (filter) query = query.ilike("transaction_type", `%${filter}%`);
-
-  const { data, error } = await query;
   const container = document.getElementById("transactions");
   container.innerHTML = "";
 
-  if (error || !data || data.length === 0) {
-    container.innerHTML = `<div class="empty">Aucune transaction</div>`;
-    renderChart(0, 0);
+  if (!data || data.length === 0){
+    container.innerHTML = "<div class='empty'>Aucune transaction</div>";
     return;
   }
 
-  let totalIn = 0;
-  let totalOut = 0;
-
-  data.forEach(tx => {
-    const amount = Number(tx.amount) || 0;
-    const isCredit = amount > 0;
-
-    const absAmount = Math.abs(amount);
-    if (isCredit) totalIn += absAmount;
-    else totalOut += absAmount;
-
+  data.forEach(tx=>{
     const div = document.createElement("div");
-    div.className = "transaction";
-    div.style.cursor = "pointer";
+    div.className="transaction";
+
+    const isPlus = Number(tx.amount) > 0;
 
     div.innerHTML = `
-      <div>
-        <strong>${getTitle(tx)}</strong><br>
-        <small>${new Date(tx.created_at).toLocaleString()}</small><br>
-        ${statusBadge(tx.status)}
-      </div>
-      <div class="amount ${isCredit ? 'plus' : 'minus'}">
-        ${isCredit ? '+' : '-'}${formatMoney(absAmount)} FCFA
+      <div>${tx.transaction_type}</div>
+      <div class="amount ${isPlus ? 'plus':'minus'}">
+        ${isPlus?'+':'-'}
+        ${Math.abs(tx.amount).toLocaleString("fr-FR")} FCFA
       </div>
     `;
 
-    div.onclick = () => showTransactionDetail(tx);
     container.appendChild(div);
   });
-
-  renderChart(totalIn, totalOut);
 }
 
-/* ======================
-CREDIT LOGIC
-===================== */
-function isPositive(tx) {
-  const type = tx.type?.toLowerCase() || "";
-  return type.includes("deposit") || type.includes("refund");
-          }
-/* ======================
-   GET TITLE
-===================== */
-function getTitle(tx) {
-  const type = tx.transaction_type?.toLowerCase() || "";
-  const desc = tx.description?.toLowerCase() || "";
+/* ================= GLOBAL ================= */
 
-  if (type.includes("deposit")) return "Rechargement Mobile Money";
-  if (type.includes("withdraw")) return "Retrait Mobile Money";
-  if (type.includes("premium") || desc.includes("premium")) return "Abonnement Premium";
-  if (type.includes("purchase")) return tx.description || "Paiement produit";
-  if (type.includes("transfer")) return "Transfert utilisateur";
-  return "Transaction";
-}
+window.createPin = createPin;
+window.verifyPin = verifyPin;
 
-
-
-/* ======================
-   FORMAT MONEY
-===================== */
-function formatMoney(amount) {
-  return Number(amount || 0).toLocaleString("fr-FR");
-}
-
-/* ======================
-   STATUS BADGE
-===================== */
-function statusBadge(status) {
-  if (!status) return badge("Validé", "#00c853");
-  if (status === "pending") return badge("En attente", "#ff9800");
-  if (status === "failed") return badge("Échoué", "#ff5252");
-  return badge("Validé", "#00c853");
-}
-function badge(text, color) {
-  return `<span style="background:${color};color:white;padding:4px 8px;border-radius:6px;font-size:11px;">${text}</span>`;
-}
-
-/* ======================
-   SHOW TRANSACTION DETAIL
-===================== */
-function showTransactionDetail(tx) {
-  const amount = Number(tx.amount) || 0;
-  const isCredit = amount > 0;
-  const absAmount = Math.abs(amount);
-  const sign = isCredit ? "+" : "-";
-  const color = isCredit ? "#00e676" : "#ff5252";
-
-  const detail = document.getElementById("transactionDetails");
-  if (!detail) return;
-
-  detail.innerHTML = `
-    <h4>${getTitle(tx)}</h4>
-    <div style="font-size:22px;font-weight:700;color:${color}">
-      ${sign}${formatMoney(absAmount)} FCFA
-    </div>
-    <hr>
-    <p><strong>Date :</strong><br>${new Date(tx.created_at).toLocaleString()}</p>
-    <p><strong>Statut :</strong><br>${tx.status || "Validé"}</p>
-    ${tx.operator ? `<p><strong>Opérateur :</strong><br>${tx.operator}</p>` : ""}
-    ${tx.phone ? `<p><strong>Numéro :</strong><br>${tx.phone}</p>` : ""}
-    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
-    <button id="downloadPdfBtn"
-      style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
-      Télécharger PDF
-    </button>
-  `;
-document.getElementById("detailModal").style.display = "flex";
-
-  document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
-}
-
-window.closeDetail = () => {
-  document.getElementById("detailModal").style.display = "none";
-};
-
-  function openTransferModal() {
-  document.getElementById("transferModal").style.display = "flex";
-}
-
-function closeTransferModal() {
-  document.getElementById("transferModal").style.display = "none";
-  document.getElementById("receiverInfo").innerHTML = "";
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("openTransferModal");
-  if (btn) btn.addEventListener("click", openTransferModal);
-});
-
-// 🔎 Vérifier destinataire automatiquement
-document.addEventListener("input", async (e) => {
-  if (e.target.id === "receiverNumber") {
-
-    const number = e.target.value.trim();
-    if (number.length < 6) return;
-
-    const { data } = await supabase
-      .from("profiles")
-      .select("email, wallet_number")
-      .eq("wallet_number", number)
-      .single();
-
-    const info = document.getElementById("receiverInfo");
-
-    if (data) {
-      info.innerHTML = "Destinataire : <b>" + data.email + "</b>";
-    } else {
-      info.innerHTML = "Numéro introuvable";
-    }
-  }
-});
+</script>
   
-  
-      /* ======================
-   TRANSFERT D'ARGENT
-===================== */
-
-// 🔹 Ouvrir le modal
-function openTransferModal() {
-  const modal = document.getElementById("transferModal");
-  if (modal) modal.style.display = "flex";
-}
-
-// 🔹 Fermer le modal et réinitialiser les champs
-function closeTransferModal() {
-  const modal = document.getElementById("transferModal");
-  if (modal) modal.style.display = "none";
-
-  const info = document.getElementById("receiverInfo");
-  if (info) info.innerHTML = "";
-
-  document.getElementById("receiverNumber").value = "";
-  document.getElementById("transferAmount").value = "";
-  document.getElementById("transferPin").value = "";
-}
-
-// 🔹 Bouton pour ouvrir le modal
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("openTransferModal");
-  if (btn) btn.addEventListener("click", openTransferModal);
-});
-
-// 🔎 Vérification automatique du destinataire
-document.addEventListener("input", async (e) => {
-  if (e.target.id !== "receiverNumber") return;
-
-  const number = e.target.value.replace(/\s/g, "").trim();
-  if (number.length < 6) return;
-
-  try {
-    // Récupérer l'utilisateur à partir du wallet_number
-    const { data: walletData } = await supabase
-      .from("wallets")
-      .select("user_id")
-      .eq("wallet_number", number)
-      .maybeSingle(); // ✅ use maybeSingle pour éviter l'erreur
-
-    const info = document.getElementById("receiverInfo");
-    if (!info) return;
-
-    if (!walletData) {
-      info.innerHTML = "Numéro introuvable";
-      return;
-    }
-
-    // Récupérer l'email du destinataire
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("id", walletData.user_id)
-      .maybeSingle();
-
-    if (profileData) {
-      info.innerHTML = `Destinataire : <b>${profileData.email}</b>`;
-    } else {
-      info.innerHTML = "Destinataire trouvé";
-    }
-
-  } catch (err) {
-    console.error("Erreur vérification destinataire :", err);
-  }
-});
-
-// 🔹 Confirmer le transfert
-async function confirmTransfer() {
-  if (!confirm("Êtes-vous sûr de vouloir effectuer ce transfert ?")) return;
-  await sendMoney();
-}
-
-// 🔹 Envoyer l'argent
-async function sendMoney() {
-  const loader = document.getElementById("transferLoader");
-  if (loader) loader.style.display = "block";
-
-  try {
-    const receiverNumber = document.getElementById("receiverNumber")?.value.replace(/\s/g, "").trim();
-    const amount = parseFloat(document.getElementById("transferAmount")?.value);
-    const pin = document.getElementById("transferPin")?.value.trim();
-
-    if (!receiverNumber || !amount || !pin) throw new Error("Veuillez remplir tous les champs");
-
-    // 🔹 Récupérer l'utilisateur connecté
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) throw new Error("Utilisateur non connecté");
-
-    // 🔹 Appel RPC transfer_money
-    const { error: rpcError } = await supabase.rpc("transfer_money", {
-      sender_uuid: user.id,
-      receiver_wallet_number: receiverNumber,
-      transfer_amount: amount,
-      user_pin: pin
-    });
-
-    if (rpcError) throw rpcError;
-
-    // 🔹 Succès
-    alert("✅ Transfert réussi !");
-    closeTransferModal();
-    await loadWallet();
-    await loadTransactions(); // recharge les transactions
-
-  } catch (err) {
-    alert("❌ " + err.message);
-    console.error("Erreur transfert :", err);
-  } finally {
-    if (loader) loader.style.display = "none";
-  }
-}
-
-// 🔹 Export des fonctions pour le HTML
-window.openTransferModal = openTransferModal;
-window.closeTransferModal = closeTransferModal;
-window.confirmTransfer = confirmTransfer;
-window.sendMoney = sendMoney;
-
-
-          /* ======================
-USAGE DESCRIPTION
-===================== */
-function getUsage(tx) {
-  const desc = tx.description?.toLowerCase() || "";
-  if (tx.type === "deposit") return "Rechargement de votre portefeuille via Mobile Money.";
-  if (tx.type === "withdraw") return "Retrait envoyé vers votre numéro Mobile Money.";
-  if (tx.type === "premium" || desc.includes("premium")) return "Paiement pour activation de votre abonnement Premium.";
-  if (tx.type === "purchase") return tx.description ? `Paiement pour : ${tx.description}` : "Paiement d’un produit.";
-  if (tx.type === "transfer") return "Transfert vers un autre utilisateur.";
-  return "Transaction enregistrée.";
-}
-
-/* ======================
-CHART
-===================== */
-function renderChart(totalIn, totalOut) {
-  const ctx = document.getElementById("walletChart");
-  if (!ctx) return;
-  if (walletChart) walletChart.destroy();
-
-  walletChart = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["Entrées", "Sorties"],
-      datasets: [{ data: [totalIn, totalOut], backgroundColor: ["#00e676", "#ff5252"] }]
-    },
-    options: { plugins: { legend: { labels: { color: "white" } } } }
-  });
-}
-async function generateHash(text) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-}
-          function loadImageBase64(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = url;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      canvas.getContext("2d").drawImage(img, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
-    };
-    img.onerror = reject;
-  });
-          }
-
-
-          window.currentProfile = null;
-
-/* ======================
-PDF RECEIPT CLIENT
-===================== */
-      async function downloadReceiptPDF(id) {
-  try {
-
-    const { data: tx, error } = await supabase
-      .from("wallet_transactions")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error || !tx) throw new Error("Transaction introuvable.");
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: "pt", format: "a4" });
-
-    const primary = "#0b3d2e";
-    const success = "#16a34a";
-    const danger = "#dc2626";
-
-    const isCredit = Number(tx.amount) > 0;
-    const accent = isCredit ? success : danger;
-
-    const cleanAmount = Math.abs(Number(tx.amount));
-
-    /* ===== NUMÉRO OFFICIEL ===== */
-    const receiptNumber =
-      `MANG-${new Date().getFullYear()}-${String(tx.id).padStart(6, "0")}`;
-
-    /* ===== HASH SÉCURITÉ ===== */
-    const securityString =
-      `${receiptNumber}|${tx.amount}|${tx.created_at}`;
-    const hash = await generateHash(securityString);
-
-    /* ===== HEADER FOND ===== */
-    doc.setFillColor(primary);
-    doc.rect(0, 0, 595, 110, "F");
-
-    /* ===== LOGO ===== */
-    const logo = await loadImageBase64("assets/img/logos.png");
-    doc.addImage(logo, "PNG", 40, 25, 60, 60);
-
-    doc.setTextColor("#ffffff");
-    doc.setFontSize(20);
-    doc.text("MANG WALLET", 120, 60);
-
-    doc.setFontSize(11);
-    doc.text("Reçu Financier Officiel", 420, 60);
-
-    /* ===== CARTE PRINCIPALE ===== */
-    doc.setFillColor("#ffffff");
-    doc.roundedRect(40, 150, 515, 400, 18, 18, "F");
-
-    doc.setDrawColor(220);
-    doc.roundedRect(40, 150, 515, 400, 18, 18);
-
-    /* ===== TITRE ===== */
-    doc.setFontSize(14);
-    doc.setTextColor("#333");
-    doc.text("Détails de la transaction", 60, 190);
-
-    /* ===== MONTANT CENTRAL ===== */
-    doc.setFontSize(36);
-    doc.setTextColor(accent);
-    doc.text(
-      `${isCredit ? "+" : "-"} ${cleanAmount.toLocaleString()} FCFA`,
-      297,
-      250,
-      { align: "center" }
-    );
-
-    /* ===== BADGE TYPE ===== */
-    doc.setFillColor(accent);
-    doc.roundedRect(230, 270, 135, 30, 10, 10, "F");
-
-    doc.setTextColor("#ffffff");
-    doc.setFontSize(12);
-
-    const typeLabel =
-      tx.type === "transfer_received" ? "TRANSFERT REÇU"
-      : tx.type === "transfer_sent" ? "TRANSFERT ENVOYÉ"
-      : tx.type?.toUpperCase() || "TRANSACTION";
-
-    doc.text(typeLabel, 297, 290, { align: "center" });
-
-    /* ===== INFOS ===== */
-    doc.setTextColor("#333");
-    doc.setFontSize(12);
-
-    let y = 330;
-    const gap = 32;
-
-    const infoLine = (label, value, offset) => {
-      doc.setFont(undefined, "bold");
-      doc.text(label, 70, y + gap * offset);
-      doc.setFont(undefined, "normal");
-      doc.text(String(value), 230, y + gap * offset);
-    };
-
-    infoLine("Numéro de reçu :", receiptNumber, 0);
-    infoLine("Transaction ID :", tx.id, 1);
-    infoLine("Date :", new Date(tx.created_at).toLocaleString(), 2);
-    infoLine("Description :", tx.description || "-", 3);
-
-    /* ===== QR CODE ===== */
-    const qrCanvas = document.createElement("canvas");
-
-    await new Promise(resolve => {
-      new QRCode(qrCanvas, {
-        text: `${receiptNumber}|HASH:${hash}`,
-        width: 120,
-        height: 120,
-        correctLevel: QRCode.CorrectLevel.H
-      });
-      setTimeout(resolve, 250);
-    });
-
-    const qrData = qrCanvas.toDataURL("image/png");
-    doc.addImage(qrData, "PNG", 400, 390, 120, 120);
-
-    /* ===== CACHET OFFICIEL ===== */
-    doc.setDrawColor(primary);
-    doc.setLineWidth(2);
-    doc.circle(470, 520, 45);
-
-    doc.setFontSize(10);
-    doc.setTextColor(primary);
-    doc.text("CERTIFIÉ", 470, 525, { align: "center" });
-
-    /* ===== HASH FOOTER ===== */
-    doc.setFontSize(6);
-    doc.setTextColor("#aaaaaa");
-    doc.text(hash, 40, 830);
-
-    doc.setFontSize(9);
-    doc.setTextColor("#777");
-    doc.text(
-      "Document signé électroniquement par MANG Wallet.",
-      40,
-      800
-    );
-    doc.text(
-      "Toute modification invalide ce reçu.",
-      40,
-      815
-    );
-
-    doc.save(`${receiptNumber}.pdf`);
-
-  } catch (err) {
-    console.error(err);
-    alert("Erreur génération reçu.");
-  }
-          }
-          loadUser();
-        </script>
 </body>
-</html> 
+</html>
