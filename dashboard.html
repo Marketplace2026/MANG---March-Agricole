@@ -449,6 +449,31 @@ MODALES
     💸 Envoyer de l'argent
   </button>
 
+
+  <!-- ================= TRANSFER MODAL ================= -->
+<div class="modal" id="transferModal">
+  <div class="modal-content">
+    <h3>Envoyer de l'argent</h3>
+
+    <input type="text" id="receiverNumber" placeholder="Numéro portefeuille">
+
+    <div id="receiverInfo" style="margin:8px 0; font-size:13px;"></div>
+
+    <input type="number" id="transferAmount" placeholder="Montant">
+
+    <input type="password" id="transferPin" maxlength="4" placeholder="Votre PIN">
+
+    <div id="transferLoader" style="display:none; margin:10px;">
+      Traitement...
+    </div>
+
+    <button onclick="confirmTransfer()">Envoyer</button>
+    <button onclick="closeTransferModal()" style="margin-top:8px; background:#ccc; color:#000;">
+      Annuler
+    </button>
+  </div>
+</div>
+  
   <div class="card">
     <h3>Historique</h3>
     <select id="filterType">
