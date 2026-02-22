@@ -1949,77 +1949,102 @@ document.addEventListener('DOMContentLoaded', async () => {
     premiumSidebar.classList.remove('active');
   });
 
+
   // ==============================
-  // 6️⃣ ACHAT PREMIUM
-  // ==============================
-  document.querySelectorAll('.premiumBtn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {  
-      const card = e.target.closest('.premium-card');  
-      if (!card) return;  
+// 6️⃣ ACHAT PREMIUM (version wallets)
+// ==============================
+document.querySelectorAll('.premiumBtn').forEach(btn => {
+  btn.addEventListener('click', async (e) => {
 
-      const level = card.dataset.level;  
-      const price = parseInt(card.dataset.price);  
+    const card = e.target.closest('.premium-card');
+    if (!card) return;
 
-      if (premiumActive) {  
-        alert("⚠️ Vous avez déjà un Premium actif.");  
-        return;  
-      }  
+    const level = card.dataset.level;
+    const price = parseInt(card.dataset.price);
 
-      const currentBalance = profile.wallet_balance || 0;  
+    if (premiumActive) {
+      alert("⚠️ Vous avez déjà un Premium actif.");
+      return;
+    }
 
-      if (currentBalance < price) {  
-        alert("❌ Solde insuffisant.");  
-        return;  
-      }  
+    // 🔥 Récupération du wallet
+    const { data: wallet, error: walletError } = await supabase
+      .from('wallets')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .single();
 
-      if (!confirm(`Confirmer paiement ${price} FCFA pour ${level} (30 jours) ?`)) return;  
+    if (walletError || !wallet) {
+      alert("Portefeuille introuvable.");
+      return;
+    }
 
-      const newBalance = currentBalance - price;  
-      const startDate = new Date();  
-      const expiryDate = new Date();
-      expiryDate.setDate(startDate.getDate() + 30);  
+    const currentBalance = wallet.available_balance || 0;
 
-      // Mise à jour profil  
-      const { error: updateError } = await supabase  
-        .from('profiles')  
-        .update({  
-          wallet_balance: newBalance,  
-          premium_level: level,  
-          premium_start: startDate,  
-          premium_end: expiryDate  
-        })  
-        .eq('id', currentUser.id);  
+    if (currentBalance < price) {
+      alert("❌ Solde insuffisant.");
+      return;
+    }
 
-      if (updateError) {  
-        alert("Erreur activation premium.");  
-        return;  
-      }  
+    if (!confirm(`Confirmer paiement ${price} FCFA pour ${level} (30 jours) ?`)) return;
 
-      // Transaction wallet  
-      await supabase.from('wallet_transactions').insert({  
-        user_id: currentUser.id,  
-        amount: -price,  
-        type: "premium_payment",  
-        description: `Paiement ${level}`,  
-        created_at: new Date()  
-      });  
+    const startDate = new Date();
+    const expiryDate = new Date();
+    expiryDate.setDate(startDate.getDate() + 30);
 
-      // Historique premium  
-      await supabase.from('premium_history').insert({  
-        user_id: currentUser.id,  
-        level: level,  
-        amount: price,  
-        start_date: startDate,  
-        expiry_date: expiryDate,  
-        created_at: new Date()  
-      });  
+    // 🔥 Déduction wallet
+    const { error: walletUpdateError } = await supabase
+      .from('wallets')
+      .update({
+        balance: wallet.balance - price,
+        available_balance: wallet.available_balance - price,
+        updated_at: new Date()
+      })
+      .eq('user_id', currentUser.id);
 
-      alert(`🎉 Premium activé jusqu’au ${expiryDate.toLocaleDateString()}`);  
-      location.reload();  
+    if (walletUpdateError) {
+      alert("Erreur débit wallet.");
+      return;
+    }
+
+    // 🔥 Mise à jour profil premium
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        premium_level: level,
+        premium_start: startDate,
+        premium_end: expiryDate
+      })
+      .eq('id', currentUser.id);
+
+    if (profileError) {
+      alert("Erreur activation premium.");
+      return;
+    }
+
+    // 🔥 Transaction wallet
+    await supabase.from('wallet_transactions').insert({
+      user_id: currentUser.id,
+      amount: -price,
+      type: "premium_payment",
+      description: `Paiement ${level}`,
+      created_at: new Date()
     });
+
+    // 🔥 Historique premium
+    await supabase.from('premium_history').insert({
+      user_id: currentUser.id,
+      level: level,
+      amount: price,
+      start_date: startDate,
+      expiry_date: expiryDate,
+      created_at: new Date()
+    });
+
+    alert(`🎉 Premium activé jusqu’au ${expiryDate.toLocaleDateString()}`);
+    location.reload();
   });
 });
-  
   // ===== COMPRESSION IMAGE AVANT UPLOAD =====
 async function compressImage(file, maxWidth = 800, quality = 0.7) {
   return new Promise((resolve, reject) => {
