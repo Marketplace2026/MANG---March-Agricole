@@ -179,7 +179,7 @@ h2{margin:25px 0 15px}
 </div>
 
 <!-- HTML reste le même, je me concentre sur le JS -->
-<script type="module">
+    <script type="module">
 import { supabase } from './supabase.js';
 
 let currentUser = null;
@@ -187,68 +187,78 @@ let isProcessing = false;
 let allOrders = [];
 
 /* ================= INIT ================= */
-async function init(){
-  const { data:{ session } } = await supabase.auth.getSession();
-  if(!session){
+async function init() {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error || !session) {
     window.location.href = "login.html";
     return;
   }
   currentUser = session.user;
+
+  // Affichage info utilisateur
   document.getElementById("userEmail").innerText = currentUser.email;
   document.getElementById("userAvatar").innerText = currentUser.email.charAt(0).toUpperCase();
+
   await loadOrders();
 }
 init();
 
 /* ================= LOAD ORDERS ================= */
-async function loadOrders(){
+async function loadOrders() {
   const buyerDiv = document.getElementById("buyerOrders");
   const sellerDiv = document.getElementById("sellerOrders");
   buyerDiv.innerHTML = "";
   sellerDiv.innerHTML = "";
 
-  // Commandes acheteur
-  const { data: buyerOrders, error: buyerError } = await supabase
-    .from("orders")
-    .select(`*, seller:profiles!orders_seller_id_fkey(username,email)`)
-    .eq("buyer_id", currentUser.id)
-    .order("created_at",{ascending:false});
-  if (buyerError) console.error(buyerError);
+  try {
+    // Commandes de l'acheteur
+    const { data: buyerOrders, error: buyerError } = await supabase
+      .from("orders")
+      .select(`*, seller:profiles!orders_seller_id_fkey(username,email)`)
+      .eq("buyer_id", currentUser.id)
+      .order("created_at", { ascending: false });
+    if (buyerError) throw buyerError;
 
-  // Commandes vendeur
-  const { data: sellerOrders, error: sellerError } = await supabase
-    .from("orders")
-    .select(`*, buyer:profiles!orders_buyer_id_fkey(username,email)`)
-    .eq("seller_id", currentUser.id)
-    .order("created_at",{ascending:false});
-  if (sellerError) console.error(sellerError);
+    // Commandes du vendeur
+    const { data: sellerOrders, error: sellerError } = await supabase
+      .from("orders")
+      .select(`*, buyer:profiles!orders_buyer_id_fkey(username,email)`)
+      .eq("seller_id", currentUser.id)
+      .order("created_at", { ascending: false });
+    if (sellerError) throw sellerError;
 
-  allOrders = [...(buyerOrders||[]), ...(sellerOrders||[])];
+    allOrders = [...(buyerOrders || []), ...(sellerOrders || [])];
 
-  renderOrders(buyerOrders,buyerDiv,true);
-  renderOrders(sellerOrders,sellerDiv,false);
+    renderOrders(buyerOrders, buyerDiv, true);
+    renderOrders(sellerOrders, sellerDiv, false);
+  } catch (err) {
+    console.error("Erreur lors du chargement des commandes :", err);
+    alert("Impossible de charger les commandes. Vérifiez votre connexion.");
+  }
 }
 
 /* ================= RENDER ORDERS ================= */
-function renderOrders(orders, container, isBuyer){
-  if(!orders || orders.length === 0){
+function renderOrders(orders, container, isBuyer) {
+  if (!orders || orders.length === 0) {
     container.innerHTML = "<div class='empty'>Aucune commande</div>";
     return;
   }
+
+  container.innerHTML = ""; // Reset container
 
   orders.forEach(order => {
     const status = order.status?.toLowerCase();
     let bandClass = "status-pending";
     let bandText = "En attente";
 
-    if(status === "accepted"){ bandClass="status-accepted"; bandText="Livraison acceptée"; }
-    if(status === "refused"){ bandClass="status-refused"; bandText="Livraison refusée"; }
-    if(status === "paid"){ bandClass="status-paid"; bandText="Commande payée"; }
+    if (status === "accepted") { bandClass = "status-accepted"; bandText = "Livraison acceptée"; }
+    if (status === "refused") { bandClass = "status-refused"; bandText = "Livraison refusée"; }
+    if (status === "paid") { bandClass = "status-paid"; bandText = "Commande payée"; }
 
     let buttons = "";
 
     // Vendeur peut accepter/refuser si commande en attente
-    if(!isBuyer && status === "pending"){
+    if (!isBuyer && status === "pending") {
       buttons = `
         <button class="btn accept-btn" onclick="event.stopPropagation();acceptOrder('${order.id}')">Accepter</button>
         <button class="btn refuse-btn" onclick="event.stopPropagation();refuseOrder('${order.id}')">Refuser</button>
@@ -256,7 +266,7 @@ function renderOrders(orders, container, isBuyer){
     }
 
     // Acheteur peut payer si commande acceptée
-    if(isBuyer && status === "accepted"){
+    if (isBuyer && status === "accepted") {
       buttons = `
         <button class="btn pay-btn" onclick="event.stopPropagation();payOrder('${order.id}')">Payer</button>
       `;
@@ -274,44 +284,61 @@ function renderOrders(orders, container, isBuyer){
 }
 
 /* ================= ACTIONS ================= */
-async function acceptOrder(orderId){
-  if(isProcessing) return;
+async function acceptOrder(orderId) {
+  if (isProcessing) return;
   isProcessing = true;
 
-  const { error } = await supabase.rpc("accept_order", { p_order_id: orderId });
-  if(error) console.error(error);
+  try {
+    const { error } = await supabase.rpc("accept_order", { p_order_id: orderId });
+    if (error) throw error;
+    alert("Commande acceptée !");
+    await loadOrders();
+  } catch (err) {
+    console.error(err);
+    alert("Impossible d’accepter la commande : " + err.message);
+  }
 
-  await loadOrders();
   isProcessing = false;
 }
 
-async function refuseOrder(orderId){
-  if(isProcessing) return;
+async function refuseOrder(orderId) {
+  if (isProcessing) return;
   isProcessing = true;
 
-  const { error } = await supabase.rpc("refuse_order", { p_order_id: orderId });
-  if(error) console.error(error);
+  try {
+    const { error } = await supabase.rpc("refuse_order", { p_order_id: orderId });
+    if (error) throw error;
+    alert("Commande refusée !");
+    await loadOrders();
+  } catch (err) {
+    console.error(err);
+    alert("Impossible de refuser la commande : " + err.message);
+  }
 
-  await loadOrders();
   isProcessing = false;
 }
 
-async function payOrder(orderId){
-  if(isProcessing) return;
+async function payOrder(orderId) {
+  if (isProcessing) return;
   isProcessing = true;
 
-  // Appel RPC pour transférer l'argent de l'escrow au vendeur
-  const { error } = await supabase.rpc("pay_order", { p_order_id: orderId });
-  if(error) console.error(error);
+  try {
+    const { error } = await supabase.rpc("pay_order", { p_order_id: orderId });
+    if (error) throw error;
+    alert("Paiement effectué ! L’argent est débloqué chez le vendeur.");
+    await loadOrders();
+  } catch (err) {
+    console.error(err);
+    alert("Impossible de payer la commande : " + err.message);
+  }
 
-  await loadOrders();
   isProcessing = false;
 }
 
 /* ================= MODAL ================= */
-function showDetails(orderId){
+function showDetails(orderId) {
   const order = allOrders.find(o => String(o.id) === String(orderId));
-  if(!order) return;
+  if (!order) return;
 
   document.getElementById("orderDetails").innerHTML = `
     <p><strong>ID :</strong> ${order.id}</p>
@@ -327,7 +354,7 @@ function showDetails(orderId){
   document.getElementById("orderModal").style.display = "flex";
 }
 
-function closeModal(){
+function closeModal() {
   document.getElementById("orderModal").style.display = "none";
 }
 
@@ -337,5 +364,6 @@ window.refuseOrder = refuseOrder;
 window.payOrder = payOrder;
 window.showDetails = showDetails;
 window.closeModal = closeModal;
-
-                         </script>
+      </script>
+      </body>
+</html>
