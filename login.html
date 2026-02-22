@@ -444,16 +444,17 @@ section h3{
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
 
           
-    <script type="module">
+    
+        <script type="module">
 import { supabase } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ===== Sélecteurs =====
   const sidebar = document.getElementById('sidebar');
   const closeSidebar = document.getElementById('closeSidebar');
   const loginBtn = document.getElementById('loginBtn');
   const signupBtn = document.getElementById('signupBtn');
-
   const formTitle = document.getElementById('formTitle');
   const actionBtn = document.getElementById('actionBtn');
   const errorMsg = document.getElementById('errorMsg');
@@ -465,15 +466,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLogin = true;
 
-  /* ===== UI ===== */
+  // ===== UI =====
   loginBtn.onclick = () => {
     isLogin = true;
     sidebar.classList.add('open');
     usernameInput.style.display = 'none';
     formTitle.textContent = "Connexion";
     actionBtn.textContent = "Se connecter";
-    errorMsg.textContent = "";
     forgotPassword.style.display = "block";
+    errorMsg.textContent = "";
   };
 
   signupBtn.onclick = () => {
@@ -482,8 +483,8 @@ document.addEventListener('DOMContentLoaded', () => {
     usernameInput.style.display = 'block';
     formTitle.textContent = "Inscription";
     actionBtn.textContent = "S'inscrire";
-    errorMsg.textContent = "";
     forgotPassword.style.display = "none";
+    errorMsg.textContent = "";
   };
 
   closeSidebar.onclick = () => {
@@ -495,34 +496,25 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   togglePass.onclick = () => {
-    passwordInput.type =
-      passwordInput.type === "password" ? "text" : "password";
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
   };
 
-  /* ===== Mot de passe oublié ===== */
+  // ===== Mot de passe oublié =====
   forgotPassword.onclick = async () => {
     const email = emailInput.value.trim();
-    if (!email) {
-      errorMsg.textContent = "Entre ton email pour réinitialiser le mot de passe";
-      return;
-    }
+    if (!email) return errorMsg.textContent = "Entre ton email pour réinitialiser le mot de passe";
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://marketplace2026.github.io/MANG---March-Agricole//reset-password.html"
+      redirectTo: "https://marketplace2026.github.io/MANG---March-Agricole/reset-password.html"
     });
 
-    if (error) {
-      errorMsg.textContent = error.message;
-      return;
-    }
-
-    alert("📩 Un email de réinitialisation a été envoyé !");
+    if (error) errorMsg.textContent = error.message;
+    else alert("📩 Email de réinitialisation envoyé !");
   };
 
-  /* ===== Auth ===== */
+  // ===== Auth =====
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
-
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
     const username = usernameInput.value.trim();
@@ -533,57 +525,50 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isLogin) {
-      /* ===== LOGIN ===== */
+      // ===== LOGIN =====
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        errorMsg.textContent = error.message;
-        return;
-      }
+      if (error) return errorMsg.textContent = error.message;
       window.location.href = "index.html";
       return;
     }
 
-    /* ===== SIGNUP ===== */
+    // ===== SIGNUP =====
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { username } }
     });
 
-    if (signUpError) {
-      errorMsg.textContent = signUpError.message;
-      return;
-    }
+    if (signUpError) return errorMsg.textContent = signUpError.message;
 
     const userId = signUpData.user.id;
     const now = new Date().toISOString();
 
     try {
-      /* ===== Créer profil minimal dans profiles ===== */
-      const { error: insertProfileError } = await supabase.from("profiles").insert({
+      // ===== Créer profil dans profiles =====
+      const { error: profileError } = await supabase.from("profiles").insert({
         id: userId,
         username: username || "Utilisateur",
         email: email,
+        coins: 0,
         is_acheteur: true,
         is_vendeur: true,
-        created_at: now,
-        last_seen: now,
-        coins: 0,           // coins dans profiles
         premium_level: 'free',
         premium_start: null,
-        premium_end: null
+        premium_end: null,
+        created_at: now,
+        last_seen: now
       });
-      if (insertProfileError) throw insertProfileError;
+      if (profileError) throw profileError;
 
-      /* ===== Créer wallet associé dans wallets ===== */
-      const { error: insertWalletError } = await supabase.from("wallets").insert({
+      // ===== Créer wallet associé dans wallets =====
+      const { error: walletError } = await supabase.from("wallets").insert({
         user_id: userId,
         balance: 0,
         available_balance: 0,
-        coins: 0,                  // si tu veux suivre les coins aussi dans wallet
         wallet_number: generateWalletNumber()
       });
-      if (insertWalletError) throw insertWalletError;
+      if (walletError) throw walletError;
 
       alert("✅ Compte créé ! Tu peux maintenant te connecter.");
       sidebar.classList.remove('open');
@@ -596,17 +581,14 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error("Erreur création utilisateur :", err);
       errorMsg.textContent = "❌ Impossible de créer le compte, vérifie la console";
     }
-
   };
 
+  // ===== Générer wallet_number unique =====
+  function generateWalletNumber() {
+    return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+  }
+
 });
-
-/* ===== Générer un wallet_number unique ===== */
-function generateWalletNumber() {
-  // Exemple : 10 chiffres aléatoires
-  return Math.floor(1000000000 + Math.random() * 9000000000).toString();
-}
-    </script>
-
+      </script>
 </body>
 </html>
