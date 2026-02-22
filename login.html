@@ -446,8 +446,8 @@ section h3{
 <script type="module">
 import { supabase } from './supabase.js';
 
+// ===== Code principal =====
 document.addEventListener('DOMContentLoaded', () => {
-
   const sidebar = document.getElementById('sidebar');
   const closeSidebar = document.getElementById('closeSidebar');
   const loginBtn = document.getElementById('loginBtn');
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isLogin = true;
 
-  /* ===== UI ===== */
+  // ===== UI =====
   loginBtn.onclick = () => {
     isLogin = true;
     sidebar.classList.add('open');
@@ -494,11 +494,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   togglePass.onclick = () => {
-    passwordInput.type =
-      passwordInput.type === "password" ? "text" : "password";
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
   };
 
-  
   // ===== Mot de passe oublié =====
   forgotPassword.onclick = async () => {
     const email = emailInput.value.trim();
@@ -518,7 +516,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     alert("📩 Un email de réinitialisation a été envoyé !");
   };
-  /* ===== Auth ===== */
+
+  // ===== Auth =====
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
 
@@ -532,6 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isLogin) {
+      // ===== LOGIN =====
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         errorMsg.textContent = error.message;
@@ -541,64 +541,38 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    /* ===== SIGNUP ===== */
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username } }
-    });
+    // ===== SIGNUP =====
+    try {
+      // 🔹 Créer l'utilisateur Supabase Auth
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username } }
+      });
+      if (signUpError) throw signUpError;
 
-    if (signUpError) {
-      errorMsg.textContent = signUpError.message;
-      return;
-    }
+      const userId = signUpData.user.id;
+      const now = new Date().toISOString();
 
-    const user = signUpData.user;
+      // 🔹 Créer le profil minimal dans "profiles"
+      const { error: insertProfileError } = await supabase.from("profiles").insert({
+        id: userId,
+        username: username || "Utilisateur",
+        email: email,
+        is_acheteur: true,
+        is_vendeur: true,
+        created_at: now,
+        last_seen: now,
+        coins: 0,
+        role: 'user',
+        premium_level: 'free',
+        premium_start: null,
+        premium_end: null,
+        pin: null
+      });
+      if (insertProfileError) throw insertProfileError;
 
-    if (!user) {
-      alert("📩 Vérifie ton email pour confirmer ton compte.");
-      return;
-    }
-
-    const userId = user.id;
-    const now = new Date().toISOString();
-
-    /* ===== Créer profil ===== */
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: userId,
-      username: username || "Utilisateur",
-      email: email,
-      is_acheteur: true,
-      is_vendeur: true,
-      created_at: now,
-      last_seen: now,
-      wallet_balance: 0,
-      premium_level: 0,
-      premium_start: null,
-      premium_end: null
-    });
-
-    if (profileError) {
-      console.error("Impossible de créer le profil :", profileError);
-      errorMsg.textContent = "Erreur création profil";
-      return;
-    }
-
-    /* ===== Créer WALLET ===== */
-    const { error: walletError } = await supabase.from("wallets").insert({
-      user_id: userId,
-      balance: 0,
-      available_balance: 0,
-      escrow_balance: 0
-    });
-
-    if (walletError) {
-      console.error("Impossible de créer le wallet :", walletError);
-      errorMsg.textContent = "Erreur création wallet";
-      return;
-    }
-    
-alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+      alert("✅ Compte créé ! Tu peux maintenant te connecter.");
       sidebar.classList.remove('open');
       emailInput.value = "";
       passwordInput.value = "";
@@ -613,6 +587,5 @@ alert("✅ Compte créé ! Tu peux maintenant te connecter.");
   };
 });
 </script>
-    
-        </body>
+</body>
 </html>
