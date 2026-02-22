@@ -481,9 +481,10 @@ MODALES
     
 
 <div class="container">
+
   
   <!-- MODAL CREATION PIN -->
-<div class="modal" id="createPinModal" style="display:none;">
+<div class="modal" id="createPinModal">
   <div class="modal-content">
     <h3>Créer votre PIN de sécurité</h3>
     <p style="font-size:13px;margin-bottom:10px;">
@@ -776,37 +777,12 @@ async function loadWallet() {
     console.error("Erreur loadWallet:", err);
   }
 }
-async function checkPinAndOpenWallet() {
-  try {
-    // 🔹 Récupérer l'utilisateur connecté
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) throw new Error("Utilisateur non connecté");
 
-    // 🔹 Récupérer le profil
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, pin")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError) throw profileError;
-
-    // 🔹 Si pin est null, demander de créer un PIN
-    if (!profile.pin) {
-      const modal = document.getElementById("createPinModal");
-      if (modal) modal.style.display = "flex"; // ouvrir la modal
-    } else {
-      loadWallet(); // PIN déjà existant, charger le portefeuille directement
-    }
-
-  } catch (err) {
-    console.error("Erreur check PIN :", err);
-    alert("Impossible de vérifier le PIN");
-  }
-}
-
-// ===== Création du PIN =====
+/* ======================
+   CREATE PIN
+===================== */
 async function createPin() {
+
   const pinInput = document.getElementById("newPin");
   if (!pinInput) return;
 
@@ -819,34 +795,36 @@ async function createPin() {
 
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Utilisateur non connecté");
 
-    // 🔹 Mettre à jour le PIN dans profiles
     const { error } = await supabase
       .from("profiles")
-      .update({ pin })
+      .update({ pin: pin })
       .eq("id", user.id);
 
     if (error) throw error;
 
-    // 🔹 Fermer la modal
     const modal = document.getElementById("createPinModal");
     if (modal) modal.style.display = "none";
 
     alert("PIN créé avec succès !");
-    loadWallet(); // Charger le portefeuille maintenant que le PIN est défini
+
+    // 🔄 Recharger wallet après création
+    loadWallet();
 
   } catch (err) {
-    console.error("Erreur création PIN :", err);
+    console.error("Erreur création PIN:", err);
     alert("Erreur lors de la création du PIN");
   }
 }
 
-// Exposer la fonction pour le bouton
+// IMPORTANT si tu utilises type="module"
 window.createPin = createPin;
 
-// 🔹 Appeler au chargement ou à l'ouverture du portefeuille
-document.addEventListener("DOMContentLoaded", checkPinAndOpenWallet);
+
+/* ======================
+   START
+===================== */
+document.addEventListener("DOMContentLoaded", loadUser);
 /* ======================
    LOAD TRANSACTIONS
 ===================== */
