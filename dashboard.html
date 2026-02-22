@@ -482,10 +482,8 @@ MODALES
 
 <div class="container">
   
-  
-
   <!-- MODAL CREATION PIN -->
-<div class="modal" id="createPinModal">
+<div class="modal" id="createPinModal" style="display:none;">
   <div class="modal-content">
     <h3>Créer votre PIN de sécurité</h3>
     <p style="font-size:13px;margin-bottom:10px;">
@@ -495,6 +493,7 @@ MODALES
     <button onclick="createPin()">Créer PIN</button>
   </div>
 </div>
+
   
   <div class="wallet-box">
   <h3>Mon numéro de portefeuille</h3>
@@ -1202,6 +1201,99 @@ async function generateHash(text) {
     img.onerror = reject;
   });
           }
+
+
+          window.currentProfile = null;
+
+// ===== Vérifie le PIN et bloque le portefeuille si nécessaire =====
+async function checkPinAndLockWallet() {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Utilisateur non connecté");
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, pin")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    window.currentProfile = profile;
+
+    if (!profile.pin) {
+      // Bloquer le portefeuille et ouvrir modal
+      const modal = document.getElementById("createPinModal");
+      if (modal) modal.style.display = "flex";
+
+      // Optionnel : masquer tout le contenu du portefeuille
+      const walletContainer = document.getElementById("walletContainer");
+      if (walletContainer) walletContainer.style.display = "none";
+
+    } else {
+      // PIN déjà créé : charger le portefeuille normalement
+      loadWallet();
+    }
+
+  } catch (err) {
+    console.error("Erreur vérification PIN :", err);
+    alert("Impossible de vérifier le PIN. Recharge la page ou reconnecte-toi.");
+  }
+}
+
+// ===== Création du PIN =====
+async function createPin() {
+  const pinInput = document.getElementById("newPin");
+  if (!pinInput) return;
+
+  const pin = pinInput.value.trim();
+  if (pin.length !== 4 || isNaN(pin)) {
+    alert("Le PIN doit contenir exactement 4 chiffres");
+    return;
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Utilisateur non connecté");
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ pin })
+      .eq("id", user.id);
+
+    if (error) throw error;
+
+    // Mettre à jour le profil global
+    window.currentProfile.pin = pin;
+
+    // Fermer modal
+    const modal = document.getElementById("createPinModal");
+    if (modal) modal.style.display = "none";
+
+    // Débloquer le portefeuille
+    const walletContainer = document.getElementById("walletContainer");
+    if (walletContainer) walletContainer.style.display = "block";
+
+    alert("✅ PIN créé avec succès ! Ton portefeuille est maintenant accessible.");
+    loadWallet();
+
+  } catch (err) {
+    console.error("Erreur création PIN :", err);
+    alert("Erreur lors de la création du PIN. Vérifie la console.");
+  }
+}
+
+window.createPin = createPin;
+
+// ===== Appel au chargement de la page =====
+document.addEventListener("DOMContentLoaded", async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await checkPinAndLockWallet();
+  } else {
+    console.log("Utilisateur non connecté, accès portefeuille bloqué");
+  }
+});
 /* ======================
 PDF RECEIPT CLIENT
 ===================== */
