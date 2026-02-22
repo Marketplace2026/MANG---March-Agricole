@@ -473,10 +473,11 @@ MODALES
     </button>
   </div>
 </div>
+  
   <div class="card">
   <h3>Historique</h3>
 
-  <select id="filterType" onchange="loadTransactions()">
+  <select id="filterType">
     <option value="">Toutes</option>
     <option value="deposit">Rechargement</option>
     <option value="withdraw">Retrait</option>
@@ -487,23 +488,14 @@ MODALES
   <canvas id="walletChart" height="120"></canvas>
 
   <div id="transactions"></div>
-  </div>
+</div>
 
-  <div class="modal" id="detailModal">
+<div class="modal" id="detailModal">
   <div class="modal-content">
     <div id="transactionDetails"></div>
     <button onclick="closeDetail()">Fermer</button>
   </div>
-  </div>
 </div>
-
-<!-- ================= PIN CREATION ================= -->
-<div class="modal" id="createPinModal">
-  <div class="modal-content">
-    <h3>Créer votre PIN</h3>
-    <input type="password" id="newPin" maxlength="4" placeholder="4 chiffres">
-    <button onclick="createPin()">Créer</button>
-  </div>
 </div>
 
 <!-- ================= PIN VERIFY ================= -->
