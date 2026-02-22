@@ -427,7 +427,7 @@ MODALES
   
   <div class="card">
   <div class="balance-title">Solde disponible</div>
-  <div class="balance"><span id="balance">0</span> FCFA</div>
+  <div class="balance"><span id="balance">0</span></div>
 
   
 <div class="actions">
@@ -777,10 +777,7 @@ async function loadWallet() {
       walletBalanceEl.textContent = formatMoney(available) + " FCFA";
     }
 
-    // 🔹 Si tu veux afficher un numéro de portefeuille, il faut l’ajouter dans wallets
-    // const walletNumberEl = document.getElementById("walletNumber");
-    // if (walletNumberEl) { walletNumberEl.textContent = "Non disponible"; }
-
+    
     // Charger les transactions
     await loadTransactions();
 
