@@ -443,7 +443,35 @@ section h3{
 <script type="module">
 import { supabase } from './supabase.js';
 
+
+  // ===== Vérifier les tables =====
+async function checkProfilesColumns() {
+  try {
+    const { data, error } = await supabase.from('profiles').select('*').limit(1);
+    if (error) throw error;
+    console.log("Test profiles OK :", data);
+  } catch (err) {
+    console.error("Erreur profiles :", err);
+  }
+}
+
+async function checkWalletsColumns() {
+  try {
+    const { data, error } = await supabase.from('wallets').select('*').limit(1);
+    if (error) throw error;
+    console.log("Test wallets OK :", data);
+  } catch (err) {
+    console.error("Erreur wallets :", err);
+  }
+}
+
+// Appel immédiat pour tester
+checkProfilesColumns();
+checkWalletsColumns();
+
+// ===== Ton code d'inscription / login peut suivre ici =====
 document.addEventListener('DOMContentLoaded', () => {
+  // ton code pour sidebar, login, signup..
 
   const sidebar = document.getElementById('sidebar');
   const closeSidebar = document.getElementById('closeSidebar');
