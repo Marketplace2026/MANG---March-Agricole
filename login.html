@@ -442,6 +442,7 @@ section h3{
 </div>
 
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
+  
 <script type="module">
 import { supabase } from './supabase.js';
 
@@ -495,10 +496,13 @@ document.addEventListener('DOMContentLoaded', () => {
     passwordInput.type = passwordInput.type === "password" ? "text" : "password";
   };
 
-  // ===== Mot de passe oublié =====
+  // ===== RESET PASSWORD =====
   forgotPassword.onclick = async () => {
     const email = emailInput.value.trim();
-    if (!email) return errorMsg.textContent = "Entre ton email pour réinitialiser le mot de passe";
+    if (!email) {
+      errorMsg.textContent = "Entre ton email pour réinitialiser";
+      return;
+    }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: "https://marketplace2026.github.io/MANG---March-Agricole/reset-password.html"
@@ -508,9 +512,10 @@ document.addEventListener('DOMContentLoaded', () => {
     else alert("📩 Email de réinitialisation envoyé !");
   };
 
-  // ===== Auth =====
+  // ===== AUTH =====
   actionBtn.onclick = async () => {
     errorMsg.textContent = "";
+
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
     const username = usernameInput.value.trim();
@@ -520,8 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // ===== LOGIN =====
     if (isLogin) {
-      // ===== LOGIN =====
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return errorMsg.textContent = error.message;
       window.location.href = "index.html";
@@ -531,52 +536,65 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== SIGNUP =====
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
-      password,
-      options: { data: { username } }
+      password
     });
 
-    if (signUpError) return errorMsg.textContent = signUpError.message;
+    if (signUpError) {
+      errorMsg.textContent = signUpError.message;
+      return;
+    }
 
-    const userId = signUpData.user.id;
+    const user = signUpData.user;
+
+    if (!user) {
+      alert("📩 Vérifie ton email pour confirmer ton compte.");
+      return;
+    }
+
+    const userId = user.id;
     const now = new Date().toISOString();
 
     try {
-      // ===== Créer profil dans profiles (coins et premium uniquement) =====
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: userId,
-        username: username || "Utilisateur",
-        email: email,
-        coins: 0,
-        is_acheteur: true,
-        is_vendeur: true,
-        premium_level: 'free',
-        premium_start: null,
-        premium_end: null,
-        created_at: now,
-        last_seen: now
-      });
+
+      // ===== INSERT PROFILE (SANS coins / pin) =====
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          id: userId,
+          username: username,
+          email: email,
+          is_acheteur: true,
+          is_vendeur: true,
+          premium_level: 'free',
+          premium_start: null,
+          premium_end: null,
+          created_at: now,
+          last_seen: now
+        });
+
       if (profileError) throw profileError;
 
-      // ===== Créer wallet associé dans wallets =====
+      // ===== INSERT WALLET =====
       const walletNumber = await generateUniqueWalletNumber();
-      const { error: walletError } = await supabase.from("wallets").insert({
-        user_id: userId,
-        balance: 0,
-        available_balance: 0,
-        wallet_number: walletNumber
-      });
+
+      const { error: walletError } = await supabase
+        .from("wallets")
+        .insert({
+          user_id: userId,
+          balance: 0,
+          available_balance: 0,
+          escrow_balance: 0,
+          wallet_number: walletNumber
+        });
+
       if (walletError) throw walletError;
 
-      alert("✅ Compte créé ! Tu peux maintenant te connecter.");
+      alert("✅ Compte créé avec succès !");
       sidebar.classList.remove('open');
-      emailInput.value = "";
-      passwordInput.value = "";
-      usernameInput.value = "";
-      errorMsg.textContent = "";
 
     } catch (err) {
-      console.error("Erreur création utilisateur :", err);
-      errorMsg.textContent = "❌ Impossible de créer le compte, vérifie la console";
+      console.error("Erreur création :", err);
+      errorMsg.textContent = "❌ Impossible de créer le compte";
     }
   };
 
@@ -584,17 +602,25 @@ document.addEventListener('DOMContentLoaded', () => {
   async function generateUniqueWalletNumber() {
     let unique = false;
     let walletNumber;
+
     while (!unique) {
       walletNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-      const { data } = await supabase.from("wallets").select("wallet_number").eq("wallet_number", walletNumber).maybeSingle();
+
+      const { data } = await supabase
+        .from("wallets")
+        .select("wallet_number")
+        .eq("wallet_number", walletNumber)
+        .maybeSingle();
+
       if (!data) unique = true;
     }
+
     return walletNumber;
   }
 
 });
-        </script>
-          
+          </script>
+  
     
         </body>
 </html>
