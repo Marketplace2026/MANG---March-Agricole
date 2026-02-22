@@ -1444,101 +1444,78 @@ async function updateCoinsAndWallet(newCoins, newWallet) {
 }
 
     
-// ===== Gestion achat de pièces (version wallets) =====
+// ===== Gestion achat de pièces adapté à table wallets =====
 document.querySelectorAll(".buyCoinsBtn").forEach(btn => {
   btn.addEventListener("click", async () => {
-
     const coinsToBuy = Number(btn.dataset.coins);
     const priceFCFA = Number(btn.dataset.price);
 
-    if (!confirm(`Confirmer l'achat de ${coinsToBuy} pièces pour ${priceFCFA} FCFA ?`)) return;
+    if (!currentUser) return alert("Utilisateur non connecté");
 
     try {
-      // 🔥 1️⃣ Récupérer wallet actuel
-      const { data: wallet, error: walletError } = await supabase
+      // 🔹 Récupérer le wallet depuis Supabase
+      const { data: walletData, error: walletError } = await supabase
         .from("wallets")
-        .select("*")
+        .select("balance, available_balance, coins")
         .eq("user_id", currentUser.id)
         .single();
 
-      if (walletError || !wallet) {
-        alert("Portefeuille introuvable.");
-        return;
+      if (walletError || !walletData) throw walletError || new Error("Wallet introuvable");
+
+      const wallet = Number(walletData.balance || 0);
+      const coins = Number(walletData.coins || 0);
+
+      if (!confirm(`Confirmer l'achat de ${coinsToBuy} pièces pour ${priceFCFA} FCFA ?`)) return;
+
+      if (wallet < priceFCFA) {
+        return alert(`❌ Solde wallet insuffisant !\nVotre solde : ${wallet.toLocaleString()} FCFA`);
       }
 
-      const available = Number(wallet.available_balance || 0);
+      // 🔹 Calcul des nouveaux montants
+      const newCoins = coins + coinsToBuy;
+      const newBalance = wallet - priceFCFA;
 
-      if (available < priceFCFA) {
-        alert(`❌ Solde insuffisant !\nVotre solde : ${available.toLocaleString()} FCFA`);
-        return;
-      }
-
-      // 🔥 2️⃣ Récupérer coins actuels
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("coins")
-        .eq("id", currentUser.id)
-        .single();
-
-      if (profileError || !profile) {
-        alert("Profil introuvable.");
-        return;
-      }
-
-      const currentCoins = Number(profile.coins || 0);
-
-      const newCoins = currentCoins + coinsToBuy;
-      const newBalance = wallet.balance - priceFCFA;
-      const newAvailable = wallet.available_balance - priceFCFA;
-
-      // 🔥 3️⃣ Mettre à jour wallet
-      const { error: walletUpdateError } = await supabase
+      // 🔹 Mettre à jour le wallet
+      const { error: updateError } = await supabase
         .from("wallets")
         .update({
           balance: newBalance,
-          available_balance: newAvailable,
-          updated_at: new Date()
+          available_balance: newBalance,
+          coins: newCoins
         })
         .eq("user_id", currentUser.id);
 
-      if (walletUpdateError) {
-        alert("Erreur débit wallet.");
-        return;
+      if (updateError) throw updateError;
+
+      // 🔹 Ajouter transaction historique
+      const { error: txError } = await supabase
+        .from("wallet_transactions")
+        .insert({
+          user_id: currentUser.id,
+          amount: -priceFCFA, // débit
+          transaction_type: "purchase_coins",
+          description: `${coinsToBuy} pièces achetées`,
+          status: "success",
+          created_at: new Date().toISOString()
+        });
+
+      if (txError) console.warn("Erreur transaction historique :", txError);
+
+      alert(`✅ Achat réussi ! Vous avez maintenant ${newCoins} pièces et ${newBalance} FCFA`);
+      
+      // Fermer modal et restaurer scroll
+      if (typeof coinsModal !== "undefined") {
+        coinsModal.style.display = "none";
+        document.body.style.overflow = "auto";
       }
-
-      // 🔥 4️⃣ Mettre à jour coins
-      const { error: coinsUpdateError } = await supabase
-        .from("profiles")
-        .update({
-          coins: newCoins
-        })
-        .eq("id", currentUser.id);
-
-      if (coinsUpdateError) {
-        alert("Erreur mise à jour pièces.");
-        return;
-      }
-
-      // 🔥 5️⃣ Transaction wallet
-      await supabase.from("wallet_transactions").insert({
-        user_id: currentUser.id,
-        amount: -priceFCFA,
-        type: "coins_purchase",
-        description: `Achat de ${coinsToBuy} pièces`,
-        created_at: new Date()
-      });
-
-      alert(`✅ Achat réussi ! Vous avez maintenant ${newCoins} pièces.`);
-      coinsModal.style.display = "none";
-      document.body.style.overflow = "auto";
 
     } catch (err) {
       console.error("Erreur achat pièces :", err);
       alert("❌ Une erreur est survenue lors de l'achat");
     }
-
   });
 });
+      
     
   // ===============================
 // INPUTS CACHÉS (déjà dans ton HTML)
