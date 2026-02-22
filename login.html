@@ -442,15 +442,11 @@ section h3{
 </div>
 
 <!-- 🔥 TON SCRIPT SUPABASE RESTE IDENTIQUE 🔥 -->
-
-          
-    
-        <script type="module">
+<script type="module">
 import { supabase } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ===== Sélecteurs =====
   const sidebar = document.getElementById('sidebar');
   const closeSidebar = document.getElementById('closeSidebar');
   const loginBtn = document.getElementById('loginBtn');
@@ -545,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const now = new Date().toISOString();
 
     try {
-      // ===== Créer profil dans profiles =====
+      // ===== Créer profil dans profiles (coins et premium uniquement) =====
       const { error: profileError } = await supabase.from("profiles").insert({
         id: userId,
         username: username || "Utilisateur",
@@ -562,11 +558,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (profileError) throw profileError;
 
       // ===== Créer wallet associé dans wallets =====
+      const walletNumber = await generateUniqueWalletNumber();
       const { error: walletError } = await supabase.from("wallets").insert({
         user_id: userId,
         balance: 0,
         available_balance: 0,
-        wallet_number: generateWalletNumber()
+        wallet_number: walletNumber
       });
       if (walletError) throw walletError;
 
@@ -584,11 +581,20 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ===== Générer wallet_number unique =====
-  function generateWalletNumber() {
-    return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+  async function generateUniqueWalletNumber() {
+    let unique = false;
+    let walletNumber;
+    while (!unique) {
+      walletNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+      const { data } = await supabase.from("wallets").select("wallet_number").eq("wallet_number", walletNumber).maybeSingle();
+      if (!data) unique = true;
+    }
+    return walletNumber;
   }
 
 });
-      </script>
-</body>
+        </script>
+          
+    
+        </body>
 </html>
