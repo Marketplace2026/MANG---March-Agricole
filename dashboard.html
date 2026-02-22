@@ -585,60 +585,101 @@ MODALES
         <script type="module">
       import { supabase } from './supabase.js';
 
-let currentUser = null;
+
 let walletChart = null;
 
-/* ======================
-   LOAD USER
-===================== */
-async function loadUser() {
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser();
+let currentUser = null;
+let currentProfile = null;
 
-    if (error || !user) {
-      location.href = "login.html";
-      return;
-    }
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", async () => {
 
-    currentUser = user;
+  const { data: { user } } = await supabase.auth.getUser();
 
-    const emailEl = document.getElementById("userEmail");
-    if (emailEl) emailEl.innerText = user.email;
-
-    const filter = document.getElementById("filterType");
-    if (filter) {
-      filter.addEventListener("change", loadTransactions);
-    }
-await checkPinStatus();
-    await loadWallet();
-
-  } catch (err) {
-    console.error("Erreur loadUser:", err);
-  }
-}
-
-function copyWalletNumber() {
-  const el = document.getElementById("walletNumber");
-  if (!el) return;
-
-  const number = el.textContent.replace(/\s/g, "");
-
-  if (!number || number === "Non disponible") {
-    alert("Numéro indisponible");
+  if (!user) {
+    location.href = "login.html";
     return;
   }
 
-  navigator.clipboard.writeText(number)
-    .then(() => {
-      alert("Numéro copié !");
-    })
-    .catch(() => {
-      alert("Impossible de copier.");
-    });
+  currentUser = user;
+  document.getElementById("userEmail").innerText = user.email;
+
+  await checkPinStatus();
+});
+
+/* ================= PIN SYSTEM ================= */
+
+async function checkPinStatus() {
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, pin")
+    .eq("id", currentUser.id)
+    .single();
+
+  currentProfile = profile;
+
+  if (!profile.pin) {
+    document.getElementById("createPinModal").style.display = "flex";
+  } else {
+    document.getElementById("verifyPinModal").style.display = "flex";
+  }
 }
 
-//  LA FONCTION GLOBALE
-window.copyWalletNumber = copyWalletNumber;
+async function createPin() {
+
+  const pin = document.getElementById("newPin").value.trim();
+
+  if (pin.length !== 4 || isNaN(pin)) {
+    alert("Le PIN doit contenir 4 chiffres");
+    return;
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ pin })
+    .eq("id", currentUser.id);
+
+  document.getElementById("createPinModal").style.display = "none";
+
+  unlockWallet();
+}
+
+function verifyPin() {
+
+  const enteredPin = document.getElementById("verifyPinInput").value.trim();
+
+  if (enteredPin === currentProfile.pin) {
+    document.getElementById("verifyPinModal").style.display = "none";
+    unlockWallet();
+  } else {
+    alert("❌ PIN incorrect");
+  }
+}
+
+function unlockWallet(){
+  document.getElementById("walletContainer").style.display = "block";
+  loadWallet();
+}
+/* ================= WALLET ================= */
+
+async function loadWallet(){
+
+  const { data } = await supabase
+    .from("wallets")
+    .select("balance, wallet_number")
+    .eq("user_id", currentUser.id)
+    .single();
+
+  document.getElementById("balance").innerText =
+    Number(data.balance).toLocaleString("fr-FR") + " FCFA";
+
+  document.getElementById("walletNumber").innerText =
+    data.wallet_number;
+
+  loadTransactions();
+}
+
   
   // =========================
 // MODALES RECHARGER / RETIRER
@@ -743,99 +784,6 @@ async function submitWithdraw() {
 }
 
 
-/* ======================
-   LOAD WALLET
-===================== */
-async function loadWallet() {
-  if (!currentUser) return;
-
-  try {
-    const { data, error } = await supabase
-      .from("wallets")
-      .select("balance, available_balance, wallet_number") // ✅ ajouté
-      .eq("user_id", currentUser.id)
-      .single();
-
-    if (error) throw error;
-    if (!data) return;
-
-    const balance = Number(data.balance) || 0;
-    const available = Number(data.available_balance) || 0;
-    const walletNumber = data.wallet_number || "";
-
-    // Solde principal
-    const balanceMain = document.getElementById("balance");
-    if (balanceMain) balanceMain.innerText = formatMoney(balance) + " FCFA";
-
-    // Solde disponible
-    const walletBalanceEl = document.getElementById("walletBalance");
-    if (walletBalanceEl) walletBalanceEl.textContent = formatMoney(available) + " FCFA";
-
-    // 🔥 Affichage du numéro wallet
-    const walletNumberEl = document.getElementById("walletNumber");
-    if (walletNumberEl) walletNumberEl.textContent = walletNumber;
-
-    await loadTransactions();
-
-  } catch (err) {
-    console.error("Erreur loadWallet:", err);
-  }
-}
-
-/* ================= PIN SYSTEM ================= */
-
-async function checkPinStatus() {
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, pin")
-    .eq("id", currentUser.id)
-    .single();
-
-  currentProfile = profile;
-
-  if (!profile.pin) {
-    document.getElementById("createPinModal").style.display = "flex";
-  } else {
-    document.getElementById("verifyPinModal").style.display = "flex";
-  }
-}
-
-async function createPin() {
-
-  const pin = document.getElementById("newPin").value.trim();
-
-  if (pin.length !== 4 || isNaN(pin)) {
-    alert("Le PIN doit contenir 4 chiffres");
-    return;
-  }
-
-  await supabase
-    .from("profiles")
-    .update({ pin })
-    .eq("id", currentUser.id);
-
-  document.getElementById("createPinModal").style.display = "none";
-
-  unlockWallet();
-}
-
-function verifyPin() {
-
-  const enteredPin = document.getElementById("verifyPinInput").value.trim();
-
-  if (enteredPin === currentProfile.pin) {
-    document.getElementById("verifyPinModal").style.display = "none";
-    unlockWallet();
-  } else {
-    alert("❌ PIN incorrect");
-  }
-}
-
-function unlockWallet(){
-  document.getElementById("walletContainer").style.display = "block";
-  loadWallet();
-}
 /* ======================
    LOAD TRANSACTIONS
 ===================== */
