@@ -1619,11 +1619,17 @@ document.getElementById("createShopBtn").addEventListener("click", async () => {
   }
 
   // 🔹 Vérifier si l'utilisateur a assez de pièces
-  const cost = 10; // 10 pièces pour créer une boutique
-  if ((currentProfile.coins || 35) < cost) {
-    alert("⚠️ Vous n'avez pas assez de pièces pour créer une boutique");
-    return;
-  }
+const cost = 10; // 10 pièces pour créer une boutique
+
+if (currentProfile.coins === null || currentProfile.coins === undefined) {
+  alert("Erreur récupération des coins.");
+  return;
+}
+
+if (currentProfile.coins < cost) {
+  alert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
+  return;
+}
 
   // 🔹 NOUVEAU : récupération livraison & whatsapp
   const livraison = document.getElementById("livraison")?.checked || false;
@@ -2380,10 +2386,15 @@ submitProductBtn.onclick = async () => {
 
   // 🔹 Vérifier si l'utilisateur a assez de pièces pour créer un produit
   const productCost = 5; // 5 pièces pour ajouter un produit
-  if ((currentProfile.coins || 35) < productCost) {
-    alert("⚠️ Vous n'avez pas assez de pièces pour ajouter ce produit");
-    return;
-  }
+  if (currentProfile.coins === null || currentProfile.coins === undefined) {
+  alert("Erreur récupération des coins");
+  return;
+}
+
+if (currentProfile.coins < productCost) {
+  alert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
+  return;
+}
 
   const name = productName.value.trim();
   const description = productDesc.value.trim();
