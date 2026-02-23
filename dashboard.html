@@ -953,7 +953,25 @@ function renderChart(totalIn, totalOut) {
     }
   });
           }
+
           
+/* ======================
+CHART
+===================== */
+function renderChart(totalIn, totalOut) {
+  const ctx = document.getElementById("walletChart");
+  if (!ctx) return;
+  if (walletChart) walletChart.destroy();
+
+  walletChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Entrées", "Sorties"],
+      datasets: [{ data: [totalIn, totalOut], backgroundColor: ["#00e676", "#ff5252"] }]
+    },
+    options: { plugins: { legend: { labels: { color: "white" } } } }
+  });
+}
           async function generateHash(text) {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
