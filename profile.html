@@ -226,6 +226,16 @@ loadProfile();
 window.goWallet = function () {
   window.location.href = "dashboard.html";
 };
+
+  document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("btnMesCommandes");
+
+  if (btn) {
+    btn.addEventListener("click", () => {
+      window.location.href = "commande.html";
+    });
+  }
+});
 /* 🔐 VERSION PRO RESET */
 window.goChangePassword=async function(){
 
