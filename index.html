@@ -2834,9 +2834,14 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   if (!btn) return;
 
   const productId = btn.dataset.productId?.trim();
-  if (!productId) return alert("Produit invalide");
+  const sellerId = btn.dataset.sellerId?.trim();
+  const amount = parseFloat(btn.dataset.amount);
 
-  currentProduct = { productId };
+  if (!productId || !sellerId || isNaN(amount) || amount <= 0) {
+    return alert("Produit invalide");
+  }
+
+  currentProduct = { productId, sellerId, amount };
   openOrderModal();
 });
 
@@ -2855,17 +2860,17 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   isProcessing = true;
 
   try {
-    // 🔒 Vérifie session Supabase
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session?.user) {
       throw new Error("Utilisateur non connecté");
     }
     const buyerId = session.user.id;
 
-    // 🔒 Appel sécurisé à la fonction RPC
     const { data, error } = await supabase.rpc("create_order_with_escrow", {
       p_buyer_id: buyerId,
+      p_seller_id: currentProduct.sellerId,
       p_product_id: currentProduct.productId,
+      p_amount: currentProduct.amount,
       p_delivery_address: address,
       p_delivery_phone: phone,
       p_note: note || null
@@ -2883,11 +2888,9 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     }
 
     closeOrderModal();
-    alert("✅ Commande créée avec succès ! L'argent est bloqué en escrow.");
+    alert(`✅ Commande créée avec succès ! ${currentProduct.amount} FCFA bloqués en escrow.`);
 
-    if (typeof loadOrders === "function") {
-      loadOrders();
-    }
+    if (typeof loadOrders === "function") loadOrders();
 
   } catch (err) {
     console.error(err);
@@ -2896,7 +2899,6 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   isProcessing = false;
 });
-
       
 // ================= CHARGER PRODUITS =================
 let query = supabase
