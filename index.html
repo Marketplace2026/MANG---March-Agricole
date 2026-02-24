@@ -2837,9 +2837,8 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   const sellerId = btn.dataset.sellerId?.trim();
   const amount = parseFloat(btn.dataset.amount);
 
-  if (!productId || !sellerId || isNaN(amount) || amount <= 0) {
+  if (!productId || !sellerId || isNaN(amount) || amount <= 0)
     return alert("Produit invalide");
-  }
 
   currentProduct = { productId, sellerId, amount };
   openOrderModal();
@@ -2861,9 +2860,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   try {
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !session?.user) {
-      throw new Error("Utilisateur non connecté");
-    }
+    if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
     const buyerId = session.user.id;
 
     const { data, error } = await supabase.rpc("create_order_with_escrow", {
@@ -2879,8 +2876,8 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     if (error) {
       if (error.message.includes("Solde insuffisant")) {
         alert("❌ Solde insuffisant pour effectuer cette commande !");
-      } else if (error.message.includes("Produit introuvable")) {
-        alert("❌ Produit introuvable !");
+      } else if (error.message.includes("Wallet introuvable")) {
+        alert("❌ Wallet introuvable !");
       } else {
         throw error;
       }
@@ -2888,7 +2885,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     }
 
     closeOrderModal();
-    alert(`✅ Commande créée avec succès ! ${currentProduct.amount} FCFA bloqués en escrow.`);
+    alert("✅ Commande créée avec succès ! L'argent est bloqué en escrow.");
 
     if (typeof loadOrders === "function") loadOrders();
 
@@ -2899,7 +2896,6 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   isProcessing = false;
 });
-      
 // ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
