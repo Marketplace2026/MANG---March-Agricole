@@ -2855,14 +2855,16 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   isProcessing = true;
 
   try {
-    // Vérifie session
+    // 🔒 Vérifie session Supabase
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session?.user) {
       throw new Error("Utilisateur non connecté");
     }
+    const buyerId = session.user.id;
 
-    // 🔒 Appel sécurisé (SEULEMENT product_id + infos livraison)
+    // 🔒 Appel sécurisé à la fonction RPC
     const { data, error } = await supabase.rpc("create_order_with_escrow", {
+      p_buyer_id: buyerId,
       p_product_id: currentProduct.productId,
       p_delivery_address: address,
       p_delivery_phone: phone,
@@ -2894,6 +2896,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   isProcessing = false;
 });
+
       
 // ================= CHARGER PRODUITS =================
 let query = supabase
