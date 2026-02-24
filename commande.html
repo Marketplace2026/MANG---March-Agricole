@@ -207,7 +207,7 @@ async function init() {
 }
 init();
 
-/* ================= LOAD ORDERS ================= */
+/* ================= LOAD ORDERS ROBUSTE ================= */
 async function loadOrders() {
   const buyerDiv = document.getElementById("buyerOrders");
   const sellerDiv = document.getElementById("sellerOrders");
@@ -215,7 +215,9 @@ async function loadOrders() {
   sellerDiv.innerHTML = "";
 
   try {
-    // Commandes acheteur
+    console.log("Chargement des commandes pour l'utilisateur :", currentUser.id);
+
+    // ================== COMMANDES ACHETEUR ==================
     const { data: buyerOrders, error: buyerError } = await supabase
       .from("orders")
       .select(`
@@ -225,9 +227,13 @@ async function loadOrders() {
       `)
       .eq("buyer_id", currentUser.id)
       .order("created_at", { ascending: false });
-    if (buyerError) throw buyerError;
 
-    // Commandes vendeur
+    if (buyerError) {
+      console.error("Erreur chargement commandes acheteur:", buyerError);
+      alert("Erreur commandes acheteur : " + buyerError.message);
+    }
+
+    // ================== COMMANDES VENDEUR ==================
     const { data: sellerOrders, error: sellerError } = await supabase
       .from("orders")
       .select(`
@@ -237,20 +243,30 @@ async function loadOrders() {
       `)
       .eq("seller_id", currentUser.id)
       .order("created_at", { ascending: false });
-    if (sellerError) throw sellerError;
 
-    // Sauvegarde toutes les commandes
+    if (sellerError) {
+      console.error("Erreur chargement commandes vendeur:", sellerError);
+      alert("Erreur commandes vendeur : " + sellerError.message);
+    }
+
+    // ================== COMBINE TOUTES ==================
     allOrders = [...(buyerOrders || []), ...(sellerOrders || [])];
 
-    // Rendu
-    renderOrders(buyerOrders, buyerDiv, true);
-    renderOrders(sellerOrders, sellerDiv, false);
+    console.log("Toutes les commandes chargées :", allOrders);
+
+    // ================== RENDU ==================
+    renderOrders(buyerOrders || [], buyerDiv, true);
+    renderOrders(sellerOrders || [], sellerDiv, false);
+
+    if ((!buyerOrders || buyerOrders.length === 0) && (!sellerOrders || sellerOrders.length === 0)) {
+      console.warn("Aucune commande trouvée pour cet utilisateur.");
+    }
+
   } catch (err) {
-    console.error("Erreur loadOrders:", err);
+    console.error("Erreur loadOrders générale :", err);
     alert("Impossible de charger les commandes. Vérifiez la console pour plus de détails.");
   }
-}
-
+  }
 /* ================= RENDER ORDERS ================= */
 function renderOrders(orders, container, isBuyer) {
   if (!orders || orders.length === 0) {
