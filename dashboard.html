@@ -581,25 +581,44 @@ function unlockWallet(){
   document.getElementById("walletContainer").style.display = "block";
   loadWallet();
 }
+// 🔹 Charger les informations du wallet
+async function loadWallet() {
+  try {
+    const { data, error } = await supabase
+      .from("wallets")
+      .select("balance, available_balance, escrow_balance, wallet_number")
+      .eq("user_id", currentUser.id)
+      .single();
 
-/* ================= WALLET ================= */
+    if (error) throw error;
+    if (!data) throw new Error("Wallet introuvable");
 
-async function loadWallet(){
+    // Afficher le solde disponible
+    const balanceEl = document.getElementById("balance");
+    if (balanceEl) {
+      balanceEl.innerText = Number(data.available_balance).toLocaleString("fr-FR") + " FCFA";
+    }
 
-  const { data } = await supabase
-    .from("wallets")
-    .select("balance, wallet_number")
-    .eq("user_id", currentUser.id)
-    .single();
+    // Afficher le solde total et l'argent bloqué en escrow (optionnel)
+    const totalEl = document.getElementById("totalBalance");
+    if (totalEl) {
+      totalEl.innerText = `Total: ${Number(data.balance).toLocaleString("fr-FR")} FCFA (Escrow: ${Number(data.escrow_balance).toLocaleString("fr-FR")} FCFA)`;
+    }
 
-  document.getElementById("balance").innerText =
-    Number(data.balance).toLocaleString("fr-FR") + " FCFA";
+    // Afficher le numéro du wallet
+    const walletEl = document.getElementById("walletNumber");
+    if (walletEl) walletEl.innerText = data.wallet_number || "Non disponible";
 
-  document.getElementById("walletNumber").innerText =
-    data.wallet_number;
+    // Charger l'historique des transactions si fonction disponible
+    if (typeof loadTransactions === "function") loadTransactions();
 
-  loadTransactions();
+  } catch (err) {
+    console.error("Erreur lors du chargement du wallet :", err);
+    alert(err.message || "Impossible de charger le wallet");
+  }
 }
+
+// 🔹 Copier le numéro du wallet
 function copyWalletNumber() {
   const el = document.getElementById("walletNumber");
   if (!el) return;
@@ -612,17 +631,13 @@ function copyWalletNumber() {
   }
 
   navigator.clipboard.writeText(number)
-    .then(() => {
-      alert("Numéro copié !");
-    })
-    .catch(() => {
-      alert("Impossible de copier.");
-    });
+    .then(() => alert("Numéro copié !"))
+    .catch(() => alert("Impossible de copier le numéro"));
 }
 
-//  LA FONCTION GLOBALE
+// 🔹 Déclarer la fonction globalement pour l'HTML
 window.copyWalletNumber = copyWalletNumber;
-  
+
           
  /* ======================
    TRANSFERT D'ARGENT
