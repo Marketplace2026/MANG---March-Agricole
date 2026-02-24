@@ -177,6 +177,8 @@ h2{margin:25px 0 15px}
 </div>
 
 <script type="module">
+
+
   import { supabase } from './supabase.js';
 
 let currentUser = null;
@@ -185,18 +187,23 @@ let allOrders = [];
 
 /* ================= INIT ================= */
 async function init() {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error || !session) {
-    window.location.href = "login.html";
-    return;
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+      window.location.href = "login.html";
+      return;
+    }
+    currentUser = session.user;
+
+    // Affichage info utilisateur
+    document.getElementById("userEmail").innerText = currentUser.email;
+    document.getElementById("userAvatar").innerText = currentUser.email.charAt(0).toUpperCase();
+
+    await loadOrders();
+  } catch (err) {
+    console.error("Erreur init:", err);
+    alert("Erreur lors de l'initialisation.");
   }
-  currentUser = session.user;
-
-  // Affichage info utilisateur
-  document.getElementById("userEmail").innerText = currentUser.email;
-  document.getElementById("userAvatar").innerText = currentUser.email.charAt(0).toUpperCase();
-
-  await loadOrders();
 }
 init();
 
@@ -208,38 +215,39 @@ async function loadOrders() {
   sellerDiv.innerHTML = "";
 
   try {
-    // Commandes de l'acheteur avec info vendeur et produit
+    // Commandes acheteur
     const { data: buyerOrders, error: buyerError } = await supabase
       .from("orders")
       .select(`
-        *,
-        seller:profiles!orders_seller_id_fkey(username,email),
-        product:products!orders_product_id_fkey(name,description)
+        id, amount, status, buyer_id, seller_id, product_id, created_at, delivery_address, delivery_phone, note,
+        seller:profiles(username,email),
+        product:products(name,description)
       `)
       .eq("buyer_id", currentUser.id)
       .order("created_at", { ascending: false });
     if (buyerError) throw buyerError;
 
-    // Commandes du vendeur avec info acheteur et produit
+    // Commandes vendeur
     const { data: sellerOrders, error: sellerError } = await supabase
       .from("orders")
       .select(`
-        *,
-        buyer:profiles!orders_buyer_id_fkey(username,email),
-        product:products!orders_product_id_fkey(name,description)
+        id, amount, status, buyer_id, seller_id, product_id, created_at, delivery_address, delivery_phone, note,
+        buyer:profiles(username,email),
+        product:products(name,description)
       `)
       .eq("seller_id", currentUser.id)
       .order("created_at", { ascending: false });
     if (sellerError) throw sellerError;
 
+    // Sauvegarde toutes les commandes
     allOrders = [...(buyerOrders || []), ...(sellerOrders || [])];
 
+    // Rendu
     renderOrders(buyerOrders, buyerDiv, true);
     renderOrders(sellerOrders, sellerDiv, false);
-
   } catch (err) {
     console.error("Erreur loadOrders:", err);
-    alert("Impossible de charger les commandes.");
+    alert("Impossible de charger les commandes. Vérifiez la console pour plus de détails.");
   }
 }
 
@@ -253,7 +261,7 @@ function renderOrders(orders, container, isBuyer) {
   container.innerHTML = "";
 
   orders.forEach(order => {
-    const status = order.status?.toLowerCase();
+    const status = order.status?.toLowerCase() || "pending";
     let bandClass = "status-pending";
     let bandText = "En attente";
 
@@ -263,7 +271,7 @@ function renderOrders(orders, container, isBuyer) {
 
     let buttons = "";
 
-    // Vendeur peut accepter/refuser
+    // Vendeur : accepter/refuser
     if (!isBuyer && status === "pending") {
       buttons = `
         <button class="btn accept-btn" onclick="event.stopPropagation();acceptOrder('${order.id}')">Accepter</button>
@@ -271,23 +279,27 @@ function renderOrders(orders, container, isBuyer) {
       `;
     }
 
-    // Acheteur peut payer
+    // Acheteur : payer
     if (isBuyer && status === "accepted") {
       buttons = `
         <button class="btn pay-btn" onclick="event.stopPropagation();promptPinPay('${order.id}')">Payer</button>
       `;
     }
 
+    const otherUser = isBuyer ? order.seller : order.buyer;
+
     container.innerHTML += `
       <div class="order-card" onclick="showDetails('${order.id}')">
         <div class="status-band ${bandClass}">${bandText}</div>
+        <p><strong>Produit :</strong> ${order.product?.name || "N/A"}</p>
+        <p><strong>${isBuyer ? "Vendeur" : "Acheteur"} :</strong> ${otherUser?.username || "N/A"}</p>
         <p><strong>Montant :</strong> ${order.amount} FCFA</p>
         <p><strong>Date :</strong> ${new Date(order.created_at).toLocaleString()}</p>
         ${buttons}
       </div>
     `;
   });
-}
+  }
 
 /* ================= ACTIONS VENDEUR ================= */
 async function acceptOrder(orderId) {
@@ -300,7 +312,7 @@ async function acceptOrder(orderId) {
     alert("Commande acceptée !");
     await loadOrders();
   } catch (err) {
-    console.error(err);
+    console.error("Erreur acceptOrder:", err);
     alert("Impossible d’accepter : " + err.message);
   }
 
@@ -314,10 +326,10 @@ async function refuseOrder(orderId) {
   try {
     const { error } = await supabase.rpc("refuse_order", { p_order_id: orderId });
     if (error) throw error;
-    alert("Commande refusée ! L'argent est retourné à l'acheteur.");
+    alert("Commande refusée ! L'argent a été retourné à l'acheteur.");
     await loadOrders();
   } catch (err) {
-    console.error(err);
+    console.error("Erreur refuseOrder:", err);
     alert("Impossible de refuser : " + err.message);
   }
 
@@ -326,25 +338,30 @@ async function refuseOrder(orderId) {
 
 /* ================= PAYER AVEC PIN ================= */
 async function promptPinPay(orderId) {
-  const order = allOrders.find(o => o.id === orderId);
+  const order = allOrders.find(o => String(o.id) === String(orderId));
   if (!order) return;
 
   const userPin = prompt("Entrez votre PIN pour confirmer le paiement :");
   if (!userPin) return;
 
-  // Vérifier le PIN
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("pin")
-    .eq("id", currentUser.id)
-    .single();
+  try {
+    const { data: profile, error: pinError } = await supabase
+      .from("profiles")
+      .select("pin")
+      .eq("id", currentUser.id)
+      .single();
+    if (pinError) throw pinError;
 
-  if (!profile || profile.pin !== userPin) {
-    alert("PIN incorrect !");
-    return;
+    if (!profile || profile.pin !== userPin) {
+      alert("PIN incorrect !");
+      return;
+    }
+
+    await payOrder(orderId);
+  } catch (err) {
+    console.error("Erreur PIN:", err);
+    alert("Impossible de vérifier le PIN : " + err.message);
   }
-
-  await payOrder(orderId);
 }
 
 async function payOrder(orderId) {
@@ -352,25 +369,22 @@ async function payOrder(orderId) {
   isProcessing = true;
 
   try {
-    const order = allOrders.find(o => o.id === orderId);
+    const order = allOrders.find(o => String(o.id) === String(orderId));
     if (!order) throw new Error("Commande introuvable");
 
-    // Calculer commission 5%
     const commission = Math.round(order.amount * 0.05);
     const payToSeller = order.amount - commission;
 
-    // Appeler RPC pour transférer depuis escrow
     const { error } = await supabase.rpc("pay_order_with_commission", { 
       p_order_id: orderId,
       p_amount_to_seller: payToSeller
     });
-
     if (error) throw error;
 
     alert(`Paiement effectué ! ${payToSeller} FCFA envoyés au vendeur, commission: ${commission} FCFA.`);
     await loadOrders();
   } catch (err) {
-    console.error(err);
+    console.error("Erreur payOrder:", err);
     alert("Impossible de payer la commande : " + err.message);
   }
 
