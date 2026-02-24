@@ -195,16 +195,18 @@ async function loadProfile() {
     document.getElementById("createdAt").innerText = new Date(user.created_at).toLocaleDateString();
 
     // 🔹 Charger le wallet depuis la table wallets
-    const { data: wallet, error: walletError } = await supabase
-      .from("wallets")
-      .select("available_balance")
-      .eq("user_id", user.id)
-      .single();
+const { data: wallet, error: walletError } = await supabase
+  .from("wallets")
+  .select("available_balance")
+  .eq("user_id", user.id)
+  .single();
 
-    if (walletError) throw walletError;
+if (walletError) throw walletError;
 
-    document.getElementById("walletBalance").innerText = (wallet?.balance || 0).toLocaleString() + " FCFA";
-
+// ⚡ Afficher le solde disponible au lieu du solde total
+document.getElementById("walletBalance").innerText = 
+    (wallet?.available_balance || 0).toLocaleString("fr-FR") + " FCFA";
+    
     // 🔹 Compter le nombre de transactions
     const { count, error: txError } = await supabase
       .from("wallet_transactions")
