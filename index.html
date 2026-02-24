@@ -2834,13 +2834,9 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   if (!btn) return;
 
   const productId = btn.dataset.productId?.trim();
-  const sellerId = btn.dataset.sellerId?.trim();
-  const amount = parseFloat(btn.dataset.amount);
+  if (!productId) return alert("Produit invalide");
 
-  if (!productId || !sellerId || isNaN(amount) || amount <= 0)
-    return alert("Produit invalide");
-
-  currentProduct = { productId, sellerId, amount };
+  currentProduct = { productId };
   openOrderModal();
 });
 
@@ -2852,33 +2848,32 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   const phone = document.getElementById("orderPhone").value.trim();
   const note = document.getElementById("orderNote").value.trim();
 
-  if (!address || !phone) return alert("Adresse et téléphone requis");
+  if (!address || !phone) {
+    return alert("Adresse et téléphone requis");
+  }
 
   isProcessing = true;
+
   try {
-    // Récupération utilisateur connecté
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !sessionData?.session?.user) throw new Error("Utilisateur non connecté");
+    // Vérifie session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session?.user) {
+      throw new Error("Utilisateur non connecté");
+    }
 
-    const buyerId = sessionData.session.user.id;
-
-    // 🔹 Appel à la fonction SQL
-    const { data: orderData, error } = await supabase.rpc("create_order_with_escrow", {
-      p_buyer_id: buyerId,
-      p_seller_id: currentProduct.sellerId,
+    // 🔒 Appel sécurisé (SEULEMENT product_id + infos livraison)
+    const { data, error } = await supabase.rpc("create_order_with_escrow", {
       p_product_id: currentProduct.productId,
-      p_amount: currentProduct.amount,
       p_delivery_address: address,
       p_delivery_phone: phone,
-      p_note: note
+      p_note: note || null
     });
 
     if (error) {
-      // Gestion des erreurs spécifiques renvoyées par la fonction
       if (error.message.includes("Solde insuffisant")) {
         alert("❌ Solde insuffisant pour effectuer cette commande !");
-      } else if (error.message.includes("Wallet introuvable")) {
-        alert("❌ Wallet introuvable pour cet utilisateur !");
+      } else if (error.message.includes("Produit introuvable")) {
+        alert("❌ Produit introuvable !");
       } else {
         throw error;
       }
@@ -2888,8 +2883,9 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     closeOrderModal();
     alert("✅ Commande créée avec succès ! L'argent est bloqué en escrow.");
 
-    // Recharge la liste de commandes si fonction disponible
-    if (typeof loadOrders === "function") loadOrders();
+    if (typeof loadOrders === "function") {
+      loadOrders();
+    }
 
   } catch (err) {
     console.error(err);
