@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mes Commandes</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif}
 
@@ -151,15 +150,14 @@ h2{margin:25px 0 15px}
 }
 </style>
 </head>
-
 <body>
 
 <div class="header">
-  <div class="avatar" id="userAvatar">U</div>
-  <div class="header-info">
-    <h1>Mes Commandes</h1>
-    <p id="userEmail"></p>
-  </div>
+  <div class="avatar" id="userAvatar">U</div>    
+  <div class="header-info">    
+    <h1>Mes Commandes</h1>    
+    <p id="userEmail"></p>    
+  </div>    
 </div>
 
 <main>
@@ -178,9 +176,8 @@ h2{margin:25px 0 15px}
   </div>
 </div>
 
-<!-- HTML reste le même, je me concentre sur le JS -->
-    <script type="module">
-import { supabase } from './supabase.js';
+<script type="module">
+  import { supabase } from './supabase.js';
 
 let currentUser = null;
 let isProcessing = false;
@@ -211,18 +208,26 @@ async function loadOrders() {
   sellerDiv.innerHTML = "";
 
   try {
-    // Commandes de l'acheteur
+    // Commandes de l'acheteur avec info vendeur et produit
     const { data: buyerOrders, error: buyerError } = await supabase
       .from("orders")
-      .select(`*, seller:profiles!orders_seller_id_fkey(username,email)`)
+      .select(`
+        *,
+        seller:profiles!orders_seller_id_fkey(username,email),
+        product:products!orders_product_id_fkey(name,description)
+      `)
       .eq("buyer_id", currentUser.id)
       .order("created_at", { ascending: false });
     if (buyerError) throw buyerError;
 
-    // Commandes du vendeur
+    // Commandes du vendeur avec info acheteur et produit
     const { data: sellerOrders, error: sellerError } = await supabase
       .from("orders")
-      .select(`*, buyer:profiles!orders_buyer_id_fkey(username,email)`)
+      .select(`
+        *,
+        buyer:profiles!orders_buyer_id_fkey(username,email),
+        product:products!orders_product_id_fkey(name,description)
+      `)
       .eq("seller_id", currentUser.id)
       .order("created_at", { ascending: false });
     if (sellerError) throw sellerError;
@@ -231,9 +236,10 @@ async function loadOrders() {
 
     renderOrders(buyerOrders, buyerDiv, true);
     renderOrders(sellerOrders, sellerDiv, false);
+
   } catch (err) {
-    console.error("Erreur lors du chargement des commandes :", err);
-    alert("Impossible de charger les commandes. Vérifiez votre connexion.");
+    console.error("Erreur loadOrders:", err);
+    alert("Impossible de charger les commandes.");
   }
 }
 
@@ -244,7 +250,7 @@ function renderOrders(orders, container, isBuyer) {
     return;
   }
 
-  container.innerHTML = ""; // Reset container
+  container.innerHTML = "";
 
   orders.forEach(order => {
     const status = order.status?.toLowerCase();
@@ -257,7 +263,7 @@ function renderOrders(orders, container, isBuyer) {
 
     let buttons = "";
 
-    // Vendeur peut accepter/refuser si commande en attente
+    // Vendeur peut accepter/refuser
     if (!isBuyer && status === "pending") {
       buttons = `
         <button class="btn accept-btn" onclick="event.stopPropagation();acceptOrder('${order.id}')">Accepter</button>
@@ -265,10 +271,10 @@ function renderOrders(orders, container, isBuyer) {
       `;
     }
 
-    // Acheteur peut payer si commande acceptée
+    // Acheteur peut payer
     if (isBuyer && status === "accepted") {
       buttons = `
-        <button class="btn pay-btn" onclick="event.stopPropagation();payOrder('${order.id}')">Payer</button>
+        <button class="btn pay-btn" onclick="event.stopPropagation();promptPinPay('${order.id}')">Payer</button>
       `;
     }
 
@@ -283,7 +289,7 @@ function renderOrders(orders, container, isBuyer) {
   });
 }
 
-/* ================= ACTIONS ================= */
+/* ================= ACTIONS VENDEUR ================= */
 async function acceptOrder(orderId) {
   if (isProcessing) return;
   isProcessing = true;
@@ -295,7 +301,7 @@ async function acceptOrder(orderId) {
     await loadOrders();
   } catch (err) {
     console.error(err);
-    alert("Impossible d’accepter la commande : " + err.message);
+    alert("Impossible d’accepter : " + err.message);
   }
 
   isProcessing = false;
@@ -308,14 +314,37 @@ async function refuseOrder(orderId) {
   try {
     const { error } = await supabase.rpc("refuse_order", { p_order_id: orderId });
     if (error) throw error;
-    alert("Commande refusée !");
+    alert("Commande refusée ! L'argent est retourné à l'acheteur.");
     await loadOrders();
   } catch (err) {
     console.error(err);
-    alert("Impossible de refuser la commande : " + err.message);
+    alert("Impossible de refuser : " + err.message);
   }
 
   isProcessing = false;
+}
+
+/* ================= PAYER AVEC PIN ================= */
+async function promptPinPay(orderId) {
+  const order = allOrders.find(o => o.id === orderId);
+  if (!order) return;
+
+  const userPin = prompt("Entrez votre PIN pour confirmer le paiement :");
+  if (!userPin) return;
+
+  // Vérifier le PIN
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("pin")
+    .eq("id", currentUser.id)
+    .single();
+
+  if (!profile || profile.pin !== userPin) {
+    alert("PIN incorrect !");
+    return;
+  }
+
+  await payOrder(orderId);
 }
 
 async function payOrder(orderId) {
@@ -323,9 +352,22 @@ async function payOrder(orderId) {
   isProcessing = true;
 
   try {
-    const { error } = await supabase.rpc("pay_order", { p_order_id: orderId });
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) throw new Error("Commande introuvable");
+
+    // Calculer commission 5%
+    const commission = Math.round(order.amount * 0.05);
+    const payToSeller = order.amount - commission;
+
+    // Appeler RPC pour transférer depuis escrow
+    const { error } = await supabase.rpc("pay_order_with_commission", { 
+      p_order_id: orderId,
+      p_amount_to_seller: payToSeller
+    });
+
     if (error) throw error;
-    alert("Paiement effectué ! L’argent est débloqué chez le vendeur.");
+
+    alert(`Paiement effectué ! ${payToSeller} FCFA envoyés au vendeur, commission: ${commission} FCFA.`);
     await loadOrders();
   } catch (err) {
     console.error(err);
@@ -340,15 +382,22 @@ function showDetails(orderId) {
   const order = allOrders.find(o => String(o.id) === String(orderId));
   if (!order) return;
 
+  const isBuyer = order.buyer_id === currentUser.id;
+  const otherUser = isBuyer ? order.seller : order.buyer;
+
   document.getElementById("orderDetails").innerHTML = `
     <p><strong>ID :</strong> ${order.id}</p>
+    <p><strong>Produit :</strong> ${order.product?.name || "N/A"}</p>
+    <p><strong>Description :</strong> ${order.product?.description || "N/A"}</p>
+    <p><strong>${isBuyer ? "Vendeur" : "Acheteur"} :</strong> ${otherUser?.username || "N/A"}</p>
+    <p><strong>Email :</strong> ${otherUser?.email || "N/A"}</p>
     <p><strong>Montant :</strong> ${order.amount} FCFA</p>
     <p><strong>Status :</strong> ${order.status}</p>
     <hr>
     <p><strong>Adresse :</strong> ${order.delivery_address || "N/A"}</p>
     <p><strong>Téléphone :</strong> ${order.delivery_phone || "N/A"}</p>
-    <p><strong>Note :</strong> ${order.delivery_note || order.note || "N/A"}</p>
-    <p><strong>Commission :</strong> ${order.commission_amount || 0} FCFA</p>
+    <p><strong>Note :</strong> ${order.note || "N/A"}</p>
+    <p><strong>Commission :</strong> ${Math.round(order.amount*0.05)} FCFA</p>
   `;
 
   document.getElementById("orderModal").style.display = "flex";
@@ -362,8 +411,9 @@ function closeModal() {
 window.acceptOrder = acceptOrder;
 window.refuseOrder = refuseOrder;
 window.payOrder = payOrder;
+window.promptPinPay = promptPinPay;
 window.showDetails = showDetails;
 window.closeModal = closeModal;
-      </script>
-      </body>
+</script>
+</body>
 </html>
