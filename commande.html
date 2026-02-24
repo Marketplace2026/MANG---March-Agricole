@@ -207,49 +207,98 @@ async function init() {
 }
 init();
 
-/* ================= LOAD ORDERS ROBUSTE ================= */
 /* ================= LOAD ORDERS ================= */
 async function loadOrders() {
   const buyerDiv = document.getElementById("buyerOrders");
   const sellerDiv = document.getElementById("sellerOrders");
-  buyerDiv.innerHTML = "";
-  sellerDiv.innerHTML = "";
+
+  if (!buyerDiv || !sellerDiv) {
+    console.error("Div commandes introuvable");
+    return;
+  }
+
+  buyerDiv.innerHTML = "<p>Chargement...</p>";
+  sellerDiv.innerHTML = "<p>Chargement...</p>";
 
   try {
-    // Commandes acheteur
+    /* ================= COMMANDES ACHETEUR ================= */
     const { data: buyerOrders, error: buyerError } = await supabase
       .from("orders")
       .select(`
-        id, amount, status, buyer_id, seller_id, product_id, created_at, delivery_address, delivery_phone, note,
-        seller:profiles!orders_seller_id_fkey(username,email),
-        product:shop_products!orders_product_id_fkey(name,description)
+        id,
+        amount,
+        status,
+        created_at,
+        delivery_address,
+        delivery_phone,
+        note,
+        seller:profiles!orders_seller_id_fkey (
+          id,
+          username,
+          email
+        ),
+        product:shop_products!fk_orders_product (
+          id,
+          name,
+          description
+        )
       `)
       .eq("buyer_id", currentUser.id)
       .order("created_at", { ascending: false });
-    if (buyerError) throw buyerError;
 
-    // Commandes vendeur
+    if (buyerError) {
+      console.error("Erreur commandes acheteur :", buyerError);
+      throw buyerError;
+    }
+
+    /* ================= COMMANDES VENDEUR ================= */
     const { data: sellerOrders, error: sellerError } = await supabase
       .from("orders")
       .select(`
-        id, amount, status, buyer_id, seller_id, product_id, created_at, delivery_address, delivery_phone, note,
-        buyer:profiles!orders_buyer_id_fkey(username,email),
-        product:shop_products!orders_product_id_fkey(name,description)
+        id,
+        amount,
+        status,
+        created_at,
+        delivery_address,
+        delivery_phone,
+        note,
+        buyer:profiles!orders_buyer_id_fkey (
+          id,
+          username,
+          email
+        ),
+        product:shop_products!fk_orders_product (
+          id,
+          name,
+          description
+        )
       `)
       .eq("seller_id", currentUser.id)
       .order("created_at", { ascending: false });
-    if (sellerError) throw sellerError;
 
-    // Sauvegarde toutes les commandes
-    allOrders = [...(buyerOrders || []), ...(sellerOrders || [])];
+    if (sellerError) {
+      console.error("Erreur commandes vendeur :", sellerError);
+      throw sellerError;
+    }
 
-    // Rendu
-    renderOrders(buyerOrders, buyerDiv, true);
-    renderOrders(sellerOrders, sellerDiv, false);
+    // Nettoyer affichage
+    buyerDiv.innerHTML = "";
+    sellerDiv.innerHTML = "";
+
+    // Sauvegarder toutes les commandes
+    allOrders = [
+      ...(buyerOrders || []),
+      ...(sellerOrders || [])
+    ];
+
+    // Affichage
+    renderOrders(buyerOrders || [], buyerDiv, true);
+    renderOrders(sellerOrders || [], sellerDiv, false);
 
   } catch (err) {
-    console.error("Erreur loadOrders:", err);
-    alert("Impossible de charger les commandes. Vérifiez la console pour plus de détails.");
+    console.error("Erreur générale loadOrders :", err);
+    buyerDiv.innerHTML = "<p>Impossible de charger les commandes.</p>";
+    sellerDiv.innerHTML = "<p>Impossible de charger les commandes.</p>";
   }
 }
 /* ================= RENDER ORDERS ================= */
