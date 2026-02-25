@@ -342,6 +342,9 @@ async function loadNewOrdersCount() {
     badge.style.display = "none";  // 🔹 ici le badge disparaît
   }
 }
+  // Appel initial au chargement du profil
+loadNewOrdersCount();
+  
 
 // 🔔 Mise à jour en temps réel
 supabase
