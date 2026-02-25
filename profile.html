@@ -313,33 +313,30 @@ window.logout=async function(){
   await supabase.auth.signOut();
   window.location.href="login.html";
 }
-
-  // 🔢 Charger nombre de nouvelles commandes
+// 🔢 Charger badge Mes Commandes
 async function loadNewOrdersCount() {
+  if (!currentUser) return;
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  try {
+    const { data, count, error } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('seller_id', currentUser.id)
+      .eq('status', 'pending')
+      .eq('is_seen', false);
 
-  // Compter les commandes "pending" NON vues
-  const { count, error } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .eq('seller_id', user.id)
-    .eq('status', 'pending')
-    .eq('is_seen', false);
+    if (error) throw error;
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+    const badge = document.getElementById("order-badge");
 
-  const badge = document.getElementById("order-badge");
-
-  if (count > 0) {
-    badge.style.display = "inline-block";
-    badge.textContent = count;
-  } else {
-    badge.style.display = "none";  // 🔹 ici le badge disparaît
+    if (count && count > 0) {
+      badge.style.display = "inline-block";
+      badge.textContent = count;
+    } else {
+      badge.style.display = "none"; // 🔹 cache le badge
+    }
+  } catch (err) {
+    console.error("Erreur badge commandes:", err);
   }
 }
   // Appel initial au chargement du profil
