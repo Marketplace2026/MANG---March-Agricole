@@ -314,7 +314,8 @@ window.logout=async function(){
   window.location.href="login.html";
 }
 
-  async function loadNewOrdersCount() {
+  // 🔢 Charger nombre de nouvelles commandes
+async function loadNewOrdersCount() {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
@@ -331,23 +332,30 @@ window.logout=async function(){
     return;
   }
 
-  const badge = document.getElementById('order-badge');
+  const badge = document.getElementById("order-badge");
 
   if (count > 0) {
-    badge.style.display = 'inline-block';
+    badge.style.display = "inline-block";
     badge.textContent = count;
   } else {
-    badge.style.display = 'none';
+    badge.style.display = "none";
   }
 }
 
+// 🚀 Charger au démarrage
 loadNewOrdersCount();
 
-  supabase
-  .channel('new-orders')
+
+// 🔔 Mise à jour en temps réel
+supabase
+  .channel('new-orders-channel')
   .on(
     'postgres_changes',
-    { event: 'INSERT', schema: 'public', table: 'orders' },
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'orders'
+    },
     payload => {
       loadNewOrdersCount();
     }
