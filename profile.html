@@ -160,10 +160,22 @@ button:disabled{
 
 <div class="card">
   <!-- Bouton Mes Commandes -->
-<button id="btnMesCommandes" class="btn btn-primary">
-  Mes Commandes
-</button>
-  
+<a href="commande.html" id="orders-btn" style="position:relative;">
+  Mes commandes
+  <span id="order-badge"
+        style="
+          position:absolute;
+          top:-5px;
+          right:-10px;
+          background:red;
+          color:white;
+          font-size:12px;
+          padding:2px 6px;
+          border-radius:50%;
+          display:none;
+        ">
+  </span>
+</a>
   <button class="wallet" onclick="goWallet()">💳 Mon Portefeuille</button>
   <button class="password" id="changePassBtn" onclick="goChangePassword()">🔒 Modifier mon mot de passe</button>
   <button class="logout" onclick="logout()">🚪 Déconnexion</button>
@@ -269,6 +281,46 @@ window.logout=async function(){
   await supabase.auth.signOut();
   window.location.href="login.html";
 }
+
+  async function loadNewOrdersCount() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { count, error } = await supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .eq('seller_id', user.id)
+    .eq('status', 'pending')
+    .eq('is_seen', false);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const badge = document.getElementById('order-badge');
+
+  if (count > 0) {
+    badge.style.display = 'inline-block';
+    badge.textContent = count;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+loadNewOrdersCount();
+
+  supabase
+  .channel('new-orders')
+  .on(
+    'postgres_changes',
+    { event: 'INSERT', schema: 'public', table: 'orders' },
+    payload => {
+      loadNewOrdersCount();
+    }
+  )
+  .subscribe();
   
 </script>
 
