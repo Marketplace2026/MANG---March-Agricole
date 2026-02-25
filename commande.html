@@ -487,18 +487,19 @@ window.showDetails = showDetails;
 window.closeModal = closeModal;
   
 async function markOrdersAsSeen() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!currentUser) return;
 
-  // On met à jour toutes les commandes "pending" non vues
-  await supabase
+  const { error } = await supabase
     .from('orders')
     .update({ is_seen: true })
-    .eq('seller_id', user.id)
+    .eq('seller_id', currentUser.id)
     .eq('status', 'pending')
     .eq('is_seen', false);
+
+  if (error) console.error("Erreur markOrdersAsSeen:", error);
 }
 
+// Appelle ça dès que la page charge
 markOrdersAsSeen();
 </script>
 </body>
