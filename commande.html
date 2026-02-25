@@ -485,12 +485,12 @@ window.payOrder = payOrder;
 window.promptPinPay = promptPinPay;
 window.showDetails = showDetails;
 window.closeModal = closeModal;
-
-  async function markOrdersAsSeen() {
-
+  
+async function markOrdersAsSeen() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
+  // On met à jour toutes les commandes "pending" non vues
   await supabase
     .from('orders')
     .update({ is_seen: true })
