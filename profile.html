@@ -192,13 +192,13 @@ button:disabled{
 
 <div class="card">
   <!-- Bouton Mes Commandes -->
-<a href="commande.html" id="orders-btn" style="position:relative;">
-  Mes commandes
+<button id="btnMesCommandes" class="btn btn-primary" style="position:relative;">
+  Mes Commandes
   <span id="order-badge"
         style="
           position:absolute;
           top:-5px;
-          right:-10px;
+          right:-8px;
           background:red;
           color:white;
           font-size:12px;
@@ -207,7 +207,7 @@ button:disabled{
           display:none;
         ">
   </span>
-</a>
+</button>
   <button class="wallet" onclick="goWallet()">💳 Mon Portefeuille</button>
   <button class="password" id="changePassBtn" onclick="goChangePassword()">🔒 Modifier mon mot de passe</button>
   <button class="logout" onclick="logout()">🚪 Déconnexion</button>
