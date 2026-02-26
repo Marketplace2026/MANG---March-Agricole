@@ -1102,7 +1102,30 @@ border: 2px solid #ffeb3b;
  .premium-stars {
   color: gold;
  }
- 
+
+ .email-box {
+  flex: 1;
+  background: #5f6f65; /* ou ta couleur actuelle */
+  border: 3px solid #ffd700;
+  border-radius: 30px;
+  padding: 12px 16px;
+  overflow: hidden;
+}
+
+.email-text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+}
+
+.premium-stars {
+  display: block;
+  margin-top: 4px;
+  color: gold;
+  font-size: 16px;
+ }
 </style>
 
 <script type="application/ld+json">
@@ -1127,15 +1150,13 @@ border: 2px solid #ffeb3b;
       <img src="assets/img/logos.png" alt="MANG - Marché Agricole Nouvelle Génération">
       
     </div>
- 
 <div class="user-header-bar">
-  
+
   <div class="profile-circle" onclick="goProfile()">👤</div>
 
-
-  <div class="email-container">
-  <span id="userEmail" class="email-text"></span>
-  <span id="premiumStars" class="premium-stars"></span>
+  <div class="email-box">
+    <span id="userEmail" class="email-text"></span>
+    <span id="premiumStars" class="premium-stars"></span>
   </div>
 
 </div>
