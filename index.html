@@ -2837,7 +2837,7 @@ function formatAvailability(value) {
   return map[value] || "⏳ Indisponible";
 }
 
-      let currentProduct = null;
+let currentProduct = null;
 let isProcessing = false;
 
 /* ================= MODALES ================= */
@@ -2862,32 +2862,37 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   const productId = btn.dataset.productId?.trim();
   if (!productId) return alert("Produit invalide");
 
-  // On stocke uniquement l'ID du produit, pas le seller
   currentProduct = { productId };
   openOrderModal();
 });
 
 /* ================= CREATION COMMANDE ================= */
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
+
+  // 🔒 ANTI DOUBLE CLIC
   if (isProcessing || !currentProduct) return;
-
-  const address = document.getElementById("orderAddress").value.trim();
-  const phone = document.getElementById("orderPhone").value.trim();
-  const note = document.getElementById("orderNote").value.trim();
-  const quantity = parseFloat(document.getElementById("orderQuantity").value);
-
-  if (!address || !phone) {
-    return alert("Adresse et téléphone requis");
-  }
-
-  if (!quantity || quantity <= 0) {
-    return alert("Quantité invalide");
-  }
-
   isProcessing = true;
 
+  const createBtn = document.getElementById("createOrderBtn");
+  createBtn.disabled = true;
+
   try {
-    // Récupérer l'utilisateur courant
+
+    const address = document.getElementById("orderAddress").value.trim();
+    const phone = document.getElementById("orderPhone").value.trim();
+    const note = document.getElementById("orderNote").value.trim();
+    const quantity = parseFloat(document.getElementById("orderQuantity").value);
+
+    if (!address || !phone) {
+      alert("Adresse et téléphone requis");
+      return;
+    }
+
+    if (!quantity || quantity <= 0) {
+      alert("Quantité invalide");
+      return;
+    }
+
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
     const buyerId = session.user.id;
@@ -2904,11 +2909,10 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
     if (existingOrders.length > 0) {
       alert("⚠️ Vous avez déjà une commande en attente pour ce produit.");
-      isProcessing = false;
       return;
     }
 
-    // Appel RPC pour créer la commande
+    // RPC création commande
     const { data, error } = await supabase.rpc("create_order_with_escrow", {
       p_buyer_id: buyerId,
       p_product_id: currentProduct.productId,
@@ -2937,9 +2941,11 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   } catch (err) {
     console.error(err);
     alert(err.message || "Erreur lors de la création de la commande");
+  } finally {
+    // 🔓 Toujours réactiver
+    isProcessing = false;
+    createBtn.disabled = false;
   }
-
-  isProcessing = false;
 });
 
 // ================= CHARGER PRODUITS =================
