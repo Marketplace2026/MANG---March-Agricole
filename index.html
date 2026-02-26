@@ -1072,6 +1072,37 @@ border: 2px solid #ffeb3b;
   .modal-content button:hover {
     opacity: 0.9;
   }
+ .user-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-circle {
+  flex-shrink: 0;
+}
+
+.email-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+.email-text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.premium-stars {
+  display: block;
+  font-size: 14px;
+  margin-top: 4px;
+}
+ .premium-stars {
+  color: gold;
+ }
+ 
 </style>
 
 <script type="application/ld+json">
@@ -1102,7 +1133,10 @@ border: 2px solid #ffeb3b;
   <div class="profile-circle" onclick="goProfile()">👤</div>
 
 
-  <span id="userEmail"></span>
+  <div class="email-container">
+  <span id="userEmail" class="email-text"></span>
+  <span id="premiumStars" class="premium-stars"></span>
+  </div>
 
 </div>
   <div class="top-actions">
@@ -1497,7 +1531,13 @@ async function loadCurrentUser() {
     badge = '';
   }
 
-  emailElement.textContent = currentUser.email + badge;
+  emailElement.textContent = currentUser.email;
+
+const starsElement = document.getElementById("premiumStars");
+
+if (starsElement) {
+  starsElement.textContent = badge;
+}
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
