@@ -528,11 +528,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  console.log("Avant checkPin");
+await checkPinStatus();
+console.log("Après checkPin");
+  
   currentUser = user;
   document.getElementById("userEmail").innerText = user.email;
-
   
-  await checkPinStatus();
+
+// 🔥 D'abord le PIN
+await checkPinStatus();
+
+// Ensuite le wallet
+await loadWallet();
 });
 
 /* ================= PIN SYSTEM ================= */
