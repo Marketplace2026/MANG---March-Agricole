@@ -220,10 +220,8 @@ button:disabled{
 import { supabase } from './supabase.js';
 
 let currentUser=null;
-
 async function loadProfile() {
   try {
-    // 🔹 Récupérer l'utilisateur connecté
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       window.location.href = "login.html";
@@ -232,40 +230,34 @@ async function loadProfile() {
 
     currentUser = user;
 
-    // 🔹 Affichage infos de base
     document.getElementById("userEmail").innerText = user.email;
     document.getElementById("displayName").innerText = user.email.split("@")[0];
     document.getElementById("initialLetter").innerText = user.email.charAt(0).toUpperCase();
     document.getElementById("createdAt").innerText = new Date(user.created_at).toLocaleDateString();
 
-    // 🔹 Charger le wallet depuis la table wallets
-const { data: wallet, error: walletError } = await supabase
-  .from("wallets")
-  .select("available_balance")
-  .eq("user_id", user.id)
-  .single();
+    const { data: wallet } = await supabase
+      .from("wallets")
+      .select("available_balance")
+      .eq("user_id", user.id)
+      .single();
 
-if (walletError) throw walletError;
+    document.getElementById("walletBalance").innerText =
+      (wallet?.available_balance || 0).toLocaleString("fr-FR") + " FCFA";
 
-// ⚡ Afficher le solde disponible au lieu du solde total
-document.getElementById("walletBalance").innerText = 
-    (wallet?.available_balance || 0).toLocaleString("fr-FR") + " FCFA";
-    
-    // 🔹 Compter le nombre de transactions
-    const { count, error: txError } = await supabase
+    const { count } = await supabase
       .from("wallet_transactions")
       .select("*", { count: "exact", head: true })
       .eq("user_id", user.id);
 
-    if (txError) throw txError;
-
     document.getElementById("totalTransactions").innerText = count || 0;
+
+    // 🔥 IMPORTANT : appeler badge ICI
+    await loadNewOrdersCount();
 
   } catch (err) {
     console.error("Erreur loadProfile:", err);
-    alert("Erreur lors du chargement du profil");
   }
-}
+        }
 
 loadProfile();
 
@@ -339,10 +331,7 @@ async function loadNewOrdersCount() {
     console.error("Erreur badge commandes:", err);
   }
 }
-  // Appel initial au chargement du profil
-loadNewOrdersCount();
   
-
 // 🔔 Mise à jour en temps réel
 supabase
   .channel('new-orders-channel')
@@ -351,9 +340,10 @@ supabase
     {
       event: 'INSERT',
       schema: 'public',
-      table: 'orders'
+      table: 'orders',
+      filter: `seller_id=eq.${currentUser?.id}`
     },
-    payload => {
+    () => {
       loadNewOrdersCount();
     }
   )
