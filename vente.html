@@ -1604,110 +1604,128 @@ document.getElementById("createShopBtn").addEventListener("click", async () => {
   }
 });
 
-   // ===== CREER BOUTIQUE =====
+  // ===== CREER BOUTIQUE =====
 
-  submitShopBtn.onclick = async () => {
-  const name = shopName.value.trim();
-  if (!name) {
-    alert("Nom obligatoire");
-    return;
-  }
+let isSubmittingShop = false;
 
-  if (!selectedShopCategory) {
-    alert("Veuillez choisir une catégorie");
-    return;
-  }
+submitShopBtn.onclick = async () => {
 
-  // 🔹 Vérifier si l'utilisateur a assez de pièces
-const cost = 10; // 10 pièces pour créer une boutique
+  // 🔒 ANTI DOUBLE CLIC
+  if (isSubmittingShop) return;
+  isSubmittingShop = true;
+  submitShopBtn.disabled = true;
 
-if (currentProfile.coins === null || currentProfile.coins === undefined) {
-  alert("Erreur récupération des coins.");
-  return;
-}
+  try {
 
-if (currentProfile.coins < cost) {
-  alert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
-  return;
-}
-
-  // 🔹 NOUVEAU : récupération livraison & whatsapp
-  const livraison = document.getElementById("livraison")?.checked || false;
-  const whatsapp = document.getElementById("whatsapp")?.value.trim() || null;
-
-  let imageUrl = null;
-  const file = shopImage.files[0];
-
-  if (file) {
-    const compressedFile = await compressImage(file, 900, 0.7);
-    const fileName = `shop_${currentUser.id}_${Date.now()}.jpg`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("shops")
-      .upload(fileName, compressedFile, {
-        contentType: "image/jpeg"
-      });
-
-    if (uploadError) {
-      alert(uploadError.message);
+    const name = shopName.value.trim();
+    if (!name) {
+      alert("Nom obligatoire");
       return;
     }
 
-    imageUrl = supabase.storage
+    if (!selectedShopCategory) {
+      alert("Veuillez choisir une catégorie");
+      return;
+    }
+
+    const cost = 10;
+
+    if (currentProfile.coins === null || currentProfile.coins === undefined) {
+      alert("Erreur récupération des coins.");
+      return;
+    }
+
+    if (currentProfile.coins < cost) {
+      alert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
+      return;
+    }
+
+    const livraison = document.getElementById("livraison")?.checked || false;
+    const whatsapp = document.getElementById("whatsapp")?.value.trim() || null;
+
+    let imageUrl = null;
+    const file = shopImage.files[0];
+
+    if (file) {
+      const compressedFile = await compressImage(file, 900, 0.7);
+      const fileName = `shop_${currentUser.id}_${Date.now()}.jpg`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("shops")
+        .upload(fileName, compressedFile, {
+          contentType: "image/jpeg"
+        });
+
+      if (uploadError) {
+        alert(uploadError.message);
+        return;
+      }
+
+      imageUrl = supabase.storage
+        .from("shops")
+        .getPublicUrl(fileName).data.publicUrl;
+    }
+
+    const { error } = await supabase
       .from("shops")
-      .getPublicUrl(fileName).data.publicUrl;
+      .insert({
+        owner_id: currentUser.id,
+        name,
+        description: shopDesc.value,
+        category: selectedShopCategory,
+        location: shopLocation.value,
+        image_url: imageUrl,
+        livraison: livraison,
+        whatsapp: whatsapp,
+        premium_level: currentProfile?.premium_level || "free"
+      });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    currentProfile.coins -= cost;
+
+    await supabase
+      .from("profiles")
+      .update({ coins: currentProfile.coins })
+      .eq("id", currentUser.id);
+
+    const coinsElement = document.getElementById("userCoins");
+    if (coinsElement) coinsElement.textContent = currentProfile.coins;
+
+    alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
+
+    shopName.value = "";
+    shopDesc.value = "";
+    shopCategoryInput.value = "";
+    shopLocation.value = "";
+    shopImage.value = "";
+
+    if (document.getElementById("livraison")) {
+      document.getElementById("livraison").checked = false;
+    }
+
+    if (document.getElementById("whatsapp")) {
+      document.getElementById("whatsapp").value = "";
+    }
+
+    selectedShopCategory = null;
+
+    shopFullModal.style.display = "none";
+    loadMyShops();
+
+  } catch (err) {
+    console.error("Erreur création boutique :", err);
+    alert("Erreur inattendue");
+  } finally {
+    // 🔓 Toujours réactiver
+    isSubmittingShop = false;
+    submitShopBtn.disabled = false;
   }
-
-  // 🔹 INSERT COMPLET AVEC LIVRAISON & WHATSAPP
-  const { error } = await supabase
-    .from("shops")
-    .insert({
-      owner_id: currentUser.id,
-      name,
-      description: shopDesc.value,
-      category: selectedShopCategory,
-      location: shopLocation.value,
-      image_url: imageUrl,
-      livraison: livraison,
-      whatsapp: whatsapp,
-      premium_level: currentProfile?.premium_level || "free"
-    });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  // 🔹 Déduire les pièces et mettre à jour le frontend & Supabase
-  currentProfile.coins = (currentProfile.coins || 35) - cost;
-
-  await supabase
-    .from("profiles")
-    .update({ coins: currentProfile.coins })
-    .eq("id", currentUser.id);
-
-  const coinsElement = document.getElementById("userCoins");
-  if (coinsElement) coinsElement.textContent = currentProfile.coins;
-
-  alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
-
-  // 🔄 RESET FORMULAIRE
-  shopName.value = "";
-  shopDesc.value = "";
-  shopCategoryInput.value = "";
-  shopLocation.value = "";
-  shopImage.value = "";
-  if (document.getElementById("livraison")) {
-    document.getElementById("livraison").checked = false;
-  }
-  if (document.getElementById("whatsapp")) {
-    document.getElementById("whatsapp").value = "";
-  }
-  selectedShopCategory = null;
-
-  shopFullModal.style.display = "none";
-  loadMyShops();
 };
+
   let selectedShopCategory = null;
 let selectedMainCategory = null;
 let selectedSubCategories = [];
