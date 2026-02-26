@@ -1001,19 +1001,7 @@ border: 2px solid #ffeb3b;
     color: white;
   }
 
- .user-header-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow: hidden;
-}
-
-#userEmail {
-  flex: 1;               /* prend l’espace restant */
-  white-space: nowrap;   /* une seule ligne */
-  overflow: hidden;      
-  text-overflow: ellipsis; /* ajoute ... */
-}
+ 
   /* MODALES */
   .modal {
     position: fixed;
@@ -1068,60 +1056,42 @@ border: 2px solid #ffeb3b;
   .modal-content button:hover {
     opacity: 0.9;
   }
- .user-header-bar {
+ 
+.user-header-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .profile-circle {
   flex-shrink: 0;
 }
 
-.email-container {
+/* Cadre jaune principal */
+.email-box {
   flex: 1;
-  overflow: hidden;
-}
-
-.email-text {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.premium-stars {
-  display: block;
-  font-size: 14px;
-  margin-top: 4px;
-}
- .premium-stars {
-  color: gold;
- }
-
- .email-box {
-  flex: 1;
-  background: #5f6f65; /* ou ta couleur actuelle */
+  background: #5f6f65; /* adapte à ta couleur */
   border: 3px solid #ffd700;
   border-radius: 30px;
-  padding: 12px 16px;
+  padding: 14px 18px;
   overflow: hidden;
 }
 
+/* Email */
 .email-text {
-  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: bold;
+  font-size: 16px;
 }
 
+/* Étoiles Premium */
 .premium-stars {
-  display: block;
-  margin-top: 4px;
+  margin-top: 6px;
   color: gold;
-  font-size: 16px;
- }
+  font-size: 18px;
+}
 </style>
 
 <script type="application/ld+json">
