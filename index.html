@@ -2836,7 +2836,6 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-
 let currentProduct = null;
 let isProcessing = false;
 
@@ -2891,6 +2890,23 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
     const buyerId = session.user.id;
 
+    // 🔒 VERIFICATION ANTI-DOUBLON (solution 3)
+    const { data: existingOrders, error: checkError } = await supabase
+      .from("orders")
+      .select("id")
+      .eq("buyer_id", buyerId)
+      .eq("seller_id", currentProduct.sellerId)
+      .eq("product_id", currentProduct.productId)
+      .eq("status", "pending");
+
+    if (checkError) throw checkError;
+
+    if (existingOrders.length > 0) {
+      alert("⚠️ Vous avez déjà une commande en attente pour ce produit.");
+      isProcessing = false;
+      return;
+    }
+
     const { data, error } = await supabase.rpc("create_order_with_escrow", {
       p_buyer_id: buyerId,
       p_seller_id: currentProduct.sellerId,
@@ -2924,6 +2940,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
 
   isProcessing = false;
 });
+
 // ================= CHARGER PRODUITS =================
 let query = supabase
   .from('shop_products')
