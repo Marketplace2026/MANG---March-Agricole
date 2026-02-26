@@ -562,7 +562,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 /* ================= PIN SYSTEM ================= */
-    async function checkPinStatus() {
+ async function checkPinStatus() {
   alert("Entrée dans checkPinStatus()");
 
   let profile;
@@ -587,15 +587,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!profile.pin) {
     alert("PIN non défini, afficher createPinModal");
-    document.getElementById("createPinModal").style.display = "flex";
+    const modal = document.getElementById("createPinModal");
+    modal.style.display = "flex";
+
+    // 🔹 DEBUG : vérifier si le modal est visible
+    console.log("createPinModal style.display =", modal.style.display);
+    alert("Modal affiché ? " + modal.style.display);
+
   } else {
     alert("PIN existant, afficher verifyPinModal");
-    document.getElementById("verifyPinModal").style.display = "flex";
+    const modal = document.getElementById("verifyPinModal");
+    modal.style.display = "flex";
+
+    // 🔹 DEBUG : vérifier si le modal est visible
+    console.log("verifyPinModal style.display =", modal.style.display);
+    alert("Modal affiché ? " + modal.style.display);
   }
 
   alert("Fin de checkPinStatus()");
-    }      
-
+ }
 async function createPin() {
 
   const pin = document.getElementById("newPin").value.trim();
