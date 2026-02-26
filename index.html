@@ -1427,6 +1427,9 @@ MODALE COMMANDE
     <label>Note (optionnelle)</label>
     <textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
 
+   <label>Quantité *</label>
+<input id="orderQuantity" type="number" min="1" value="1" placeholder="Quantité">
+
     <button id="createOrderBtn">Créer la commande</button>
   </div>
 </div>
@@ -2834,7 +2837,7 @@ function formatAvailability(value) {
   return map[value] || "⏳ Indisponible";
 }
 
-   let currentProduct = null;
+let currentProduct = null;
 let isProcessing = false;
 
 // MODALES
@@ -2856,12 +2859,11 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
 
   const productId = btn.dataset.productId?.trim();
   const sellerId = btn.dataset.sellerId?.trim();
-  const amount = parseFloat(btn.dataset.amount);
 
-  if (!productId || !sellerId || isNaN(amount) || amount <= 0)
+  if (!productId || !sellerId)
     return alert("Produit invalide");
 
-  currentProduct = { productId, sellerId, amount };
+  currentProduct = { productId, sellerId };
   openOrderModal();
 });
 
@@ -2872,9 +2874,14 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   const address = document.getElementById("orderAddress").value.trim();
   const phone = document.getElementById("orderPhone").value.trim();
   const note = document.getElementById("orderNote").value.trim();
+  const quantity = parseFloat(document.getElementById("orderQuantity").value);
 
   if (!address || !phone) {
     return alert("Adresse et téléphone requis");
+  }
+
+  if (!quantity || quantity <= 0) {
+    return alert("Quantité invalide");
   }
 
   isProcessing = true;
@@ -2888,7 +2895,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
       p_buyer_id: buyerId,
       p_seller_id: currentProduct.sellerId,
       p_product_id: currentProduct.productId,
-      p_amount: currentProduct.amount,
+      p_quantity: quantity,
       p_delivery_address: address,
       p_delivery_phone: phone,
       p_note: note || null
