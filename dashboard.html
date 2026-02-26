@@ -514,7 +514,7 @@ MODALES
                                 align-items:center; 
                                 z-index:9999;">
   <div style="background:white; padding:20px; border-radius:10px; width:300px; text-align:center;">
-    <h3>Créer votre PIN</h3>
+    <h3>Créer un PIN pour votre portefeuille</h3>
     <input type="password" id="newPin" placeholder="4 chiffres" maxlength="4" style="width:100%; padding:8px; margin:10px 0;">
     <button onclick="createPin()" style="padding:10px 20px;">Valider</button>
   </div>
@@ -530,11 +530,12 @@ MODALES
                                 align-items:center; 
                                 z-index:9999;">
   <div style="background:white; padding:20px; border-radius:10px; width:300px; text-align:center;">
-    <h3>Vérifier votre PIN</h3>
-    <input type="password" id="verifyPinInput" placeholder="Entrez votre PIN" maxlength="4" style="width:100%; padding:8px; margin:10px 0;">
+    <h3>Entrez votre PIN</h3>
+    <input type="password" id="verifyPinInput" placeholder="4 chiffres" maxlength="4" style="width:100%; padding:8px; margin:10px 0;">
     <button onclick="verifyPin()" style="padding:10px 20px;">Valider</button>
   </div>
 </div>
+
         <script type="module">
 import { supabase } from './supabase.js';
 
@@ -542,52 +543,34 @@ let currentUser = null;
 let currentProfile = null;
 
 /* ================= INIT ================= */
-
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    console.log("DOM chargé");
-
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError) {
-      console.error("Erreur supabase.auth.getUser :", userError);
-      return;
-    }
-
-    if (!user) {
-      console.warn("Utilisateur non connecté, redirection...");
+    if (userError || !user) {
       location.href = "login.html";
       return;
     }
 
     currentUser = user;
-    console.log("Utilisateur connecté :", currentUser.email);
 
     // Afficher email
     const emailEl = document.getElementById("userEmail");
-    if (emailEl) {
-      emailEl.innerText = currentUser.email;
-    } else {
-      console.warn("Element #userEmail introuvable dans le DOM");
-    }
+    if (emailEl) emailEl.innerText = currentUser.email;
 
-    console.log("Avant checkPinStatus()");
+    // Vérifier PIN
     await checkPinStatus();
-    console.log("Après checkPinStatus()");
 
-    console.log("Avant loadWallet()");
+    // Charger wallet après
     await loadWallet();
-    console.log("Après loadWallet()");
 
   } catch (err) {
-    console.error("Erreur DOMContentLoaded :", err);
+    alert("Erreur lors du chargement : " + err.message);
   }
 });
 
 
 /* ================= PIN SYSTEM ================= */
- async function checkPinStatus() {
-  alert("Entrée dans checkPinStatus()");
-
+async function checkPinStatus() {
   let profile;
   try {
     const { data, error } = await supabase
@@ -599,8 +582,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (error) throw error;
 
     profile = data;
-    alert("Profil récupéré : " + JSON.stringify(profile));
-
   } catch (err) {
     alert("Erreur récupération profil : " + err.message);
     return;
@@ -609,26 +590,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentProfile = profile;
 
   if (!profile.pin) {
-    alert("PIN non défini, afficher createPinModal");
+    // PIN non défini → créer
     const modal = document.getElementById("createPinModal");
-    modal.style.display = "flex";
-
-    // 🔹 DEBUG : vérifier si le modal est visible
-    console.log("createPinModal style.display =", modal.style.display);
-    alert("Modal affiché ? " + modal.style.display);
-
+    if (modal) modal.style.display = "flex";
   } else {
-    alert("PIN existant, afficher verifyPinModal");
+    // PIN existant → vérifier
     const modal = document.getElementById("verifyPinModal");
-    modal.style.display = "flex";
-
-    // 🔹 DEBUG : vérifier si le modal est visible
-    console.log("verifyPinModal style.display =", modal.style.display);
-    alert("Modal affiché ? " + modal.style.display);
+    if (modal) modal.style.display = "flex";
   }
-
-  alert("Fin de checkPinStatus()");
- }
+}
 async function createPin() {
 
   const pin = document.getElementById("newPin").value.trim();
