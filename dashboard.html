@@ -562,53 +562,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 /* ================= PIN SYSTEM ================= */
-async function checkPinStatus() {
-  try {
-    console.log("checkPinStatus() démarré");
+    async function checkPinStatus() {
+  alert("Entrée dans checkPinStatus()");
 
-    const { data: profile, error } = await supabase
+  let profile;
+  try {
+    const { data, error } = await supabase
       .from("profiles")
       .select("id, pin")
       .eq("id", currentUser.id)
       .single();
 
-    if (error) {
-      console.error("Erreur fetch profile :", error);
-      return;
-    }
+    if (error) throw error;
 
-    if (!profile) {
-      console.warn("Profil introuvable pour user :", currentUser.id);
-      return;
-    }
-
-    currentProfile = profile;
-    console.log("Profil récupéré :", profile);
-
-    if (!profile.pin) {
-      console.log("PIN manquant, affichage modal createPin");
-      const createModal = document.getElementById("createPinModal");
-      if (createModal) {
-        createModal.style.display = "flex";
-      } else {
-        console.warn("Element #createPinModal introuvable");
-      }
-    } else {
-      console.log("PIN trouvé, affichage modal verifyPin");
-      const verifyModal = document.getElementById("verifyPinModal");
-      if (verifyModal) {
-        verifyModal.style.display = "flex";
-      } else {
-        console.warn("Element #verifyPinModal introuvable");
-      }
-    }
-
-    console.log("checkPinStatus() terminé");
+    profile = data;
+    alert("Profil récupéré : " + JSON.stringify(profile));
 
   } catch (err) {
-    console.error("Erreur checkPinStatus :", err);
+    alert("Erreur récupération profil : " + err.message);
+    return;
   }
-}
+
+  currentProfile = profile;
+
+  if (!profile.pin) {
+    alert("PIN non défini, afficher createPinModal");
+    document.getElementById("createPinModal").style.display = "flex";
+  } else {
+    alert("PIN existant, afficher verifyPinModal");
+    document.getElementById("verifyPinModal").style.display = "flex";
+  }
+
+  alert("Fin de checkPinStatus()");
+    }      
+
 async function createPin() {
 
   const pin = document.getElementById("newPin").value.trim();
