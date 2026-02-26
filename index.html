@@ -1005,6 +1005,19 @@ border: 2px solid #ffeb3b;
     color: white;
   }
 
+ .user-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+#userEmail {
+  flex: 1;               /* prend l’espace restant */
+  white-space: nowrap;   /* une seule ligne */
+  overflow: hidden;      
+  text-overflow: ellipsis; /* ajoute ... */
+}
   /* MODALES */
   .modal {
     position: fixed;
