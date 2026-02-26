@@ -531,10 +531,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentUser = user;
   document.getElementById("userEmail").innerText = user.email;
 
-  // Charger le wallet
-  await loadWallet();
   
-
   await checkPinStatus();
 });
 
