@@ -2456,13 +2456,15 @@ if (currentProfile.coins < productCost) {
 
     // 🔹 INSERT PRODUIT
     const { error } = await supabase.from("shop_products").insert({
-      shop_id: currentShop.id,
-      name,
-      description,
-      price,
-      image_url: imageUrl,
-      availability
-    });
+  shop_id: currentShop.id,
+  name,
+  description,
+  price,
+  image_url: imageUrl,
+  availability,
+  owner_id: currentUser.id,  // 🔹 ici
+  seller_id: currentUser.id  // 🔹 et ici
+});
 
     if (error) {
       console.error("Erreur Supabase :", error);
