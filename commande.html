@@ -461,6 +461,7 @@ function showDetails(orderId) {
     <p><strong>ID :</strong> ${order.id}</p>
     <p><strong>Produit :</strong> ${order.product?.name || "N/A"}</p>
     <p><strong>Description :</strong> ${order.product?.description || "N/A"}</p>
+    <p><strong>Quantité :</strong> ${order.quantity || 1}</p>
     <p><strong>${isBuyer ? "Vendeur" : "Acheteur"} :</strong> ${otherUser?.username || "N/A"}</p>
     <p><strong>Email :</strong> ${otherUser?.email || "N/A"}</p>
     <p><strong>Montant :</strong> ${order.amount} FCFA</p>
