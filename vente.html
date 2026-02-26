@@ -2377,40 +2377,49 @@ function formatAvailability(value) {
   return map[value] || "⏳ Indisponible";
 }
 
-// ===== AJOUT PRODUIT BOUTIQUE =====
+  // ===== AJOUT PRODUIT BOUTIQUE =====
+
+let isSubmittingProduct = false;
+
 submitProductBtn.onclick = async () => {
-  if (!currentShop) {
-    alert("Sélectionnez d'abord une boutique");
-    return;
-  }
 
-  // 🔹 Vérifier si l'utilisateur a assez de pièces pour créer un produit
-  const productCost = 5; // 5 pièces pour ajouter un produit
-  if (currentProfile.coins === null || currentProfile.coins === undefined) {
-  alert("Erreur récupération des coins");
-  return;
-}
-
-if (currentProfile.coins < productCost) {
-  alert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
-  return;
-}
-
-  const name = productName.value.trim();
-  const description = productDesc.value.trim();
-  const price = Number(productPrice.value);
-  const file = productImage.files[0];
-
-  // ⚠️ RÉCUPÉRER LA DISPONIBILITÉ
-  const availabilitySelect = document.getElementById("productAvailability");
-  const availability = availabilitySelect ? availabilitySelect.value : "now";
-
-  if (!name || !price) {
-    alert("Nom et prix obligatoires");
-    return;
-  }
+  // 🔒 ANTI DOUBLE CLIC
+  if (isSubmittingProduct) return;
+  isSubmittingProduct = true;
+  submitProductBtn.disabled = true;
 
   try {
+
+    if (!currentShop) {
+      alert("Sélectionnez d'abord une boutique");
+      return;
+    }
+
+    const productCost = 5;
+
+    if (currentProfile.coins === null || currentProfile.coins === undefined) {
+      alert("Erreur récupération des coins");
+      return;
+    }
+
+    if (currentProfile.coins < productCost) {
+      alert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
+      return;
+    }
+
+    const name = productName.value.trim();
+    const description = productDesc.value.trim();
+    const price = Number(productPrice.value);
+    const file = productImage.files[0];
+
+    const availabilitySelect = document.getElementById("productAvailability");
+    const availability = availabilitySelect ? availabilitySelect.value : "now";
+
+    if (!name || !price) {
+      alert("Nom et prix obligatoires");
+      return;
+    }
+
     // 🔹 Infos boutique
     const { data: shop, error: shopError } = await supabase
       .from("shops")
@@ -2432,6 +2441,7 @@ if (currentProfile.coins < productCost) {
       .eq("shop_id", currentShop.id);
 
     const maxProducts = shopProductLimits[shop.premium_level || "free"];
+
     if (products.length >= maxProducts) {
       alert(`Limite atteinte (${maxProducts} produits)`);
       return;
@@ -2439,53 +2449,64 @@ if (currentProfile.coins < productCost) {
 
     // 🔹 Upload image
     let imageUrl = null;
+
     if (file) {
       const compressedFile = await compressImage(file, 800, 0.7);
       const fileName = `product_${currentShop.id}_${Date.now()}.jpg`;
 
-      await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("products")
         .upload(fileName, compressedFile, {
           contentType: "image/jpeg"
         });
+
+      if (uploadError) {
+        console.error(uploadError);
+        alert("Erreur upload image");
+        return;
+      }
 
       imageUrl = supabase.storage
         .from("products")
         .getPublicUrl(fileName).data.publicUrl;
     }
 
-    // 🔹 INSERT PRODUIT
-    const { error } = await supabase.from("shop_products").insert({
-  shop_id: currentShop.id,
-  name,
-  description,
-  price,
-  image_url: imageUrl,
-  availability,
-  owner_id: currentUser.id,  // 🔹 ici
-  seller_id: currentUser.id  // 🔹 et ici
-});
+    // 🔹 INSERT PRODUIT (IMPORTANT : owner & seller)
+    const { error: insertError } = await supabase
+      .from("shop_products")
+      .insert({
+        shop_id: currentShop.id,
+        name,
+        description,
+        price,
+        image_url: imageUrl,
+        availability,
+        owner_id: currentUser.id,
+        seller_id: currentUser.id
+      });
 
-    if (error) {
-      console.error("Erreur Supabase :", error);
+    if (insertError) {
+      console.error("Erreur Supabase :", insertError);
       alert("❌ Erreur lors de l'ajout du produit");
       return;
     }
 
-    // 🔹 Déduire les pièces et mettre à jour frontend & Supabase
-    currentProfile.coins = (currentProfile.coins || 35) - productCost;
+    // 🔹 Déduire les pièces
+    currentProfile.coins -= productCost;
 
     await supabase
       .from("profiles")
       .update({ coins: currentProfile.coins })
       .eq("id", currentUser.id);
 
-    // Mettre à jour le compteur frontend
     const coinsElement = document.getElementById("userCoins");
-    if (coinsElement) coinsElement.textContent = currentProfile.coins;
+    if (coinsElement) {
+      coinsElement.textContent = currentProfile.coins;
+    }
 
     alert(`✅ Produit ajouté avec succès ! Il vous reste ${currentProfile.coins} pièces`);
 
+    // 🔹 Notification
     await supabase.from("notif_market").insert({
       user_id: currentUser.id,
       actor_id: currentUser.id,
@@ -2508,10 +2529,16 @@ if (currentProfile.coins < productCost) {
   } catch (err) {
     console.error("Erreur ajout produit :", err);
     alert("Erreur inattendue lors de l'ajout");
+  } finally {
+    // 🔓 Toujours réactiver
+    isSubmittingProduct = false;
+    submitProductBtn.disabled = false;
   }
 };
+
 // ===== INIT =====
 await loadCurrentUser();
+
 </script>
   </body>
 </html>
