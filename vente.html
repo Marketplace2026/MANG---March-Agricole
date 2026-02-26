@@ -1666,37 +1666,45 @@ submitShopBtn.onclick = async () => {
         .getPublicUrl(fileName).data.publicUrl;
     }
 
+
     const { error } = await supabase
-      .from("shops")
-      .insert({
-        owner_id: currentUser.id,
-        name,
-        description: shopDesc.value,
-        category: selectedShopCategory,
-        location: shopLocation.value,
-        image_url: imageUrl,
-        livraison: livraison,
-        whatsapp: whatsapp,
-        premium_level: currentProfile?.premium_level || "free"
-      });
+  .from("shops")
+  .insert({
+    owner_id: currentUser.id,
+    name,
+    description: shopDesc.value,
+    category: selectedShopCategory,
+    location: shopLocation.value,
+    image_url: imageUrl,
+    livraison: livraison,
+    whatsapp: whatsapp,
+    premium_level: currentProfile?.premium_level || "free"
+  });
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+if (error) {
+  console.error("Erreur Supabase :", error);
 
-    currentProfile.coins -= cost;
+  if (error.code === "23505") {
+    alert("⚠️ Vous avez déjà une boutique avec ce nom.");
+  } else {
+    alert("❌ Erreur lors de la création de la boutique.");
+  }
 
-    await supabase
-      .from("profiles")
-      .update({ coins: currentProfile.coins })
-      .eq("id", currentUser.id);
+  return;
+}
 
-    const coinsElement = document.getElementById("userCoins");
-    if (coinsElement) coinsElement.textContent = currentProfile.coins;
+currentProfile.coins -= cost;
 
-    alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
+await supabase
+  .from("profiles")
+  .update({ coins: currentProfile.coins })
+  .eq("id", currentUser.id);
 
+const coinsElement = document.getElementById("userCoins");
+if (coinsElement) coinsElement.textContent = currentProfile.coins;
+
+alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
+    
     shopName.value = "";
     shopDesc.value = "";
     shopCategoryInput.value = "";
