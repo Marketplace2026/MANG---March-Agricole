@@ -519,49 +519,96 @@ let currentUser = null;
 let currentProfile = null;
 
 /* ================= INIT ================= */
+
 document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    console.log("DOM chargé");
 
-  const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("Erreur supabase.auth.getUser :", userError);
+      return;
+    }
 
-  if (!user) {
-    location.href = "login.html";
-    return;
+    if (!user) {
+      console.warn("Utilisateur non connecté, redirection...");
+      location.href = "login.html";
+      return;
+    }
+
+    currentUser = user;
+    console.log("Utilisateur connecté :", currentUser.email);
+
+    // Afficher email
+    const emailEl = document.getElementById("userEmail");
+    if (emailEl) {
+      emailEl.innerText = currentUser.email;
+    } else {
+      console.warn("Element #userEmail introuvable dans le DOM");
+    }
+
+    console.log("Avant checkPinStatus()");
+    await checkPinStatus();
+    console.log("Après checkPinStatus()");
+
+    console.log("Avant loadWallet()");
+    await loadWallet();
+    console.log("Après loadWallet()");
+
+  } catch (err) {
+    console.error("Erreur DOMContentLoaded :", err);
   }
-
-  console.log("Avant checkPin");
-await checkPinStatus();
-console.log("Après checkPin");
-  
-  currentUser = user;
-  document.getElementById("userEmail").innerText = user.email;
-  
-
-// 🔥 D'abord le PIN
-await checkPinStatus();
-
-// Ensuite le wallet
-await loadWallet();
 });
 
+
 /* ================= PIN SYSTEM ================= */
-
 async function checkPinStatus() {
+  try {
+    console.log("checkPinStatus() démarré");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, pin")
-    .eq("id", currentUser.id)
-    .single();
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("id, pin")
+      .eq("id", currentUser.id)
+      .single();
 
-  currentProfile = profile;
+    if (error) {
+      console.error("Erreur fetch profile :", error);
+      return;
+    }
 
-  if (!profile.pin) {
-    document.getElementById("createPinModal").style.display = "flex";
-  } else {
-    document.getElementById("verifyPinModal").style.display = "flex";
+    if (!profile) {
+      console.warn("Profil introuvable pour user :", currentUser.id);
+      return;
+    }
+
+    currentProfile = profile;
+    console.log("Profil récupéré :", profile);
+
+    if (!profile.pin) {
+      console.log("PIN manquant, affichage modal createPin");
+      const createModal = document.getElementById("createPinModal");
+      if (createModal) {
+        createModal.style.display = "flex";
+      } else {
+        console.warn("Element #createPinModal introuvable");
+      }
+    } else {
+      console.log("PIN trouvé, affichage modal verifyPin");
+      const verifyModal = document.getElementById("verifyPinModal");
+      if (verifyModal) {
+        verifyModal.style.display = "flex";
+      } else {
+        console.warn("Element #verifyPinModal introuvable");
+      }
+    }
+
+    console.log("checkPinStatus() terminé");
+
+  } catch (err) {
+    console.error("Erreur checkPinStatus :", err);
   }
 }
-
 async function createPin() {
 
   const pin = document.getElementById("newPin").value.trim();
