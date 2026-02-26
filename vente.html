@@ -2489,41 +2489,47 @@ submitProductBtn.onclick = async () => {
         .getPublicUrl(fileName).data.publicUrl;
     }
 
-    // 🔹 INSERT PRODUIT (IMPORTANT : owner & seller)
-    const { error: insertError } = await supabase
-      .from("shop_products")
-      .insert({
-        shop_id: currentShop.id,
-        name,
-        description,
-        price,
-        image_url: imageUrl,
-        availability,
-        owner_id: currentUser.id,
-        seller_id: currentUser.id
-      });
+// 🔹 INSERT PRODUIT (IMPORTANT : owner & seller)
+const { error: insertError } = await supabase
+  .from("shop_products")
+  .insert({
+    shop_id: currentShop.id,
+    name,
+    description,
+    price,
+    image_url: imageUrl,
+    availability,
+    owner_id: currentUser.id,
+    seller_id: currentUser.id
+  });
 
-    if (insertError) {
-      console.error("Erreur Supabase :", insertError);
-      alert("❌ Erreur lors de l'ajout du produit");
-      return;
-    }
+if (insertError) {
+  console.error("Erreur Supabase :", insertError);
 
-    // 🔹 Déduire les pièces
-    currentProfile.coins -= productCost;
+  if (insertError.code === "23505") {
+    alert("⚠️ Vous avez déjà dans votre boutique un produit identique à celui que vous voulez créer.");
+  } else {
+    alert("❌ Erreur lors de l'ajout du produit.");
+  }
 
-    await supabase
-      .from("profiles")
-      .update({ coins: currentProfile.coins })
-      .eq("id", currentUser.id);
+  return;
+}
 
-    const coinsElement = document.getElementById("userCoins");
-    if (coinsElement) {
-      coinsElement.textContent = currentProfile.coins;
-    }
+// 🔹 Déduire les pièces
+currentProfile.coins -= productCost;
 
-    alert(`✅ Produit ajouté avec succès ! Il vous reste ${currentProfile.coins} pièces`);
+await supabase
+  .from("profiles")
+  .update({ coins: currentProfile.coins })
+  .eq("id", currentUser.id);
 
+const coinsElement = document.getElementById("userCoins");
+if (coinsElement) {
+  coinsElement.textContent = currentProfile.coins;
+}
+
+alert(`✅ Produit ajouté avec succès ! Il vous reste ${currentProfile.coins} pièces`);
+    
     // 🔹 Notification
     await supabase.from("notif_market").insert({
       user_id: currentUser.id,
