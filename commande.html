@@ -207,6 +207,7 @@ async function init() {
     document.getElementById("userAvatar").innerText = currentUser.email.charAt(0).toUpperCase();
 
     await loadOrders();
+await markOrdersAsSeen();
   } catch (err) {
     console.error("Erreur init:", err);
     alert("Erreur lors de l'initialisation.");
