@@ -2836,37 +2836,38 @@ function formatAvailability(value) {
   };
   return map[value] || "⏳ Indisponible";
 }
-let currentProduct = null;
+
+      let currentProduct = null;
 let isProcessing = false;
 
-// MODALES
+/* ================= MODALES ================= */
 function openOrderModal() {
   document.getElementById("orderModal").style.display = "flex";
 }
+
 function closeOrderModal() {
   document.getElementById("orderModal").style.display = "none";
 }
 
+// Fermer le modal si clic en dehors
 window.addEventListener("click", e => {
   if (e.target.id === "orderModal") closeOrderModal();
 });
 
-// BOUTON COMMANDER SUR LES PRODUITS
+/* ================= BOUTON COMMANDER ================= */
 document.getElementById("shopProductsScroll").addEventListener("click", e => {
   const btn = e.target.closest(".orderBtn");
   if (!btn) return;
 
   const productId = btn.dataset.productId?.trim();
-  const sellerId = btn.dataset.sellerId?.trim();
+  if (!productId) return alert("Produit invalide");
 
-  if (!productId || !sellerId)
-    return alert("Produit invalide");
-
-  currentProduct = { productId, sellerId };
+  // On stocke uniquement l'ID du produit, pas le seller
+  currentProduct = { productId };
   openOrderModal();
 });
 
-// CREER COMMANDE (argent bloqué en escrow)
+/* ================= CREATION COMMANDE ================= */
 document.getElementById("createOrderBtn").addEventListener("click", async () => {
   if (isProcessing || !currentProduct) return;
 
@@ -2886,16 +2887,16 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
   isProcessing = true;
 
   try {
+    // Récupérer l'utilisateur courant
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
     const buyerId = session.user.id;
 
-    // 🔒 VERIFICATION ANTI-DOUBLON (solution 3)
+    // 🔒 Vérification anti-doublon
     const { data: existingOrders, error: checkError } = await supabase
       .from("orders")
       .select("id")
       .eq("buyer_id", buyerId)
-      .eq("seller_id", currentProduct.sellerId)
       .eq("product_id", currentProduct.productId)
       .eq("status", "pending");
 
@@ -2907,9 +2908,9 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
       return;
     }
 
+    // Appel RPC pour créer la commande
     const { data, error } = await supabase.rpc("create_order_with_escrow", {
       p_buyer_id: buyerId,
-      p_seller_id: currentProduct.sellerId,
       p_product_id: currentProduct.productId,
       p_quantity: quantity,
       p_delivery_address: address,
