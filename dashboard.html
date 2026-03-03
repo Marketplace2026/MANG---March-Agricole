@@ -874,16 +874,16 @@ function unlockWallet(){
   document.getElementById("walletContainer").style.display = "block";
   loadWallet();
 }
+/* ================= RECHARGE FEDA PAY ================= */
 
-          /* ================= RECHARGE FEDA PAY ================= */
-
-          const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
-          
+const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
 let isProcessingDeposit = false;
 
+// Ouvrir / fermer modal
 window.openDeposit = () => document.getElementById("depositModal").style.display = "flex";
 window.closeDeposit = () => document.getElementById("depositModal").style.display = "none";
 
+// Soumettre la recharge
 window.submitDeposit = async function () {
   if (isProcessingDeposit) return;
 
@@ -901,7 +901,7 @@ window.submitDeposit = async function () {
   document.getElementById("depositBtn").disabled = true;
 
   try {
-    // ⚡ Payload à envoyer à la fonction serveur (Supabase function)
+    // ⚡ Préparer le payload pour Supabase Function
     const payload = {
       user_id: currentUser.id,
       type: "deposit",
@@ -917,43 +917,44 @@ window.submitDeposit = async function () {
 
     console.log("Payload envoyé :", payload);
 
-    const res = await fetch(`https://czbqmzclcxitxxfydadl.supabase.co/functions/v1/create-transaction`, {
+    // 🔹 Appel à la Supabase Function
+    const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    const text = await res.text();
-    let data;
-    try { data = text ? JSON.parse(text) : null; } 
-    catch { data = { error: "Réponse serveur invalide", raw: text }; }
+    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
 
+    const data = await res.json();
     console.log("Réponse serveur :", data);
 
-    if (!res.ok || !data.success || !data.transaction?.["v1/transaction"]?.payment_url) {
-      alert("Erreur serveur ou transaction invalide : " + JSON.stringify(data));
+    // Vérifier que la transaction a bien une URL de paiement
+    const paymentUrl = data?.transaction?.["v1/transaction"]?.payment_url;
+    if (!paymentUrl) {
+      alert("Impossible de récupérer le lien de paiement.");
       return;
     }
 
-    // ✅ Ouvrir la page Fedapay dans un nouvel onglet
-    const paymentUrl = data.transaction["v1/transaction"].payment_url;
-    if (!paymentUrl) throw new Error("URL de paiement introuvable");
-
-    window.open(paymentUrl, "_blank"); // ⚡ important : direct après clic utilisateur
-    alert("Page de paiement ouverte, veuillez confirmer votre paiement sur votre mobile");
+    // ⚡ Ouvrir Fedapay dans un nouvel onglet (popup autorisé si clic direct)
+    window.open(paymentUrl, "_blank");
+    alert("Page de paiement ouverte, veuillez confirmer votre paiement sur votre mobile.");
 
     closeDeposit();
-    await loadWallet();
+
+    // 🔹 Recharge du wallet après quelques secondes (temporaire)
+    setTimeout(loadWallet, 10000);
 
   } catch (err) {
     console.error("Erreur submitDeposit :", err);
-    alert("Erreur : " + err.message);
+    alert("Erreur lors de la recharge : " + err.message);
   } finally {
     isProcessingDeposit = false;
     document.getElementById("depositLoader").style.display = "none";
     document.getElementById("depositBtn").disabled = false;
   }
 };
+  
 // 🔹 Charger les informations du wallet
 async function loadWallet() {
   try {
