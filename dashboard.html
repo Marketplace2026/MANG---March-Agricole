@@ -778,9 +778,11 @@ MODALES
   
         <script type="module">
 import { supabase } from './supabase.js';
-
+          const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
 let currentUser = null;
 let currentProfile = null;
+    let isProcessingDeposit = false;
+
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
@@ -874,17 +876,9 @@ function unlockWallet(){
   document.getElementById("walletContainer").style.display = "block";
   loadWallet();
 }
-/* ================= RECHARGE FEDA PAY ================= */
 
-const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
-let isProcessingDeposit = false;
-
-// Ouvrir / fermer modal
-window.openDeposit = () => document.getElementById("depositModal").style.display = "flex";
-window.closeDeposit = () => document.getElementById("depositModal").style.display = "none";
-
-// Soumettre la recharge
-window.submitDeposit = async function () {
+// ==== SUBMIT DEPOSIT ====
+window.submitDeposit = async function() {
   if (isProcessingDeposit) return;
 
   const amount = Number(document.getElementById("depositAmount").value);
@@ -901,7 +895,7 @@ window.submitDeposit = async function () {
   document.getElementById("depositBtn").disabled = true;
 
   try {
-    // ⚡ Préparer le payload pour Supabase Function
+    // Préparer le payload pour Supabase -> fonction create-transaction
     const payload = {
       user_id: currentUser.id,
       type: "deposit",
@@ -911,50 +905,53 @@ window.submitDeposit = async function () {
       currency: "XOF",
       description: "Recharge portefeuille",
       email: currentUser.email,
-      first_name: currentUser.user_metadata?.first_name || "Client",
-      last_name: currentUser.user_metadata?.last_name || "MANG"
+      first_name: currentUser.user_metadata?.first_name || "Prénom",
+      last_name: currentUser.user_metadata?.last_name || "Nom"
     };
 
-    console.log("Payload envoyé :", payload);
-
-    // 🔹 Appel à la Supabase Function
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : null; } 
+    catch { data = { error: "Réponse serveur invalide", raw: text }; }
 
-    const data = await res.json();
-    console.log("Réponse serveur :", data);
+    if (!res.ok || !data.success) {
+      console.error("Erreur serveur :", data);
+      alert("Erreur serveur : " + JSON.stringify(data));
+      return;
+    }
 
-    // Vérifier que la transaction a bien une URL de paiement
-    const paymentUrl = data?.transaction?.["v1/transaction"]?.payment_url;
+    // ✅ Transaction créée -> ouvrir le lien de paiement
+    const paymentUrl = data.transaction["v1/transaction"].payment_url;
     if (!paymentUrl) {
       alert("Impossible de récupérer le lien de paiement.");
       return;
     }
 
-    // ⚡ Ouvrir Fedapay dans un nouvel onglet (popup autorisé si clic direct)
-    window.open(paymentUrl, "_blank");
-    alert("Page de paiement ouverte, veuillez confirmer votre paiement sur votre mobile.");
+    alert("🔗 Page de paiement ouverte, veuillez confirmer votre paiement sur votre mobile.");
+    window.open(paymentUrl, "_blank"); // ouvre la page Fedapay pour payer
 
+    // ⚡ Optionnel : recharger le solde après quelques secondes ou via webhook callback
+    // Ici on peut juste attendre et recharger le wallet
+    setTimeout(loadWallet, 10000); // recharge wallet 10s après (ajuster selon besoin)
     closeDeposit();
-
-    // 🔹 Recharge du wallet après quelques secondes (temporaire)
-    setTimeout(loadWallet, 10000);
 
   } catch (err) {
     console.error("Erreur submitDeposit :", err);
-    alert("Erreur lors de la recharge : " + err.message);
+    alert("Erreur : " + err.message);
   } finally {
     isProcessingDeposit = false;
     document.getElementById("depositLoader").style.display = "none";
     document.getElementById("depositBtn").disabled = false;
   }
 };
-  
+          
+    
 // 🔹 Charger les informations du wallet
 async function loadWallet() {
   try {
