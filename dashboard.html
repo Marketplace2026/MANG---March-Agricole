@@ -776,14 +776,16 @@ MODALES
   </div>
 </div>
   
-        <script type="module">
+<script type="module">
+
 import { supabase } from './supabase.js';
-          const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
+
+const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
+
 let currentUser = null;
 let currentProfile = null;
-    let isProcessingDeposit = false;
-
-
+let isProcessingDeposit = false;
+  
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -877,79 +879,6 @@ function unlockWallet(){
   loadWallet();
 }
 
-// ==== SUBMIT DEPOSIT ====
-window.submitDeposit = async function() {
-  if (isProcessingDeposit) return;
-
-  const amount = Number(document.getElementById("depositAmount").value);
-  const phone = document.getElementById("depositPhone").value.trim();
-  const operatorEl = document.querySelector('input[name="depositOperator"]:checked');
-  const operator = operatorEl ? operatorEl.value : null;
-
-  if (!amount || amount <= 0) return alert("Montant invalide");
-  if (!phone) return alert("Numéro requis");
-  if (!operator) return alert("Sélectionnez un opérateur");
-
-  isProcessingDeposit = true;
-  document.getElementById("depositLoader").style.display = "inline";
-  document.getElementById("depositBtn").disabled = true;
-
-  try {
-    // Préparer le payload pour Supabase -> fonction create-transaction
-    const payload = {
-      user_id: currentUser.id,
-      type: "deposit",
-      operator,
-      phone,
-      amount,
-      currency: "XOF",
-      description: "Recharge portefeuille",
-      email: currentUser.email,
-      first_name: currentUser.user_metadata?.first_name || "Prénom",
-      last_name: currentUser.user_metadata?.last_name || "Nom"
-    };
-
-    const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const text = await res.text();
-    let data;
-    try { data = text ? JSON.parse(text) : null; } 
-    catch { data = { error: "Réponse serveur invalide", raw: text }; }
-
-    if (!res.ok || !data.success) {
-      console.error("Erreur serveur :", data);
-      alert("Erreur serveur : " + JSON.stringify(data));
-      return;
-    }
-
-    // ✅ Transaction créée -> ouvrir le lien de paiement
-    const paymentUrl = data.transaction["v1/transaction"].payment_url;
-    if (!paymentUrl) {
-      alert("Impossible de récupérer le lien de paiement.");
-      return;
-    }
-
-    alert("🔗 Page de paiement ouverte, veuillez confirmer votre paiement sur votre mobile.");
-    window.open(paymentUrl, "_blank"); // ouvre la page Fedapay pour payer
-
-    // ⚡ Optionnel : recharger le solde après quelques secondes ou via webhook callback
-    // Ici on peut juste attendre et recharger le wallet
-    setTimeout(loadWallet, 10000); // recharge wallet 10s après (ajuster selon besoin)
-    closeDeposit();
-
-  } catch (err) {
-    console.error("Erreur submitDeposit :", err);
-    alert("Erreur : " + err.message);
-  } finally {
-    isProcessingDeposit = false;
-    document.getElementById("depositLoader").style.display = "none";
-    document.getElementById("depositBtn").disabled = false;
-  }
-};
           
     
 // 🔹 Charger les informations du wallet
@@ -1009,6 +938,102 @@ function copyWalletNumber() {
 // 🔹 Déclarer la fonction globalement pour l'HTML
 window.copyWalletNumber = copyWalletNumber;
 
+
+  /* =====================================
+   RECHARGEMENT FEDA PAY
+===================================== */
+window.submitDeposit = async function () {
+
+  if (isProcessingDeposit) return;
+
+  const amount = Number(document.getElementById("depositAmount").value);
+  const phone = document.getElementById("depositPhone").value.trim();
+  const operatorEl = document.querySelector('input[name="depositOperator"]:checked');
+  const operator = operatorEl ? operatorEl.value : null;
+
+  if (!amount || amount <= 0) return alert("Montant invalide");
+  if (!phone) return alert("Numéro requis");
+  if (!operator) return alert("Sélectionnez un opérateur");
+
+  isProcessingDeposit = true;
+
+  try {
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error("Session expirée");
+
+    const payload = {
+      user_id: currentUser.id,
+      type: "deposit",
+      operator,
+      phone,
+      amount,
+      currency: "XOF",
+      description: "Recharge portefeuille",
+      email: currentUser.email,
+      first_name: currentUser.user_metadata?.first_name || "Client",
+      last_name: currentUser.user_metadata?.last_name || "MANG"
+    };
+
+    const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || "Erreur serveur");
+    }
+
+    const data = await res.json();
+
+    const paymentUrl = data?.transaction?.["v1/transaction"]?.payment_url;
+
+    if (!paymentUrl) {
+      throw new Error("Lien de paiement introuvable");
+    }
+
+    // 🔥 Ouvrir page Fedapay
+    window.open(paymentUrl, "_blank");
+
+    alert("Page de paiement ouverte. Confirmez sur votre mobile.");
+
+    closeDeposit();
+
+    // Vérification après 10 secondes
+    setTimeout(loadWallet, 10000);
+
+  } catch (err) {
+    console.error("Erreur recharge :", err);
+    alert("Erreur : " + err.message);
+  } finally {
+    isProcessingDeposit = false;
+  }
+};
+
+
+/* =====================================
+   OUVERTURE / FERMETURE MODALES
+===================================== */
+window.openDeposit = () => {
+  document.getElementById("depositModal").style.display = "flex";
+};
+
+window.closeDeposit = () => {
+  document.getElementById("depositModal").style.display = "none";
+};
+
+window.openWithdraw = () => {
+  document.getElementById("withdrawModal").style.display = "flex";
+};
+
+window.closeWithdraw = () => {
+  document.getElementById("withdrawModal").style.display = "none";
+};
           
  /* ======================
    TRANSFERT D'ARGENT
