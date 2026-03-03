@@ -406,9 +406,197 @@ MODALES
     font-size: 14px;
     padding: 10px 15px;
   }
+
+  
+  .modal-content {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.send-btn {
+  padding: 12px 18px;
+  background: #1e8e3e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-bottom:25px;
+}
+
+.receiver-info {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: green;
+}
+
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #1e8e3e;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 10px auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+  #openTransferModal{
+    margin-bottom:25px;
+  }
+  /* ======================
+BOUTONS ACTIONS
+===================== */
+.actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.actions button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actions .deposit { background: #1f4d3a; }
+.actions .deposit:hover { background: #16663d; }
+
+.actions .withdraw { background: #dc2626; }
+.actions .withdraw:hover { background: #b71c1c; }
+
+/* ======================
+MODALES
+===================== */
+.modal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.modal-content button {
+  background: #1f4d3a;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
 }
   
-  
+  /* ===== Operator selector ===== */
+.operator-select {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+.operator-select label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.operator-select img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+}
+.operator-select input[type="radio"] {
+  display: none;
+}
+.operator-select input[type="radio"]:checked + img {
+  border: 2px solid #1f4d3a;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.modal-content button:hover {
+  background: #16663d;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 20px;
+  color: #777;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-content .close:hover {
+  color: #000;
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #0b3d2e;
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .modal-content input,
+  .modal-content button {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+  }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -438,12 +626,56 @@ MODALES
     <div class="balance-title">Solde disponible</div>
     <div class="balance"><span id="balance">0</span></div>
 
-    <div class="actions">
-      <button class="deposit" onclick="openDeposit()">Recharger</button>
-      <button class="withdraw" onclick="openWithdraw()">Retirer</button>
-    </div>
+  
+<div class="actions">
+  <button class="deposit" onclick="openDeposit()">Recharger</button>
+  <button class="withdraw" onclick="openWithdraw()">Retirer</button>
+</div>
   </div>
+<!-- ========================= -->
+<!-- MODAL RECHARGER -->
+<!-- ========================= -->
+<div id="depositModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeDeposit()">&times;</span>
+    <h3>Recharger mon portefeuille</h3>
 
+    <label>Opérateur</label>
+    <div class="operator-select">
+      <label><input type="radio" name="depositOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="depositOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="depositOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
+    </div>
+
+    <input id="depositPhone" type="text" placeholder="Numéro Mobile Money">
+    <input id="depositAmount" type="number" placeholder="Montant à recharger">
+    <button id="depositBtn" onclick="submitDeposit()">Recharger</button>
+    <span id="depositLoader" style="display:none;">⏳ Traitement...</span>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL RETRAIT -->
+<!-- ========================= -->
+<div id="withdrawModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeWithdraw()">&times;</span>
+    <h3>Retirer de mon portefeuille</h3>
+
+    <label>Opérateur</label>
+    <div class="operator-select">
+      <label><input type="radio" name="withdrawOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="withdrawOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="withdrawOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
+    </div>
+
+    <input id="withdrawPhone" type="text" placeholder="Numéro Mobile Money">
+    <input id="withdrawAmount" type="number" placeholder="Montant à retirer">
+    <button id="withdrawBtn" onclick="submitWithdraw()">Retirer</button>
+    <span id="withdrawLoader" style="display:none;">⏳ Traitement...</span>
+  </div>
+</div>
+    
   <div class="wallet-box">
     <h3>Mon numéro de portefeuille</h3>
     <div id="walletNumber">Chargement...</div>
@@ -642,6 +874,83 @@ function unlockWallet(){
   document.getElementById("walletContainer").style.display = "block";
   loadWallet();
 }
+
+          /* ================= RECHARGE FEDA PAY ================= */
+let isProcessingDeposit = false;
+
+window.openDeposit = () => document.getElementById("depositModal").style.display = "flex";
+window.closeDeposit = () => document.getElementById("depositModal").style.display = "none";
+
+window.submitDeposit = async function () {
+  if (isProcessingDeposit) return;
+
+  const amount = Number(document.getElementById("depositAmount").value);
+  const phone = document.getElementById("depositPhone").value.trim();
+  const operatorEl = document.querySelector('input[name="depositOperator"]:checked');
+  const operator = operatorEl ? operatorEl.value : null;
+
+  if (!amount || amount <= 0) return alert("Montant invalide");
+  if (!phone) return alert("Numéro requis");
+  if (!operator) return alert("Sélectionnez un opérateur");
+
+  isProcessingDeposit = true;
+  document.getElementById("depositLoader").style.display = "inline";
+  document.getElementById("depositBtn").disabled = true;
+
+  try {
+    // ⚡ Payload à envoyer à la fonction serveur (Supabase function)
+    const payload = {
+      user_id: currentUser.id,
+      type: "deposit",
+      operator,
+      phone,
+      amount,
+      currency: "XOF",
+      description: "Recharge portefeuille",
+      email: currentUser.email,
+      first_name: currentUser.user_metadata?.first_name || "Client",
+      last_name: currentUser.user_metadata?.last_name || "MANG"
+    };
+
+    console.log("Payload envoyé :", payload);
+
+    const res = await fetch(`https://czbqmzclcxitxxfydadl.supabase.co/functions/v1/create-transaction`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : null; } 
+    catch { data = { error: "Réponse serveur invalide", raw: text }; }
+
+    console.log("Réponse serveur :", data);
+
+    if (!res.ok || !data.success || !data.transaction?.["v1/transaction"]?.payment_url) {
+      alert("Erreur serveur ou transaction invalide : " + JSON.stringify(data));
+      return;
+    }
+
+    // ✅ Ouvrir la page Fedapay dans un nouvel onglet
+    const paymentUrl = data.transaction["v1/transaction"].payment_url;
+    if (!paymentUrl) throw new Error("URL de paiement introuvable");
+
+    window.open(paymentUrl, "_blank"); // ⚡ important : direct après clic utilisateur
+    alert("Page de paiement ouverte, veuillez confirmer votre paiement sur votre mobile");
+
+    closeDeposit();
+    await loadWallet();
+
+  } catch (err) {
+    console.error("Erreur submitDeposit :", err);
+    alert("Erreur : " + err.message);
+  } finally {
+    isProcessingDeposit = false;
+    document.getElementById("depositLoader").style.display = "none";
+    document.getElementById("depositBtn").disabled = false;
+  }
+};
 // 🔹 Charger les informations du wallet
 async function loadWallet() {
   try {
