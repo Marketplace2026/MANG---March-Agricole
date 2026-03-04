@@ -138,6 +138,22 @@ header.topbar .top-actions button {
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
+ .fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.fullscreen-overlay img {
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 10px;
+}
+
 .shopCard img{
   width: 100%;
   height: auto;
@@ -2406,7 +2422,26 @@ document.querySelectorAll("#livraisonOptions div").forEach(option => {
   };
 });
   
- 
+
+ document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("zoomable-image")) {
+
+    // créer overlay
+    const overlay = document.createElement("div");
+    overlay.className = "fullscreen-overlay";
+
+    const img = document.createElement("img");
+    img.src = e.target.src;
+
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+
+    // fermer au clic
+    overlay.onclick = () => {
+      overlay.remove();
+    };
+  }
+});
 // ====== CHARGER BOUTIQUES (PRO + STATUS PREMIUM) ======
 async function loadShops() {
 
@@ -2500,9 +2535,13 @@ async function loadShops() {
 
       div.innerHTML = `
         <div style="position:relative;">
-          <img src="${shop.image_url || 'https://via.placeholder.com/300x160'}" 
-               alt="${shop.name}" 
-               style="width:100%;height:180px;object-fit:cover;">
+    <img 
+      src="${shop.image_url || 'https://via.placeholder.com/300x160'}" 
+      alt="${shop.name}" 
+      class="zoomable-image"
+      style="width:100%;height:180px;object-fit:cover;cursor:pointer;">
+  </div>
+ 
 
           ${premiumBadge}
         </div>
