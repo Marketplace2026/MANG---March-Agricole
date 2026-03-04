@@ -101,8 +101,8 @@ header.topbar .top-actions button {
 .shops-container{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;              /* espace entre les cartes */
-  padding: 0 10px;        /* petit espace léger sur les côtés */
+  gap: 15px;              /* espace seulement entre les cartes */
+  padding: 0;             /* ❌ plus d’espace sur les côtés */
   margin: 0;
   width: 100%;
   box-sizing: border-box;
@@ -111,7 +111,6 @@ header.topbar .top-actions button {
   overflow-y: auto;
   overflow-x: hidden;
 }
-
 /* Scrollbar vertical */
 .shops-container::-webkit-scrollbar{
   width: 6px;
