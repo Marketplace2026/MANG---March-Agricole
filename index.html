@@ -144,6 +144,30 @@ header.topbar .top-actions button {
 }
 
 
+ /* Conteneur principal */
+.shops-container{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  padding: 0;        /* supprime espace intérieur */
+  margin: 0;         /* supprime marge extérieure */
+  width: 100%;       
+  box-sizing: border-box;
+}
+
+/* Carte boutique */
+.shopCard{
+  width: 100%;
+  min-height: 280px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 8px;
+  background: white;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box; /* IMPORTANT */
+}
  .fullscreen-overlay {
   position: fixed;
   inset: 0;
