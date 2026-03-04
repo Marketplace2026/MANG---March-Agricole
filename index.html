@@ -2534,19 +2534,20 @@ async function loadShops() {
       }
 
       div.innerHTML = `
-        <div style="position:relative;">
+  <div style="position:relative;width:100%;height:180px;overflow:hidden;">
+    
     <img 
       src="${shop.image_url || 'https://via.placeholder.com/300x160'}" 
       alt="${shop.name}" 
       class="zoomable-image"
-      style="width:100%;height:180px;object-fit:cover;cursor:pointer;">
+      style="width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;">
+
+    ${premiumBadge}
+
   </div>
- 
 
-          ${premiumBadge}
-        </div>
-
-        <div style="padding:12px; display:flex; flex-direction:column; gap:4px;">
+  <div style="padding:12px; display:flex; flex-direction:column; gap:4px;">
+  
           <h3 style="margin:0;font-size:18px;font-weight:700;color:#2c3e50;">
             ${shop.name}
           </h3>
