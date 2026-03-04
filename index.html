@@ -148,6 +148,30 @@ header.topbar .top-actions button {
   z-index: 9999;
 }
 
+ /* Image cliquable */
+.zoomable-product{
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Overlay plein écran */
+.image-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Image en plein écran */
+.image-overlay img{
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 10px;
+}
+
 .fullscreen-overlay img {
   max-width: 95%;
   max-height: 95%;
@@ -2422,9 +2446,12 @@ document.querySelectorAll("#livraisonOptions div").forEach(option => {
   };
 });
   
+document.addEventListener("click", function(e) {
 
- document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("zoomable-image")) {
+  if (
+    e.target.classList.contains("zoomable-image") ||
+    e.target.classList.contains("zoomable-product")
+  ) {
 
     // créer overlay
     const overlay = document.createElement("div");
@@ -2441,7 +2468,9 @@ document.querySelectorAll("#livraisonOptions div").forEach(option => {
       overlay.remove();
     };
   }
+
 });
+ 
 // ====== CHARGER BOUTIQUES (PRO + STATUS PREMIUM) ======
 async function loadShops() {
 
@@ -3030,7 +3059,10 @@ if (prodError) {
     div.className = "productCard";
 
     div.innerHTML = `
-      <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name || 'Produit'}">
+  <img 
+    src="${p.image_url || 'https://via.placeholder.com/150'}" 
+    alt="${p.name || 'Produit'}"
+    class="zoomable-product">
       <h5>${p.name || 'Produit'}</h5>
       ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
       <p class="productAvailability">${formatAvailability(p.availability)}</p>
