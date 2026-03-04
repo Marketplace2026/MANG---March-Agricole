@@ -100,73 +100,44 @@ header.topbar .top-actions button {
 /* ===== BOUTIQUES : 2 PAR LIGNE + SCROLL VERTICAL ===== */
 .shops-container{
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 boutiques par ligne */
-  gap: 15px;
-  padding: 10px 15px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;              /* espace entre les cartes */
+  padding: 0 10px;        /* petit espace léger sur les côtés */
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
 
-  max-height: calc(100vh - 220px); /* scroll vertical */
+  max-height: calc(100vh - 220px);
   overflow-y: auto;
   overflow-x: hidden;
 }
+
 /* Scrollbar vertical */
 .shops-container::-webkit-scrollbar{
-  width: 8px;
+  width: 6px;
 }
 .shops-container::-webkit-scrollbar-thumb{
   background: #2e8b57;
   border-radius: 4px;
 }
 
-/* Conteneur des boutiques */
-.shops-container{
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px; /* espace propre entre les cartes */
-}
-
-/* Carte boutique */
-.shopCard{
-  width: 100%;
-  height:auto;
-  min-height: 280px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 5px;
-  background: white;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.shopCard:hover{
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
-
-
- /* Conteneur principal */
-.shops-container{
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  padding: 0;        /* supprime espace intérieur */
-  margin: 0;         /* supprime marge extérieure */
-  width: 100%;       
-  box-sizing: border-box;
-}
-
 /* Carte boutique */
 .shopCard{
   width: 100%;
   min-height: 280px;
   border: 1px solid #ddd;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 8px;
   background: white;
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-sizing: border-box; /* IMPORTANT */
+  box-sizing: border-box;
+}
+
+.shopCard:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
  .fullscreen-overlay {
   position: fixed;
