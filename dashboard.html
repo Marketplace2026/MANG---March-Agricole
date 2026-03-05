@@ -963,24 +963,24 @@ window.submitDeposit = async function () {
     if (!session) throw new Error("Session expirée");
 
     const payload = {
-      amount: amount,
-      currency: "XOF",
-      description: "Recharge portefeuille",
+  user_id: currentUser.id,
+  type: "deposit",
+  operator,
+  phone,
+  amount,
+  currency: "XOF",
+  description: "Recharge portefeuille",
+  email: currentUser.email,
+  first_name: currentUser.user_metadata?.first_name || "Client",
+  last_name: currentUser.user_metadata?.last_name || "MANG",
 
-      customer: {
-        firstname: currentUser.user_metadata?.first_name || "Client",
-        lastname: currentUser.user_metadata?.last_name || "MANG",
-        email: currentUser.email,
-        phone_number: phone
-      },
-
-      metadata: {
-        user_id: currentUser.id,
-        operator: operator,
-        phone: phone,
-        source: "web"
-      }
-    };
+  metadata: {
+    user_id: currentUser.id,   // ⭐ indispensable pour le webhook
+    operator: operator,
+    phone: phone,
+    source: "web"
+  }
+};
 
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
       method: "POST",
