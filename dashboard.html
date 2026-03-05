@@ -939,8 +939,9 @@ function copyWalletNumber() {
 window.copyWalletNumber = copyWalletNumber;
 
 
+
 // =====================================
-// RECHARGEMENT FEDA PAY
+// RECHARGEMENT FEDA PAY (LIVE)
 // =====================================
 window.submitDeposit = async function () {
 
@@ -958,26 +959,29 @@ window.submitDeposit = async function () {
   isProcessingDeposit = true;
 
   try {
+    // 🔹 Récupérer la session Supabase
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error("Session expirée");
 
+    // 🔹 Payload LIVE : user_id dans metadata pour crédit automatique
     const payload = {
-      user_id: currentUser.id,          // 🔹 doit rester au niveau racine
       type: "deposit",
       operator,
       phone,
       amount,
       currency: "XOF",
       description: "Recharge portefeuille",
-      email: currentUser.email,         // 🔹 aussi au niveau racine
-      first_name: currentUser.user_metadata?.first_name || "Client",
-      last_name: currentUser.user_metadata?.last_name || "MANG",
-      metadata: {                       // 🔹 ici juste pour info interne
+      metadata: {
+        user_id: currentUser.id,                           // 🔑 essentiel pour ton webhook
+        first_name: currentUser.user_metadata?.first_name || "Client",
+        last_name: currentUser.user_metadata?.last_name || "MANG",
+        email: currentUser.email,
         source: "web",
-        note: "Recharge via front-end"
+        note: "Recharge live via front-end"
       }
     };
 
+    // 🔹 Créer la transaction via ton Edge Function
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
       method: "POST",
       headers: {
@@ -993,13 +997,21 @@ window.submitDeposit = async function () {
     }
 
     const data = await res.json();
+
+    // 🔹 Récupérer le lien de paiement Fedapay
     const paymentUrl = data?.transaction?.payment_url || data?.transaction?.["v1/transaction"]?.payment_url;
     if (!paymentUrl) throw new Error("Lien de paiement introuvable");
 
+    // 🔥 Ouvrir la page Fedapay pour paiement mobile
     window.open(paymentUrl, "_blank");
     alert("Page de paiement ouverte. Confirmez sur votre mobile.");
 
+    // Fermer le modal / interface de dépôt
     closeDeposit();
+
+    // ⚠️ Ne pas recharger le wallet ici : laisse le webhook faire le crédit automatique
+    // Optionnel : tu peux faire un polling léger pour checker le solde après quelques secondes
+    // setTimeout(loadWallet, 10000);
 
   } catch (err) {
     console.error("Erreur recharge :", err);
@@ -1008,7 +1020,6 @@ window.submitDeposit = async function () {
     isProcessingDeposit = false;
   }
 };
-
 
 /* =====================================
    OUVERTURE / FERMETURE MODALES
