@@ -1166,7 +1166,7 @@ window.sendMoney = sendMoney;
 
     
 /* ======================
-LOAD TRANSACTIONS
+LOAD TRANSACTIONS & REALTIME NOTIFICATIONS
 ====================== */
 async function loadTransactions() {
   if (!currentUser) return;
@@ -1211,7 +1211,7 @@ async function loadTransactions() {
 
     div.innerHTML = `
       <div>
-        <strong>${getTitle(tx)}</strong><br>
+        ${getIcon(tx)} <strong>${getTitle(tx)}</strong><br>
         <small>${new Date(tx.created_at).toLocaleString()}</small><br>
         ${statusBadge(tx.status)}
       </div>
@@ -1226,6 +1226,81 @@ async function loadTransactions() {
 
   renderChart(totalIn, totalOut);
 }
+
+/* ======================
+ICONS
+====================== */
+function getIcon(tx) {
+  const type = tx.transaction_type?.toLowerCase() || "";
+  if (type.includes("deposit")) return "💰";
+  if (type.includes("transfer")) return "🔄";
+  if (type.includes("withdraw")) return "💸";
+  if (type.includes("purchase")) return "🛒";
+  if (type.includes("premium")) return "⭐";
+  return "💳";
+}
+
+/* ======================
+NOTIFICATIONS WALLET
+====================== */
+function showWalletNotification(amount) {
+  const notif = document.createElement("div");
+  notif.className = "wallet-notif";
+  notif.style.position = "fixed";
+  notif.style.top = "20px";
+  notif.style.right = "20px";
+  notif.style.background = "#00c853";
+  notif.style.color = "white";
+  notif.style.padding = "12px 18px";
+  notif.style.borderRadius = "8px";
+  notif.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
+  notif.style.zIndex = 9999;
+  notif.innerHTML = `🔔 Recharge réussie<br>${amount.toLocaleString()} FCFA ont été ajoutés à votre portefeuille`;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 5000);
+}
+
+/* ======================
+ANIMATION SOLDE WALLET
+====================== */
+function animateWalletIncrease(amount) {
+  const walletEl = document.getElementById("walletBalance");
+  if (!walletEl) return;
+  const current = Number(walletEl.textContent.replace(/\sFCFA/g, '')) || 0;
+  const final = current + amount;
+  let temp = current;
+  const step = Math.ceil(amount / 20);
+
+  const interval = setInterval(() => {
+    temp += step;
+    if (temp >= final) temp = final;
+    walletEl.textContent = temp.toLocaleString() + " FCFA";
+    if (temp >= final) clearInterval(interval);
+  }, 30);
+}
+
+/* ======================
+LISTENER REALTIME WALLET
+====================== */
+function listenWalletRechargeRealtime() {
+  supabase
+    .channel('wallet_changes')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'wallet_transactions',
+    }, (payload) => {
+      const tx = payload.new;
+      if (tx.user_id === currentUser.id && tx.transaction_type === "transfer") {
+        showWalletNotification(Number(tx.amount));
+        animateWalletIncrease(Number(tx.amount));
+        loadTransactions(); // recharge historique automatiquement
+      }
+    })
+    .subscribe();
+}
+
+listenWalletRechargeRealtime();
 
 /* ======================
 GET TITLE
