@@ -640,7 +640,7 @@ MODALES
     <span class="close" onclick="closeDeposit()">&times;</span>
     <h3>Recharger mon portefeuille</h3>
 
-    <label>Opérateur</label>
+    <label>Opérateur.</label>
     <div class="operator-select">
       <label><input type="radio" name="depositOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
       <label><input type="radio" name="depositOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
@@ -981,10 +981,9 @@ window.submitDeposit = async function () {
     source: "web"
   },
 
-// 🔹 redirection automatique après paiement ou annulation
-      redirect_url: `${window.location.origin}/profile.html`
-    };
-    
+  // FedaPay redirige toujours vers profile.html après paiement ou annulation
+      redirect_url: `${window.location.origin}/profile.html?amount=${amount}`
+    };  
 
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
       method: "POST",
