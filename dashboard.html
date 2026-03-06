@@ -1008,24 +1008,29 @@ window.submitDeposit = async function () {
 
     if (!paymentUrl) throw new Error("Lien de paiement introuvable");
 
-    // ❌ PLUS besoin de window.closed ou setInterval
-    window.location.href = paymentUrl;
+
+    // ❌ ouvre dans une nouvelle fenêtre pour pouvoir surveiller la fermeture
+    const paymentWindow = window.open(paymentUrl, "_blank");
+
+    // Vérifie toutes les 500ms si l’utilisateur a fermé la fenêtre
+    const checkWindow = setInterval(() => {
+      if (!paymentWindow || paymentWindow.closed) {
+        clearInterval(checkWindow);
+        // ⚡ Retour automatique vers profil.html
+        window.location.href = `/profile.html?amount=${amount}`;
+      }
+    }, 500);
 
     closeDeposit();
 
   } catch (err) {
-
     console.error("Erreur recharge :", err);
     alert("Erreur : " + err.message);
-
   } finally {
-
     isProcessingDeposit = false;
-
   }
 
 };
-
 /* =====================================
    OUVERTURE / FERMETURE MODALES
 ===================================== */
