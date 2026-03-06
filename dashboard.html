@@ -981,8 +981,9 @@ window.submitDeposit = async function () {
     source: "web"
   },
 
-      // redirige vers profile.html sur ton GitHub Pages
-      redirect_url: "https://marketplace2026.github.io/MANG---March-Agricole/profile.html?success=true&amount=" + amount
+      // redirige toujours vers profile.html avec montant
+      redirect_url: `${window.location.origin}/profile.html?amount=${amount}`
+    
 };
 
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
@@ -1007,17 +1008,8 @@ window.submitDeposit = async function () {
 
     if (!paymentUrl) throw new Error("Lien de paiement introuvable");
 
-    const paymentWindow = window.open(paymentUrl, "_blank");
-
-// Vérifie toutes les 500ms si la fenêtre est fermée
-const checkWindow = setInterval(() => {
-  if (!paymentWindow || paymentWindow.closed) {
-    clearInterval(checkWindow);
-
-    // Redirection systématique vers profile.html
-    window.location.href = "https://marketplace2026.github.io/MANG---March-Agricole/profile.html";
-  }
-}, 500);
+    // ❌ PLUS besoin de window.closed ou setInterval
+    window.location.href = paymentUrl;
 
     closeDeposit();
 
