@@ -1007,9 +1007,17 @@ window.submitDeposit = async function () {
 
     if (!paymentUrl) throw new Error("Lien de paiement introuvable");
 
-    window.open(paymentUrl, "_blank");
+   // ❌ Remplace window.open par ceci pour gérer la fermeture
+    const paymentWindow = window.open(paymentUrl, "_blank");
 
-    alert("Page de paiement ouverte. Confirmez sur votre mobile.");
+    // Vérifie si la fenêtre a été fermée (fin du paiement ou annulation)
+    const checkWindow = setInterval(() => {
+      if (paymentWindow.closed) {
+        clearInterval(checkWindow);
+        // Toujours revenir vers profile.html
+        window.location.href = "/profile.html";
+      }
+    }, 500);
 
     closeDeposit();
 
@@ -1024,7 +1032,7 @@ window.submitDeposit = async function () {
 
   }
 
-};
+}; 
 
 /* =====================================
    OUVERTURE / FERMETURE MODALES
