@@ -981,8 +981,8 @@ window.submitDeposit = async function () {
     source: "web"
   },
 
-  // redirige vers profil avec info succès et montant
-  redirect_url: `${window.location.origin}/profile.html?success=true&amount=${amount}`
+      // redirige vers profile.html sur ton GitHub Pages
+      redirect_url: "https://marketplace2026.github.io/MANG---March-Agricole/profile.html?success=true&amount=" + amount
 };
 
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
@@ -1006,16 +1006,15 @@ window.submitDeposit = async function () {
       data?.transaction?.["v1/transaction"]?.payment_url;
 
     if (!paymentUrl) throw new Error("Lien de paiement introuvable");
-
-   // ❌ Remplace window.open par ceci pour gérer la fermeture
+    
+// Ouvre la fenêtre de paiement et surveille sa fermeture
     const paymentWindow = window.open(paymentUrl, "_blank");
 
-    // Vérifie si la fenêtre a été fermée (fin du paiement ou annulation)
     const checkWindow = setInterval(() => {
       if (paymentWindow.closed) {
         clearInterval(checkWindow);
-        // Toujours revenir vers profile.html
-        window.location.href = "/profile.html";
+        // Toujours revenir vers profile.html après paiement ou annulation
+        window.location.href = "https://marketplace2026.github.io/MANG---March-Agricole/profile.html";
       }
     }, 500);
 
@@ -1032,7 +1031,7 @@ window.submitDeposit = async function () {
 
   }
 
-}; 
+};
 
 /* =====================================
    OUVERTURE / FERMETURE MODALES
