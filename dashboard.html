@@ -981,10 +981,10 @@ window.submitDeposit = async function () {
     source: "web"
   },
 
-      // redirige toujours vers profile.html avec montant
-      redirect_url: `${window.location.origin}/profile.html?amount=${amount}`
+// 🔹 redirection automatique après paiement ou annulation
+      redirect_url: `${window.location.origin}/profile.html`
+    };
     
-};
 
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
       method: "POST",
@@ -1008,18 +1008,8 @@ window.submitDeposit = async function () {
 
     if (!paymentUrl) throw new Error("Lien de paiement introuvable");
 
-
-    // ❌ ouvre dans une nouvelle fenêtre pour pouvoir surveiller la fermeture
-    const paymentWindow = window.open(paymentUrl, "_blank");
-
-    // Vérifie toutes les 500ms si l’utilisateur a fermé la fenêtre
-    const checkWindow = setInterval(() => {
-      if (!paymentWindow || paymentWindow.closed) {
-        clearInterval(checkWindow);
-        // ⚡ Retour automatique vers profil.html
-        window.location.href = `/profile.html?amount=${amount}`;
-      }
-    }, 500);
+// 🔹 redirection directe dans le même onglet
+    window.location.href = paymentUrl;
 
     closeDeposit();
 
@@ -1031,6 +1021,7 @@ window.submitDeposit = async function () {
   }
 
 };
+
 /* =====================================
    OUVERTURE / FERMETURE MODALES
 ===================================== */
