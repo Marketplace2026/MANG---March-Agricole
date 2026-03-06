@@ -1006,17 +1006,18 @@ window.submitDeposit = async function () {
       data?.transaction?.["v1/transaction"]?.payment_url;
 
     if (!paymentUrl) throw new Error("Lien de paiement introuvable");
-    
-// Ouvre la fenêtre de paiement et surveille sa fermeture
+
     const paymentWindow = window.open(paymentUrl, "_blank");
 
-    const checkWindow = setInterval(() => {
-      if (paymentWindow.closed) {
-        clearInterval(checkWindow);
-        // Toujours revenir vers profile.html après paiement ou annulation
-        window.location.href = "https://marketplace2026.github.io/MANG---March-Agricole/profile.html";
-      }
-    }, 500);
+// Vérifie toutes les 500ms si la fenêtre est fermée
+const checkWindow = setInterval(() => {
+  if (!paymentWindow || paymentWindow.closed) {
+    clearInterval(checkWindow);
+
+    // Redirection systématique vers profile.html
+    window.location.href = "https://marketplace2026.github.io/MANG---March-Agricole/profile.html";
+  }
+}, 500);
 
     closeDeposit();
 
