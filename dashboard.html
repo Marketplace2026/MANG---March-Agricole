@@ -979,7 +979,10 @@ window.submitDeposit = async function () {
     operator: operator,
     phone: phone,
     source: "web"
-  }
+  },
+
+  // redirige vers profil avec info succès et montant
+  redirect_url: `${window.location.origin}/profile.html?success=true&amount=${amount}`
 };
 
     const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
