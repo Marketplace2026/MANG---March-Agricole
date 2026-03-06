@@ -300,6 +300,7 @@ window.goChangePassword=async function(){
   btn.disabled=false;
   btn.innerText="🔒 Modifier mon mot de passe";
 }
+  
 
 window.logout=async function(){
   await supabase.auth.signOut();
@@ -330,6 +331,48 @@ async function loadNewOrdersCount() {
   } catch (err) {
     console.error("Erreur badge commandes:", err);
   }
+}
+
+  window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const success = params.get("success");
+  const amount = params.get("amount");
+
+  if (success === "true" && amount) {
+    showRechargeNotification(Number(amount));
+
+    // Optionnel : enlever les params de l’URL pour pas afficher à nouveau si reload
+    const url = new URL(window.location);
+    url.search = "";
+    window.history.replaceState({}, document.title, url);
+  }
+});
+
+function showRechargeNotification(amount) {
+  const notif = document.createElement("div");
+  notif.innerHTML = `
+    🔔 <strong>Recharge réussie</strong><br>
+    ${amount.toLocaleString("fr-FR")} FCFA ont été ajoutés à votre portefeuille
+  `;
+  notif.style = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #00c853;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    font-size: 14px;
+  `;
+
+  document.body.appendChild(notif);
+
+  // disparaît après 5 secondes
+  setTimeout(() => {
+    notif.remove();
+  }, 5000);
 }
   
 // 🔔 Mise à jour en temps réel
