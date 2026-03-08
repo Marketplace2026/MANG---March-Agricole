@@ -1081,18 +1081,26 @@ border-radius:50%;
 /* Bouton vendre */
 .sell-btn{
 position:absolute;
-top:-22px;
-background:#1b8f3a;
+left:50%;
+transform:translateX(-50%);
+top:-28px;
+
+background:#f39c12;
 color:white;
 border:none;
-width:55px;
-height:55px;
+
+width:60px;
+height:60px;
+
 border-radius:50%;
 font-size:28px;
+
 display:flex;
 align-items:center;
 justify-content:center;
+
 box-shadow:0 6px 15px rgba(0,0,0,0.25);
+z-index:10;
 }
 
 .sell-btn:active{
@@ -1102,6 +1110,12 @@ transform:scale(0.95);
 body{
 padding-bottom:90px;
 }
+ .chat-container{
+padding-bottom:100px;
+ }
+ .messages-area{
+margin-bottom:100px;
+ }
 </style>
 
 <script type="application/ld+json">
