@@ -1119,6 +1119,78 @@ header.topbar .top-actions button {
   color: gold;
   font-size: 15px;
 }
+
+ .bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:70px;
+background:#fff;
+display:flex;
+justify-content:space-around;
+align-items:center;
+box-shadow:0 -3px 12px rgba(0,0,0,0.12);
+z-index:9999;
+border-top-left-radius:18px;
+border-top-right-radius:18px;
+}
+
+.nav-item{
+background:none;
+border:none;
+display:flex;
+flex-direction:column;
+align-items:center;
+font-size:12px;
+color:#333;
+position:relative;
+}
+
+.nav-item .icon{
+font-size:20px;
+margin-bottom:2px;
+}
+
+.nav-item span{
+font-size:11px;
+}
+
+.badge{
+position:absolute;
+top:-4px;
+right:-6px;
+background:red;
+color:white;
+font-size:10px;
+padding:3px 6px;
+border-radius:50%;
+}
+
+/* Bouton vendre */
+.sell-btn{
+position:absolute;
+top:-22px;
+background:#1b8f3a;
+color:white;
+border:none;
+width:55px;
+height:55px;
+border-radius:50%;
+font-size:28px;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:0 6px 15px rgba(0,0,0,0.25);
+}
+
+.sell-btn:active{
+transform:scale(0.95);
+}
+
+body{
+padding-bottom:90px;
+}
 </style>
 
 <script type="application/ld+json">
@@ -1138,39 +1210,26 @@ header.topbar .top-actions button {
 
 <header class="topbar">
 
-   <!-- LOGO -->
-    <div class="logo-box">
-      <img src="assets/img/logos.png" alt="MANG - Marché Agricole Nouvelle Génération">
-      
-    </div>
-<div class="user-header-bar">
-
-  <div class="profile-circle" onclick="goProfile()">👤</div>
-
-  <div class="email-box">
-    <span id="userEmail" class="email-text"></span>
-    <span id="premiumStars" class="premium-stars"></span>
+  <!-- LOGO -->
+  <div class="logo-box">
+    <img src="assets/img/logos.png" alt="MANG - Marché Agricole Nouvelle Génération">
   </div>
 
-</div>
-  <div class="top-actions">
-    <button id="messageBtn">
-      💬 Messagerie
-      <span id="messageBadge"
-        style="
-          background:red;
-          color:white;
-          border-radius:50%;
-          padding:2px 6px;
-          font-size:12px;
-          margin-left:6px;
-          display:none;
-        ">0</span>
-    </button>
-     <button id="notifBtn" class="notif-btn">
-  🔔 <span id="notifCount">0</span>
-</button>
+  <!-- UTILISATEUR -->
+  <div class="user-header-bar">
 
+    <div class="profile-circle" onclick="goProfile()">👤</div>
+
+    <div class="email-box">
+      <span id="userEmail" class="email-text"></span>
+      <span id="premiumStars" class="premium-stars"></span>
+    </div>
+
+  </div>
+
+</header>
+
+<!-- PANEL NOTIFICATIONS -->
 <div id="notifOverlay" style="display:none;">
   <div id="notifPanel">
     <div class="notifHeader">
@@ -1180,45 +1239,26 @@ header.topbar .top-actions button {
     <div id="notifList"></div>
   </div>
 </div>
-<!-- Bouton Favoris avec badge -->
-<button id="favoritesBtn" style="position:relative;">
-  ❤️ Favoris
-  <span id="favoritesBadge" style="
-    display:none;
-    position:absolute;
-    top:-5px;
-    right:-5px;
-    background:red;
-    color:white;
-    font-size:12px;
-    padding:4px 8px;
-    border-radius:50%;
-  ">0</span>
-</button>
 
-<!-- Modal Favoris -->
+<!-- MODAL FAVORIS -->
 <div id="favoritesModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; justify-content:center; align-items:center;">
   <div style="background:#fff; width:90%; max-width:500px; max-height:80vh; overflow-y:auto; border-radius:12px; padding:16px;">
+    
     <h3>❤️ Favoris</h3>
+
     <div style="display:flex; gap:10px; margin-bottom:10px;">
       <button id="btnFavorisBoutiques">Boutiques</button>
       <button id="btnFavorisProduits">Produits</button>
-      
     </div>
 
     <div id="favoritesShopsList"></div>
     <div id="favoritesProductsList" style="display:none;"></div>
-    <div id="favoritesList" style="display:none;"></div> <!-- notifications -->
+    <div id="favoritesList" style="display:none;"></div>
 
     <button id="closeFavorites" style="margin-top:12px;width:100%;">Fermer</button>
+
   </div>
 </div>
-    
-  
-  
-    <button id="sellBtn">Vendre</button>
-  </div>
-</header>
   
   <!-- CONTENEUR BOUTONS HORIZONTAUX -->
 <div class="topButtons">
@@ -1481,6 +1521,37 @@ MODALE COMMANDE
 </div>
  
 
+ <div class="bottom-nav">
+
+  <button class="nav-item" onclick="location.href='index.html'">
+    <div class="icon">🏠</div>
+    <span>Accueil</span>
+  </button>
+
+  <button class="nav-item" id="messageBtn">
+    <div class="icon">💬</div>
+    <span>Messages</span>
+    <span id="messageBadge" class="badge">0</span>
+  </button>
+
+  <!-- Bouton central -->
+  <button class="sell-btn" id="sellBtn">
+    ➕
+  </button>
+
+  <button class="nav-item" id="favoritesBtn">
+    <div class="icon">❤️</div>
+    <span>Favoris</span>
+    <span id="favoritesBadge" class="badge">0</span>
+  </button>
+
+  <button class="nav-item" id="notifBtn">
+    <div class="icon">🔔</div>
+    <span>Notif</span>
+    <span id="notifCount" class="badge">0</span>
+  </button>
+
+ </div>
 <script type="module">
 import { supabase } from './supabase.js';
 
