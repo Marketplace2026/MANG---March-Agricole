@@ -262,6 +262,7 @@ header.topbar .top-actions button {
 }
 /* CHAT ET MESSAGERIE (inchangés) */
 .chat-container{position:fixed;top:0;right:-380px;width:360px;height:100%;background:white;border-left:4px solid #2e8b57;transition:0.3s;z-index:1001;display:flex;flex-direction:column;}
+ 
 .chat-container.open{right:0;}
 .chat-header{background:#2e8b57;color:white;padding:15px;display:flex;justify-content:space-between;align-items:center;}
 .chat-header button{background:none;border:none;color:white;font-size:20px;cursor:pointer;}
@@ -1467,7 +1468,6 @@ MODALE COMMANDE
   <button class="nav-item" id="favoritesBtn">
     <div class="icon">❤️</div>
     <span>Favoris</span>
-    <span id="favoritesBadge" class="badge">0</span>
   </button>
 
   <button class="nav-item" id="notifBtn">
