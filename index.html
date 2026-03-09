@@ -1239,53 +1239,43 @@ transform:scale(1);
 box-shadow:0 10px 25px rgba(0,0,0,0.25);
 }
 
-/* ===================== */
 /* MODAL FOND */
 .modal {
   display: none;
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
   z-index: 3000;
-  justify-content: center;
-  align-items: center;
-  padding: 15px;
-  backdrop-filter: blur(4px);
+  padding: 20px; /* espace autour */
+  overflow-y: auto; /* scroll si le contenu dépasse */
+  box-sizing: border-box;
 }
 
-/* ===================== */
 /* CONTENU MODAL */
 .modal-content {
   background: #fff;
-  width: 90%;
   max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
+  width: 90%;
+  max-height: calc(80vh - 40px); /* laisse marge en haut et bas */
+  margin: auto; /* centré verticalement si possible */
   border-radius: 12px;
   padding: 16px;
   position: relative;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  animation: slideModal 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
-/* ANIMATION OUVERTURE */
-@keyframes slideModal {
-  from { transform: translateY(40px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* ===================== */
 /* TITRE MODAL */
 .modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
+  margin: 0 0 15px 0;
   font-size: 20px;
   font-weight: 600;
   color: #2e8b57;
   text-align: center;
 }
 
-/* ===================== */
 /* BOUTONS TABS */
 .modal-tabs {
   display: flex;
@@ -1308,7 +1298,6 @@ box-shadow:0 10px 25px rgba(0,0,0,0.25);
   color: white;
 }
 
-/* ===================== */
 /* BOUTON FERMER X */
 .modal-close {
   position: absolute;
@@ -1383,12 +1372,9 @@ box-shadow:0 10px 25px rgba(0,0,0,0.25);
 </div>
 
 
- <!-- MODAL FAVORIS -->
-<div id="favoritesModal" class="modal" style="display:none;">
-
+ <div id="favoritesModal" class="modal" style="display:none;">
   <div class="modal-content">
-
-    <!-- BOUTON FERMER X -->
+    <!-- X fermer -->
     <button id="closeFavorites" class="modal-close">✕</button>
 
     <h3>❤️ Favoris</h3>
@@ -1401,9 +1387,8 @@ box-shadow:0 10px 25px rgba(0,0,0,0.25);
     <div id="favoritesShopsList"></div>
     <div id="favoritesProductsList" style="display:none;"></div>
     <div id="favoritesList" style="display:none;"></div>
-
   </div>
-</div>
+ </div>
   <!-- CONTENEUR BOUTONS HORIZONTAUX -->
 <div class="topButtons">
  <button id="resetFilterBtn" class="topBtn secondary">🔄 Toutes les boutiques</button>
