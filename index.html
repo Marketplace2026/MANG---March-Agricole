@@ -2877,51 +2877,35 @@ async function loadShops() {
               <span class="favCount">0</span>
             </button>
 
-            <button class="openShopBtn"
-              style="
-                padding:8px;
-                border:none;
-                border-radius:10px;
-                background:green;
-                color:white;
-                font-weight:600;
-                cursor:pointer;
-                transition:0.2s;
-                width:100%;">
-              Ouvrir la boutique
-            </button>
+            
 
           </div>
         </div>
       `;
 
       
-      const favBtn = div.querySelector(".favoriteShopBtn");
+  // 🔹 Clic sur la carte pour ouvrir la boutique
+  div.onclick = (e) => {
+    if (e.target.closest(".favoriteShopBtn")) return; // si clique sur Suivre, ne pas ouvrir
+    openShop(shop);
+  };
 
-favBtn.onclick = () => toggleFavoriteShop(shop.id, favBtn);
+  // 🔹 Initialiser favoris
+  const favBtn = div.querySelector(".favoriteShopBtn");
+  favBtn.onclick = () => toggleFavoriteShop(shop.id, favBtn);
+  initFavoriteShop(shop.id, favBtn);
 
-// Initialiser l’état (déjà suivi ou non)
-initFavoriteShop(shop.id, favBtn);
-      
-      // Bouton hover
-      const btn = div.querySelector(".openShopBtn");
-      btn.onmouseover = () => btn.style.background = "#27ae60";
-      btn.onmouseout = () => btn.style.background = "#2e8b57";
+  // 🔹 Hover lift
+  div.onmouseover = () => div.style.transform = "translateY(-4px)";
+  div.onmouseout = () => div.style.transform = "translateY(0)";
+  div.style.transition = "0.25s";
+  div.style.boxShadow = "0 6px 18px rgba(0,0,0,0.12)";
+  div.style.borderRadius = "12px";
+  div.style.background = "#fff";
+  div.style.overflow = "hidden";
 
-      // Carte hover lift
-      div.onmouseover = () => div.style.transform = "translateY(-4px)";
-      div.onmouseout = () => div.style.transform = "translateY(0)";
-      div.style.transition = "0.25s";
-      div.style.boxShadow = "0 6px 18px rgba(0,0,0,0.12)";
-      div.style.borderRadius = "12px";
-      div.style.background = "#fff";
-      div.style.overflow = "hidden";
-
-      // Click ouvrir boutique
-      div.querySelector(".openShopBtn").onclick = () => openShop(shop);
-
-      shopsList.appendChild(div);
-    });
+  shopsList.appendChild(div);
+});
 
   } catch(err) {
     console.error("Erreur inattendue loadShops:", err);
