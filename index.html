@@ -1091,15 +1091,9 @@ cursor:pointer;
 transition:all 0.25s ease;
 }
 
-
-/* ANIMATION AU CLIC */
-
 .nav-item:active{
 transform:scale(0.9);
 }
-
-
-/* HOVER */
 
 .nav-item:hover{
 color:#2e8b57;
@@ -1164,16 +1158,10 @@ animation:badgePulse 1.5s infinite;
 
 @keyframes badgePulse{
 
-0%{
-transform:scale(1);
-}
+0%{transform:scale(1);}
+50%{transform:scale(1.2);}
+100%{transform:scale(1);}
 
-50%{
-transform:scale(1.2);
-}
-
-100%{
-transform:scale(1);
 }
 
 
@@ -1212,15 +1200,14 @@ animation:sellPulse 2s infinite;
 cursor:pointer;
 }
 
-
 .sell-btn:active{
 transform:scale(0.9);
 }
-body{
-padding-bottom:200px;
-}
 
-/* ANIMATION BOUTON VENDRE */
+
+/* ===================== */
+/* ANIMATION BOUTON */
+/* ===================== */
 
 @keyframes sellPulse{
 
@@ -1239,11 +1226,25 @@ transform:scale(1);
 box-shadow:0 10px 25px rgba(0,0,0,0.25);
 }
 
- #shopsList::after{
-  content:"";
-  display:block;
-  height:160px;
 }
+
+
+/* ===================== */
+/* ESPACE POUR LE SCROLL */
+/* ===================== */
+
+body{
+padding-bottom:120px;
+}
+
+/* espace supplémentaire après la dernière carte */
+
+#shopsList::after{
+content:"";
+display:block;
+height:120px;
+}
+
 /* MODAL FOND */
 .modal {
   display: none;
