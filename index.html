@@ -1141,25 +1141,22 @@ transform:scale(1.15);
 /* BADGE NOTIFICATION */
 /* ===================== */
 
-
-/* ===================== */
-/* BOUTON VENDRE */
-/* ===================== */
 .badge{
 position:absolute;
-top:0;
-right:0;
 
-background:red;
+top:-4px;
+right:-6px;
+
+background:#ff3b30;
 color:white;
 
 font-size:10px;
-font-weight:bold;
+font-weight:700;
 
 min-width:16px;
 height:16px;
 
-padding:2px 4px;
+padding:2px 5px;
 
 border-radius:999px;
 
@@ -1169,16 +1166,14 @@ justify-content:center;
 
 line-height:1;
 
-animation:badgePulse 1.5s infinite;
+border:2px solid white;
 }
 
-@keyframes badgePulse{
-0%{transform:scale(1);}
-50%{transform:scale(1.15);}
-100%{transform:scale(1);}
-}
 
- 
+/* ===================== */
+/* BOUTON VENDRE */
+/* ===================== */
+
 .sell-btn{
 
 grid-column:3;
@@ -1186,7 +1181,7 @@ grid-column:3;
 width:55px;
 height:55px;
 
-background: linear-gradient(135deg,#1c5f3f,#2e8b57,#3cb371) !important;
+background:linear-gradient(135deg,#1c5f3f,#2e8b57,#3cb371);
 color:white;
 
 border:none;
