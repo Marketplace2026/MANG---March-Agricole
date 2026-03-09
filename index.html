@@ -2810,9 +2810,15 @@ async function loadShops() {
       
   // 🔹 Clic sur la carte pour ouvrir la boutique
   div.onclick = (e) => {
-    if (e.target.closest(".favoriteShopBtn")) return; // si clique sur Suivre, ne pas ouvrir
-    openShop(shop);
-  };
+
+  // si clic sur bouton suivre
+  if (e.target.closest(".favoriteShopBtn")) return;
+
+  // si clic sur image zoomable
+  if (e.target.closest(".zoomable-image")) return;
+
+  openShop(shop);
+};
 
   // 🔹 Initialiser favoris
   const favBtn = div.querySelector(".favoriteShopBtn");
