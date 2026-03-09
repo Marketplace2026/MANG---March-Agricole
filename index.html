@@ -1185,7 +1185,7 @@ border-radius:50%;
 font-size:30px;
 
 margin:auto;
-margin-top:-20px;
+margin-top:-15px;
 
 display:flex;
 align-items:center;
@@ -1296,23 +1296,23 @@ height:120px;
 </div>
 
 
- <div id="favoritesModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <!-- X fermer -->
-    <button id="closeFavorites" class="modal-close">✕</button>
-
+<!-- Modal Favoris -->
+<div id="favoritesModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; justify-content:center; align-items:center;">
+  <div style="background:#fff; width:90%; max-width:500px; max-height:80vh; overflow-y:auto; border-radius:12px; padding:16px;">
     <h3>❤️ Favoris</h3>
-
-    <div class="modal-tabs">
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
       <button id="btnFavorisBoutiques">Boutiques</button>
       <button id="btnFavorisProduits">Produits</button>
+      
     </div>
 
     <div id="favoritesShopsList"></div>
     <div id="favoritesProductsList" style="display:none;"></div>
-    <div id="favoritesList" style="display:none;"></div>
+    <div id="favoritesList" style="display:none;"></div> <!-- notifications -->
+
+    <button id="closeFavorites" style="margin-top:12px;width:100%;">Fermer</button>
   </div>
- </div>
+</div>
   <!-- CONTENEUR BOUTONS HORIZONTAUX -->
 <div class="topButtons">
  <button id="resetFilterBtn" class="topBtn secondary">🔄 Toutes les boutiques</button>
