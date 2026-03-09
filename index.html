@@ -1199,7 +1199,7 @@ border-radius:50%;
 font-size:30px;
 
 margin:auto;
-margin-top:-25px;
+margin-top:-20px;
 
 display:flex;
 align-items:center;
@@ -1795,7 +1795,22 @@ tabVente.onclick = async () => {
   discussionsList.innerHTML = ""; // vider la liste avant de recharger
   if (currentUser) await loadDiscussionsVente();
 };
-  
+
+ // 1️⃣ Sélectionne tous les modals
+const modals = document.querySelectorAll(".modal");
+
+// 2️⃣ Sélectionne tous les boutons de la barre du bas
+const navButtons = document.querySelectorAll(".bottom-nav button");
+
+// 3️⃣ Ajoute un événement à chaque bouton
+navButtons.forEach(function(button){
+  button.addEventListener("click", function(){
+    // Ferme tous les modals
+    modals.forEach(function(modal){
+      modal.style.display = "none";
+    });
+  });
+});
   const nearbyShopsBtn = document.getElementById("nearbyShopsBtn");
 const maxDistance = 15; // km maximum à afficher
 
