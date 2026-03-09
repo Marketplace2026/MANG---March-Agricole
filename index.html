@@ -1234,7 +1234,7 @@ box-shadow:0 10px 25px rgba(0,0,0,0.25);
 /* ===================== */
 
 body{
-padding-bottom:120px;
+padding-bottom:90px;
 }
 
 /* espace supplémentaire après la dernière carte */
@@ -1245,100 +1245,7 @@ display:block;
 height:120px;
 }
 
-/* MODAL FOND */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 3000;
-  padding: 20px; /* espace autour */
-  overflow-y: auto; /* scroll si le contenu dépasse */
-  box-sizing: border-box;
-}
-
-/* CONTENU MODAL */
-.modal-content {
-  background: #fff;
-  max-width: 500px;
-  width: 90%;
-  max-height: calc(80vh - 40px); /* laisse marge en haut et bas */
-  margin: auto; /* centré verticalement si possible */
-  border-radius: 12px;
-  padding: 16px;
-  position: relative;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-/* TITRE MODAL */
-.modal-content h3 {
-  margin: 0 0 15px 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #2e8b57;
-  text-align: center;
-}
-
-/* BOUTONS TABS */
-.modal-tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.modal-tabs button {
-  border: none;
-  padding: 8px 14px;
-  border-radius: 20px;
-  background: #f2f2f2;
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.2s ease;
-}
-
-.modal-tabs button:hover {
-  background: #2e8b57;
-  color: white;
-}
-
-/* BOUTON FERMER X */
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: #f2f2f2;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: #ff4d4d;
-  color: white;
-}
-
- .nav-item.active::after{
-content:"";
-position:absolute;
-bottom:-8px;
-
-width:20px;
-height:3px;
-
-background:#2e8b57;
-border-radius:3px;
- }
+  
 </style>
 
 <script type="application/ld+json">
