@@ -2403,25 +2403,22 @@ submitProductBtn.onclick = async () => {
   isSubmittingProduct = true;
   submitProductBtn.disabled = true;
 
+  // 🔹 Fonction utilitaire pour alert + réactivation bouton
+  const failWithAlert = (message) => {
+    alert(message);
+    isSubmittingProduct = false;
+    submitProductBtn.disabled = false;
+  };
+
   try {
-    if (!currentShop) {
-      alert("Sélectionnez d'abord une boutique");
-      return;
-    }
+    // 🔹 Vérifications obligatoires
+    if (!currentShop) return failWithAlert("Sélectionnez d'abord une boutique");
 
     const productCost = 5;
 
-    if (currentProfile.coins == null) {
-      alert("Erreur récupération des coins");
-      return;
-    }
+    if (currentProfile.coins == null) return failWithAlert("Erreur récupération des coins");
+    if (currentProfile.coins < productCost) return failWithAlert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
 
-    if (currentProfile.coins < productCost) {
-      alert("⚠️ Coins insuffisants. Veuillez recharger vos coins.");
-      return;
-    }
-
-    // 🔹 Récupérer les champs
     const name = productName.value.trim();
     const description = productDesc.value.trim();
     const price = Number(productPrice.value);
@@ -2429,15 +2426,12 @@ submitProductBtn.onclick = async () => {
     const availabilitySelect = document.getElementById("productAvailability");
     const availability = availabilitySelect ? availabilitySelect.value : "now";
 
-    // 🔹 Vérification champs obligatoires
     if (!name || !description || !price || !file) {
-      alert("⚠️ Tous les champs sont obligatoires, y compris la photo du produit !");
-      return;
+      return failWithAlert("⚠️ Tous les champs sont obligatoires, y compris la photo du produit !");
     }
 
     if (isNaN(price) || price <= 0) {
-      alert("⚠️ Le prix doit être un nombre supérieur à 0");
-      return;
+      return failWithAlert("⚠️ Le prix doit être un nombre supérieur à 0");
     }
 
     // 🔹 Infos boutique
@@ -2447,10 +2441,7 @@ submitProductBtn.onclick = async () => {
       .eq("id", currentShop.id)
       .single();
 
-    if (shopError || !shop) {
-      alert("Impossible de récupérer la boutique");
-      return;
-    }
+    if (shopError || !shop) return failWithAlert("Impossible de récupérer la boutique");
 
     const shopName = shop.name;
 
@@ -2461,10 +2452,7 @@ submitProductBtn.onclick = async () => {
       .eq("shop_id", currentShop.id);
 
     const maxProducts = shopProductLimits[shop.premium_level || "free"];
-    if (products.length >= maxProducts) {
-      alert(`Limite atteinte (${maxProducts} produits)`);
-      return;
-    }
+    if (products.length >= maxProducts) return failWithAlert(`Limite atteinte (${maxProducts} produits)`);
 
     // 🔹 Upload image
     let imageUrl = null;
@@ -2476,11 +2464,7 @@ submitProductBtn.onclick = async () => {
         .from("products")
         .upload(fileName, compressedFile, { contentType: "image/jpeg" });
 
-      if (uploadError) {
-        console.error(uploadError);
-        alert("Erreur upload image");
-        return;
-      }
+      if (uploadError) return failWithAlert("Erreur upload image");
 
       imageUrl = supabase.storage
         .from("products")
@@ -2504,11 +2488,10 @@ submitProductBtn.onclick = async () => {
     if (insertError) {
       console.error("Erreur Supabase :", insertError);
       if (insertError.code === "23505") {
-        alert("⚠️ Vous avez déjà dans votre boutique un produit identique.");
+        return failWithAlert("⚠️ Vous avez déjà dans votre boutique un produit identique.");
       } else {
-        alert("❌ Erreur lors de l'ajout du produit.");
+        return failWithAlert("❌ Erreur lors de l'ajout du produit.");
       }
-      return;
     }
 
     // 🔹 Déduire les coins
@@ -2547,7 +2530,7 @@ submitProductBtn.onclick = async () => {
     console.error("Erreur ajout produit :", err);
     alert("Erreur inattendue lors de l'ajout");
   } finally {
-    // 🔓 Toujours réactiver
+    // 🔓 Toujours réactiver le bouton
     isSubmittingProduct = false;
     submitProductBtn.disabled = false;
   }
@@ -2568,7 +2551,6 @@ productDesc.addEventListener("input", checkProductForm);
 productPrice.addEventListener("input", checkProductForm);
 productImage.addEventListener("change", checkProductForm);
 checkProductForm(); // initial
-
   
 // ===== INIT =====
 await loadCurrentUser();
