@@ -2403,6 +2403,7 @@ submitProductBtn.onclick = async () => {
   isSubmittingProduct = true;
   submitProductBtn.disabled = true;
 
+
   // 🔹 Fonction utilitaire pour alert + réactivation bouton
   const failWithAlert = (message) => {
     alert(message);
@@ -2411,7 +2412,6 @@ submitProductBtn.onclick = async () => {
   };
 
   try {
-    // 🔹 Vérifications obligatoires
     if (!currentShop) return failWithAlert("Sélectionnez d'abord une boutique");
 
     const productCost = 5;
@@ -2487,11 +2487,8 @@ submitProductBtn.onclick = async () => {
 
     if (insertError) {
       console.error("Erreur Supabase :", insertError);
-      if (insertError.code === "23505") {
-        return failWithAlert("⚠️ Vous avez déjà dans votre boutique un produit identique.");
-      } else {
-        return failWithAlert("❌ Erreur lors de l'ajout du produit.");
-      }
+      if (insertError.code === "23505") return failWithAlert("⚠️ Produit déjà existant dans votre boutique.");
+      else return failWithAlert("❌ Erreur lors de l'ajout du produit.");
     }
 
     // 🔹 Déduire les coins
@@ -2535,7 +2532,7 @@ submitProductBtn.onclick = async () => {
     submitProductBtn.disabled = false;
   }
 };
-
+  
 // 🔹 BONUS : bouton actif seulement si tous les champs remplis
 function checkProductForm() {
   submitProductBtn.disabled = !(
