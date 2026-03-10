@@ -2403,18 +2403,15 @@ function formatAvailability(value) {
 }
 
   // ===== AJOUT PRODUIT BOUTIQUE =====
-
 let isSubmittingProduct = false;
 
 submitProductBtn.onclick = async () => {
-
   // 🔒 ANTI DOUBLE CLIC
   if (isSubmittingProduct) return;
   isSubmittingProduct = true;
   submitProductBtn.disabled = true;
 
   try {
-
     if (!currentShop) {
       alert("Sélectionnez d'abord une boutique");
       return;
@@ -2422,7 +2419,7 @@ submitProductBtn.onclick = async () => {
 
     const productCost = 5;
 
-    if (currentProfile.coins === null || currentProfile.coins === undefined) {
+    if (currentProfile.coins == null) {
       alert("Erreur récupération des coins");
       return;
     }
@@ -2432,16 +2429,22 @@ submitProductBtn.onclick = async () => {
       return;
     }
 
+    // 🔹 Récupérer les champs
     const name = productName.value.trim();
     const description = productDesc.value.trim();
     const price = Number(productPrice.value);
     const file = productImage.files[0];
-
     const availabilitySelect = document.getElementById("productAvailability");
     const availability = availabilitySelect ? availabilitySelect.value : "now";
 
-    if (!name || !price) {
-      alert("Nom et prix obligatoires");
+    // 🔹 Vérification champs obligatoires
+    if (!name || !description || !price || !file) {
+      alert("⚠️ Tous les champs sont obligatoires, y compris la photo du produit !");
+      return;
+    }
+
+    if (isNaN(price) || price <= 0) {
+      alert("⚠️ Le prix doit être un nombre supérieur à 0");
       return;
     }
 
@@ -2466,7 +2469,6 @@ submitProductBtn.onclick = async () => {
       .eq("shop_id", currentShop.id);
 
     const maxProducts = shopProductLimits[shop.premium_level || "free"];
-
     if (products.length >= maxProducts) {
       alert(`Limite atteinte (${maxProducts} produits)`);
       return;
@@ -2474,16 +2476,13 @@ submitProductBtn.onclick = async () => {
 
     // 🔹 Upload image
     let imageUrl = null;
-
     if (file) {
       const compressedFile = await compressImage(file, 800, 0.7);
       const fileName = `product_${currentShop.id}_${Date.now()}.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from("products")
-        .upload(fileName, compressedFile, {
-          contentType: "image/jpeg"
-        });
+        .upload(fileName, compressedFile, { contentType: "image/jpeg" });
 
       if (uploadError) {
         console.error(uploadError);
@@ -2496,47 +2495,42 @@ submitProductBtn.onclick = async () => {
         .getPublicUrl(fileName).data.publicUrl;
     }
 
-// 🔹 INSERT PRODUIT (IMPORTANT : owner & seller)
-const { error: insertError } = await supabase
-  .from("shop_products")
-  .insert({
-    shop_id: currentShop.id,
-    name,
-    description,
-    price,
-    image_url: imageUrl,
-    availability,
-    owner_id: currentUser.id,
-    seller_id: currentUser.id
-  });
+    // 🔹 INSERT PRODUIT
+    const { error: insertError } = await supabase
+      .from("shop_products")
+      .insert({
+        shop_id: currentShop.id,
+        name,
+        description,
+        price,
+        image_url: imageUrl,
+        availability,
+        owner_id: currentUser.id,
+        seller_id: currentUser.id
+      });
 
-if (insertError) {
-  console.error("Erreur Supabase :", insertError);
+    if (insertError) {
+      console.error("Erreur Supabase :", insertError);
+      if (insertError.code === "23505") {
+        alert("⚠️ Vous avez déjà dans votre boutique un produit identique.");
+      } else {
+        alert("❌ Erreur lors de l'ajout du produit.");
+      }
+      return;
+    }
 
-  if (insertError.code === "23505") {
-    alert("⚠️ Vous avez déjà dans votre boutique un produit identique à celui que vous voulez créer.");
-  } else {
-    alert("❌ Erreur lors de l'ajout du produit.");
-  }
+    // 🔹 Déduire les coins
+    currentProfile.coins -= productCost;
+    await supabase
+      .from("profiles")
+      .update({ coins: currentProfile.coins })
+      .eq("id", currentUser.id);
 
-  return;
-}
+    const coinsElement = document.getElementById("userCoins");
+    if (coinsElement) coinsElement.textContent = currentProfile.coins;
 
-// 🔹 Déduire les pièces
-currentProfile.coins -= productCost;
+    alert(`✅ Produit ajouté avec succès ! Il vous reste ${currentProfile.coins} pièces`);
 
-await supabase
-  .from("profiles")
-  .update({ coins: currentProfile.coins })
-  .eq("id", currentUser.id);
-
-const coinsElement = document.getElementById("userCoins");
-if (coinsElement) {
-  coinsElement.textContent = currentProfile.coins;
-}
-
-alert(`✅ Produit ajouté avec succès ! Il vous reste ${currentProfile.coins} pièces`);
-    
     // 🔹 Notification
     await supabase.from("notif_market").insert({
       user_id: currentUser.id,
@@ -2567,6 +2561,23 @@ alert(`✅ Produit ajouté avec succès ! Il vous reste ${currentProfile.coins} 
   }
 };
 
+// 🔹 BONUS : bouton actif seulement si tous les champs remplis
+function checkProductForm() {
+  submitProductBtn.disabled = !(
+    productName.value.trim() &&
+    productDesc.value.trim() &&
+    productPrice.value.trim() &&
+    productImage.files.length
+  );
+}
+
+productName.addEventListener("input", checkProductForm);
+productDesc.addEventListener("input", checkProductForm);
+productPrice.addEventListener("input", checkProductForm);
+productImage.addEventListener("change", checkProductForm);
+checkProductForm(); // initial
+
+  
 // ===== INIT =====
 await loadCurrentUser();
 
