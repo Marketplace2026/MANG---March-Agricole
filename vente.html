@@ -1603,27 +1603,26 @@ document.getElementById("createShopBtn").addEventListener("click", async () => {
   }
 });
 
-  // ===== CREER BOUTIQUE =====
 
+
+  // ===== CREER BOUTIQUE =====
 let isSubmittingShop = false;
 
 submitShopBtn.onclick = async () => {
-
   // 🔒 ANTI DOUBLE CLIC
   if (isSubmittingShop) return;
   isSubmittingShop = true;
   submitShopBtn.disabled = true;
 
   try {
-
     const name = shopName.value.trim();
-    if (!name) {
-      alert("Nom obligatoire");
-      return;
-    }
+    const description = shopDesc.value.trim();
+    const location = shopLocation.value.trim();
+    const file = shopImage.files[0];
 
-    if (!selectedShopCategory) {
-      alert("Veuillez choisir une catégorie");
+    // 🔹 Vérification que tous les champs obligatoires sont remplis
+    if (!name || !description || !selectedShopCategory || !location || !file) {
+      alert("⚠️ Tous les champs sont obligatoires, y compris la photo !");
       return;
     }
 
@@ -1643,7 +1642,6 @@ submitShopBtn.onclick = async () => {
     const whatsapp = document.getElementById("whatsapp")?.value.trim() || null;
 
     let imageUrl = null;
-    const file = shopImage.files[0];
 
     if (file) {
       const compressedFile = await compressImage(file, 900, 0.7);
@@ -1665,59 +1663,53 @@ submitShopBtn.onclick = async () => {
         .getPublicUrl(fileName).data.publicUrl;
     }
 
-
     const { error } = await supabase
-  .from("shops")
-  .insert({
-    owner_id: currentUser.id,
-    name,
-    description: shopDesc.value,
-    category: selectedShopCategory,
-    location: shopLocation.value,
-    image_url: imageUrl,
-    livraison: livraison,
-    whatsapp: whatsapp,
-    premium_level: currentProfile?.premium_level || "free"
-  });
+      .from("shops")
+      .insert({
+        owner_id: currentUser.id,
+        name,
+        description,
+        category: selectedShopCategory,
+        location,
+        image_url: imageUrl,
+        livraison: livraison,
+        whatsapp: whatsapp,
+        premium_level: currentProfile?.premium_level || "free"
+      });
 
-if (error) {
-  console.error("Erreur Supabase :", error);
+    if (error) {
+      console.error("Erreur Supabase :", error);
 
-  if (error.code === "23505") {
-    alert("⚠️ Vous avez déjà une boutique avec ce nom.");
-  } else {
-    alert("❌ Erreur lors de la création de la boutique.");
-  }
+      if (error.code === "23505") {
+        alert("⚠️ Vous avez déjà une boutique avec ce nom.");
+      } else {
+        alert("❌ Erreur lors de la création de la boutique.");
+      }
 
-  return;
-}
+      return;
+    }
 
-currentProfile.coins -= cost;
+    // 🔹 Déduire les coins
+    currentProfile.coins -= cost;
 
-await supabase
-  .from("profiles")
-  .update({ coins: currentProfile.coins })
-  .eq("id", currentUser.id);
+    await supabase
+      .from("profiles")
+      .update({ coins: currentProfile.coins })
+      .eq("id", currentUser.id);
 
-const coinsElement = document.getElementById("userCoins");
-if (coinsElement) coinsElement.textContent = currentProfile.coins;
+    const coinsElement = document.getElementById("userCoins");
+    if (coinsElement) coinsElement.textContent = currentProfile.coins;
 
-alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
-    
+    alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
+
+    // 🔹 Reset formulaire
     shopName.value = "";
     shopDesc.value = "";
     shopCategoryInput.value = "";
     shopLocation.value = "";
     shopImage.value = "";
-
-    if (document.getElementById("livraison")) {
-      document.getElementById("livraison").checked = false;
-    }
-
-    if (document.getElementById("whatsapp")) {
-      document.getElementById("whatsapp").value = "";
-    }
-
+    if (document.getElementById("livraison")) document.getElementById("livraison").checked = false;
+    if (document.getElementById("whatsapp")) document.getElementById("whatsapp").value = "";
     selectedShopCategory = null;
 
     shopFullModal.style.display = "none";
@@ -1732,7 +1724,7 @@ alert(`✅ Boutique créée ! Il vous reste ${currentProfile.coins} pièces`);
     submitShopBtn.disabled = false;
   }
 };
-
+  
   let selectedShopCategory = null;
 let selectedMainCategory = null;
 let selectedSubCategories = [];
