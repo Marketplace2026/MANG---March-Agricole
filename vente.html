@@ -2403,8 +2403,8 @@ submitProductBtn.onclick = async () => {
   isSubmittingProduct = true;
   submitProductBtn.disabled = true;
 
-
-  // 🔹 Fonction utilitaire pour alert + réactivation bouton
+  
+ // 🔹 Fonction utilitaire pour alert + réactivation bouton
   const failWithAlert = (message) => {
     alert(message);
     isSubmittingProduct = false;
@@ -2455,21 +2455,18 @@ submitProductBtn.onclick = async () => {
     if (products.length >= maxProducts) return failWithAlert(`Limite atteinte (${maxProducts} produits)`);
 
     // 🔹 Upload image
-    let imageUrl = null;
-    if (file) {
-      const compressedFile = await compressImage(file, 800, 0.7);
-      const fileName = `product_${currentShop.id}_${Date.now()}.jpg`;
+    const compressedFile = await compressImage(file, 800, 0.7);
+    const fileName = `product_${currentShop.id}_${Date.now()}.jpg`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(fileName, compressedFile, { contentType: "image/jpeg" });
+    const { error: uploadError } = await supabase.storage
+      .from("products")
+      .upload(fileName, compressedFile, { contentType: "image/jpeg" });
 
-      if (uploadError) return failWithAlert("Erreur upload image");
+    if (uploadError) return failWithAlert("Erreur upload image");
 
-      imageUrl = supabase.storage
-        .from("products")
-        .getPublicUrl(fileName).data.publicUrl;
-    }
+    const imageUrl = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName).data.publicUrl;
 
     // 🔹 INSERT PRODUIT
     const { error: insertError } = await supabase
@@ -2525,29 +2522,13 @@ submitProductBtn.onclick = async () => {
 
   } catch (err) {
     console.error("Erreur ajout produit :", err);
-    alert("Erreur inattendue lors de l'ajout");
+    failWithAlert("Erreur inattendue lors de l'ajout");
   } finally {
-    // 🔓 Toujours réactiver le bouton
     isSubmittingProduct = false;
     submitProductBtn.disabled = false;
   }
 };
-  
-// 🔹 BONUS : bouton actif seulement si tous les champs remplis
-function checkProductForm() {
-  submitProductBtn.disabled = !(
-    productName.value.trim() &&
-    productDesc.value.trim() &&
-    productPrice.value.trim() &&
-    productImage.files.length
-  );
-}
 
-productName.addEventListener("input", checkProductForm);
-productDesc.addEventListener("input", checkProductForm);
-productPrice.addEventListener("input", checkProductForm);
-productImage.addEventListener("change", checkProductForm);
-checkProductForm(); // initial
   
 // ===== INIT =====
 await loadCurrentUser();
