@@ -509,23 +509,17 @@ flex-direction:column;
   display: none;
 }
 
- /* Overlay sombre */
+ /* Overlay */
 #favoritesModal{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
   display: none;
-
-  justify-content: center;
-  align-items: flex-start;
-
-  padding-top: 10px;
-
-  z-index: 3000;
+  z-index: 1000;
 }
 
 /* panneau favoris */
-#favoritesModal > div{
+#favoritesPanel{
   position: fixed;
 
   top: 0;
@@ -534,28 +528,23 @@ flex-direction:column;
   width: 100%;
   max-width: 500px;
 
-  height: calc(100vh - 20px); /* espace pour barre bas */
+  height: calc(100vh - 80px);
+  bottom: 120px;
 
   background: white;
-
   border-left: 4px solid #2e8b57;
-
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
 
   display: flex;
   flex-direction: column;
 
-  padding: 16px;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
 
-  overflow: hidden;
-
-  box-shadow: -3px 0 10px rgba(0,0,0,0.2);
+  box-shadow: -3px 0 10px rgba(0,0,0,0.15);
 }
 
-/* header favoris */
-#favoritesModal h3{
-  
+/* header identique notifications */
+.notifHeader{
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -570,16 +559,25 @@ flex-direction:column;
   background:#f9f9f9;
 }
 
-/* bouton fermer (X) */
-#closeFavorites{
+/* bouton X */
+.notifHeader button{
   font-size:22px;
   background:none;
   border:none;
   cursor:pointer;
 }
- 
-/* boutons Boutiques / Produits */
-#favoritesModal button{
+
+/* boutons onglets */
+.favoritesTabs{
+  display:flex;
+  gap:10px;
+
+  padding:12px;
+
+  border-bottom:1px solid #eee;
+}
+
+.favoritesTabs button{
   border:none;
   background:#f5f5f5;
 
@@ -590,22 +588,17 @@ flex-direction:column;
   cursor:pointer;
 }
 
-#favoritesModal button:hover{
-  background:#e9e9e9;
-}
-
-/* conteneur listes */
+/* liste favoris */
 #favoritesShopsList,
-#favoritesProductsList,
-#favoritesList{
+#favoritesProductsList{
   flex:1;
-
   overflow-y:auto;
 
-  margin-top:10px;
+  padding:10px;
 
-  padding-bottom:120px; /* espace pour barre bas */
+  padding-bottom:120px;
 }
+  
 .favorite-shop-btn {
   margin-top: 8px;
   padding: 6px 10px;
@@ -1445,24 +1438,28 @@ height:120px;
   </div>
 </div>
 
+ <!-- Modal Favoris -->
+<div id="favoritesModal">
 
-<!-- Modal Favoris -->
-<div id="favoritesModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; justify-content:center; align-items:center;">
-  <div style="background:#fff; width:90%; max-width:500px; max-height:80vh; overflow-y:auto; border-radius:12px; padding:16px;">
-    <h3>❤️ Favoris</h3>
-<button id="closeFavorites">×</button>
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
+  <div id="favoritesPanel">
+
+    <div class="notifHeader">
+      <h3>❤️ Favoris</h3>
+      <button id="closeFavorites">×</button>
+    </div>
+
+    <div class="favoritesTabs">
       <button id="btnFavorisBoutiques">Boutiques</button>
       <button id="btnFavorisProduits">Produits</button>
-      
     </div>
 
     <div id="favoritesShopsList"></div>
     <div id="favoritesProductsList" style="display:none;"></div>
-    <div id="favoritesList" style="display:none;"></div> <!-- notifications -->
-   
+
   </div>
+
 </div>
+
   <!-- CONTENEUR BOUTONS HORIZONTAUX -->
 <div class="topButtons">
  <button id="resetFilterBtn" class="topBtn secondary">🔄 Toutes les boutiques</button>
