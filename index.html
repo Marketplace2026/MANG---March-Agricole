@@ -1996,15 +1996,6 @@ window.addEventListener("resize", updateBottomSpace);
 
 
  
- function closeAllModals(){
-
-document.getElementById("notifOverlay").style.display = "none";
-document.getElementById("favoritesModal").style.display = "none";
-document.getElementById("topShopsOverlay").style.display = "none";
-
- }
- 
- 
   const nearbyShopsBtn = document.getElementById("nearbyShopsBtn");
 const maxDistance = 15; // km maximum à afficher
 
@@ -2082,6 +2073,19 @@ async function loadNearbyShops() {
 nearbyShopsBtn.onclick = loadNearbyShops;
   
 console.log("✅ JS ACHAT – FILTRE CATÉGORIES INITIALISÉ");
+
+
+ function closeAllModals(){
+
+const notif = document.getElementById("notifOverlay");
+const fav = document.getElementById("favoritesModal");
+const top = document.getElementById("topShopsOverlay");
+
+if(notif) notif.style.display = "none";
+if(fav) fav.style.display = "none";
+if(top) top.style.display = "none";
+
+ }
 
 /* ==============================
    CATÉGORIES
@@ -2575,9 +2579,13 @@ document.addEventListener("DOMContentLoaded", () => initNotifications());
   console.log("✅ Top boutiques JS attaché");
 
   topBtn.onclick = async () => {
-    overlay.style.display = "flex";
-    container.innerHTML = "<p>Chargement des top boutiques...</p>";
 
+  closeAllModals();   // ← ajoute seulement cette ligne
+
+  overlay.style.display = "flex";
+
+  container.innerHTML = "<p>Chargement des top boutiques...</p>";
+   
     // 1️⃣ Récupérer boutiques
     const { data: shops, error: shopErr } = await supabase
       .from("shops")
