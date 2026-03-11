@@ -414,62 +414,94 @@ flex-direction:column;
   cursor: pointer;
  margin-bottom: 30px;
 }
-  
-#notifOverlay {
+
+ /* Overlay sombre derrière */
+#notifOverlay{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
+  background: rgba(0,0,0,0.45);
+  display: none;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  z-index: 1000;
+}
+
+/* panneau notification */
+#notifPanel{
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  max-width: 500px;
+  height: calc(100% - 90px); /* laisse espace boutons bas */
+  margin-bottom: 90px;
+  
+  background: white;
+  border-left: 4px solid #2e8b57;
+
+  transition: right 0.35s ease;
+
+  display: flex;
+  flex-direction: column;
+
   z-index: 1001;
+
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
 }
 
-#notifPanel {
-position:fixed;
-top:0;
-right:-380px;
-width:360px;
-height:calc(100% - 80px);
-background:white;
-border-left:4px solid #2e8b57;
-transition:0.3s;
-z-index:1001;
-display:flex;
-flex-direction:column;
+/* quand ouvert */
+#notifPanel.active{
+  right: 0;
 }
 
-.notifHeader {
+/* header */
+.notifHeader{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:12px;
+
+  padding:14px;
+
   border-bottom:1px solid #ddd;
+
+  font-weight:600;
+  font-size:16px;
+
+  background:#f9f9f9;
 }
 
-.notifHeader button {
-  font-size:20px;
+/* bouton fermer */
+.notifHeader button{
+  font-size:22px;
   background:none;
   border:none;
   cursor:pointer;
 }
-  .notif-btn {
+
+/* bouton notification */
+.notif-btn{
   position: relative;
   background: none;
   border: none;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-#notifCount {
+/* compteur rouge */
+#notifCount{
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -6px;
+  right: -6px;
+
   background: red;
   color: white;
+
   font-size: 10px;
-  padding: 2px 5px;
+  padding: 2px 6px;
+
   border-radius: 50%;
+
   display: none;
 }
 .favorite-shop-btn {
