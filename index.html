@@ -426,12 +426,17 @@ flex-direction:column;
 }
 
 #notifPanel {
-  width: 95%;
-  max-width: 420px;
-  background: white;
-  border-radius: 12px;
- height:calc(100% - 90px);
-  overflow-y: auto;
+position:fixed;
+top:0;
+right:-380px;
+width:360px;
+height:calc(100% - 80px);
+background:white;
+border-left:4px solid #2e8b57;
+transition:0.3s;
+z-index:1001;
+display:flex;
+flex-direction:column;
 }
 
 .notifHeader {
