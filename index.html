@@ -625,15 +625,29 @@ flex-direction:column;
 
 /* Panneau */
 #topShopsPanel {
-  background: #fff;
-  width: 90%;
-  max-width: 420px;
-  height:calc(100% - 90px);
-  border-radius: 16px;
-  padding: 14px;
+  position: fixed;
+
+  top: 0;
+  right: 0;
+
+  width: 100%;
+  max-width: 500px;
+
+  height: calc(100vh - 80px); /* espace pour boutons */
+  bottom: 120px; /* vraie marge en bas */
+
+  background: white;
+  border-left: 4px solid #2e8b57;
+
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+  z-index: 1001;
+
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+
+  box-shadow: -3px 0 10px rgba(0,0,0,0.15);
 }
 
 /* Header */
@@ -660,6 +674,7 @@ flex-direction:column;
 #topShopsContainer {
   overflow-y: auto;
   padding-right: 4px;
+ padding-bottom:120px;
 }
 /* ===== BARRE FILTRE ===== */
 .filterBar {
