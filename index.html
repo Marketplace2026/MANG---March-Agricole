@@ -613,18 +613,16 @@ flex-direction:column;
   border-color: red;
 }
   /* Overlay sombre */
-#topShopsOverlay {
+#topShopsOverlay{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1001
+  display: none;
+  z-index: 1000;
 }
 
-/* Panneau */
-#topShopsPanel {
+/* panneau */
+#topShopsPanel{
   position: fixed;
 
   top: 0;
@@ -633,8 +631,8 @@ flex-direction:column;
   width: 100%;
   max-width: 500px;
 
-  height: calc(100vh - 80px); /* espace pour boutons */
-  bottom: 120px; /* vraie marge en bas */
+  height: calc(100vh - 80px);
+  bottom: 120px;
 
   background: white;
   border-left: 4px solid #2e8b57;
@@ -642,40 +640,51 @@ flex-direction:column;
   display: flex;
   flex-direction: column;
 
-  z-index: 1001;
-
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
 
   box-shadow: -3px 0 10px rgba(0,0,0,0.15);
 }
 
-/* Header */
-.topShopsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+/* header identique notifications */
+.topShopsHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:14px;
+
+  border-bottom:1px solid #ddd;
+
+  font-weight:600;
+  font-size:16px;
+
+  background:#f9f9f9;
 }
 
-.topShopsHeader h3 {
-  margin: 0;
-  font-size: 18px;
+/* titre */
+.topShopsHeader h3{
+  margin:0;
+  font-size:16px;
 }
 
-#closeTopShops {
-  background: none;
-  border: none;
-  font-size: 26px;
-  cursor: pointer;
+/* bouton fermer */
+#closeTopShops{
+  font-size:22px;
+  background:none;
+  border:none;
+  cursor:pointer;
 }
 
-/* Scroll contenu */
-#topShopsContainer {
- padding-top:50px;
-  overflow-y: auto;
-  padding-right: 6px;
- padding-bottom:120px;
+/* liste scroll */
+#topShopsContainer{
+  flex:1;
+
+  overflow-y:auto;
+
+  padding:10px;
+
+  padding-bottom:120px; /* espace barre bas */
 }
 /* ===== BARRE FILTRE ===== */
 .filterBar {
