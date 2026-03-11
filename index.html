@@ -421,9 +421,6 @@ flex-direction:column;
   inset: 0;
   background: rgba(0,0,0,0.45);
   display: none;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 10px;
   z-index: 1000;
 }
 
@@ -431,15 +428,15 @@ flex-direction:column;
 #notifPanel{
   position: fixed;
   top: 0;
-  right: 0; /* visible directement */
+  right: 0;
 
   width: 100%;
   max-width: 500px;
 
-  height: calc(100vh - 90px); /* laisse espace pour boutons du bas */
+  height: calc(100vh - var(--bottom-space,100px));
+  bottom: var(--bottom-space,100px);
 
   background: white;
-
   border-left: 4px solid #2e8b57;
 
   display: flex;
@@ -458,26 +455,14 @@ flex-direction:column;
   display:flex;
   justify-content:space-between;
   align-items:center;
-
   padding:14px;
-
   border-bottom:1px solid #ddd;
-
   font-weight:600;
   font-size:16px;
-
   background:#f9f9f9;
 }
 
-/* bouton fermer */
-.notifHeader button{
-  font-size:22px;
-  background:none;
-  border:none;
-  cursor:pointer;
-}
-
-/* zone liste notifications */
+/* liste notifications */
 #notifList{
   flex:1;
   overflow-y:auto;
@@ -1627,7 +1612,7 @@ MODALE COMMANDE
 </div>
  
 
- <div class="bottom-nav">
+ <div class="bottom-nav" id="bottomNav">
 
   <button class="nav-item active">
 <div class="icon">🏠</div>
@@ -1854,21 +1839,25 @@ tabVente.onclick = async () => {
   if (currentUser) await loadDiscussionsVente();
 };
 
- // 1️⃣ Sélectionne tous les modals
-const modals = document.querySelectorAll(".modal");
 
-// 2️⃣ Sélectionne tous les boutons de la barre du bas
-const navButtons = document.querySelectorAll(".bottom-nav button");
+ function updateBottomSpace(){
 
-// 3️⃣ Ajoute un événement à chaque bouton
-navButtons.forEach(function(button){
-  button.addEventListener("click", function(){
-    // Ferme tous les modals
-    modals.forEach(function(modal){
-      modal.style.display = "none";
-    });
-  });
-});
+  const bottomNav = document.getElementById("bottomNav");
+
+  if(!bottomNav) return;
+
+  const height = bottomNav.offsetHeight;
+
+  document.documentElement.style.setProperty(
+    "--bottom-space",
+    height + "px"
+  );
+
+}
+
+window.addEventListener("load", updateBottomSpace);
+window.addEventListener("resize", updateBottomSpace);
+ 
   const nearbyShopsBtn = document.getElementById("nearbyShopsBtn");
 const maxDistance = 15; // km maximum à afficher
 
