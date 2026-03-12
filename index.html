@@ -1409,7 +1409,7 @@ display:block;
 height:100px;
 }
 
- .shopDesc{
+.shopDesc{
   font-size:15px;
   min-height:40px;
   line-height:1.5;
@@ -1447,7 +1447,8 @@ height:100px;
   display:flex;
   gap:60px;
   white-space:nowrap;
-  animation: scrollLoop 6s linear infinite;
+
+  animation: scrollLoop 8s linear infinite; /* vitesse un peu plus douce */
 }
 
 /* texte */
@@ -1455,16 +1456,18 @@ height:100px;
   flex-shrink:0;
 }
 
-/* animation */
+/* animation corrigée */
 @keyframes scrollLoop{
+
   0%{
     transform:translateX(0);
   }
-  100%{
-    transform:translateX(-50%);
-  }
-}
 
+  100%{
+    transform:translateX(-100%);
+  }
+
+}
 
 </style>
 
