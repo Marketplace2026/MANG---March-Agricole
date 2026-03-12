@@ -1418,11 +1418,10 @@ height:100px;
   color:#2e7d32;
 
   overflow:hidden;
-  white-space:nowrap;
   position:relative;
 }
 
-/* effet fade sur les bords */
+/* fade sur les bords */
 .shopDesc::before,
 .shopDesc::after{
   content:"";
@@ -1443,34 +1442,30 @@ height:100px;
   background:linear-gradient(to left, white, transparent);
 }
 
-/* texte animé */
-.shopDesc span{
-  display:inline-block;
-  animation: scrollText 20s linear infinite;
+/* conteneur animé */
+.scrollText{
+  display:flex;
+  gap:60px;
+  white-space:nowrap;
+  animation: scrollLoop 20s linear infinite;
+}
+
+/* texte */
+.scrollText span{
+  flex-shrink:0;
 }
 
 /* animation */
-@keyframes scrollText{
-
+@keyframes scrollLoop{
   0%{
-    transform:translateX(100%);
+    transform:translateX(0);
   }
-
-  80%{
-    transform:translateX(-100%);
-  }
-
-  /* pause avant recommencer */
-
-  90%{
-    transform:translateX(-100%);
-  }
-
   100%{
-    transform:translateX(100%);
+    transform:translateX(-50%);
   }
-
 }
+
+
 </style>
 
 <script type="application/ld+json">
@@ -3015,9 +3010,10 @@ async function loadShops() {
 
 <!-- Description -->
 <div class="shopDesc">
-  <span>
-    ${ shop.description ? shop.description : "" }
-  </span>
+  <div class="scrollText">
+    <span>${ shop.description ? shop.description : "" }</span>
+    <span>${ shop.description ? shop.description : "" }</span>
+  </div>
 </div>
           
           <div style="display:flex; flex-direction:column; gap:8px;">
