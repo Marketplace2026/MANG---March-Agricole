@@ -3080,7 +3080,21 @@ async function loadShops() {
 
   shopsList.appendChild(div);
 });
+// 🔹 Ajuster vitesse défilement selon longueur texte
+setTimeout(() => {
 
+  document.querySelectorAll(".scrollText").forEach(el => {
+
+    const length = el.textContent.length;
+
+    const duration = Math.max(18, length * 0.6);
+
+    el.style.animationDuration = duration + "s";
+
+  });
+
+}, 100);
+   
   } catch(err) {
     console.error("Erreur inattendue loadShops:", err);
     shopsList.innerHTML = "<p style='color:red;'>Erreur inattendue lors du chargement</p>";
