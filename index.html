@@ -1443,12 +1443,7 @@ height:100px;
   background:linear-gradient(to left, white, transparent);
 }
 
-/* texte animé */
-.scrollText{
-  display:inline-block;
-  padding-left:100%;
-  animation: scrollLoop 12s linear infinite;
-}
+
 
 /* animation */
 @keyframes scrollLoop{
@@ -3088,7 +3083,15 @@ async function loadShops() {
     shopsList.innerHTML = "<p style='color:red;'>Erreur inattendue lors du chargement</p>";
   }
 }
-  
+  document.querySelectorAll(".scrollText").forEach(el => {
+
+  const length = el.textContent.length;
+
+  const duration = Math.max(12, length * 0.35);
+
+  el.style.animationDuration = duration + "s";
+
+});
   // 🔹 Formater le compteur
 function formatCount(count) {
   if (!count) return "0";
