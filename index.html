@@ -1444,29 +1444,28 @@ height:100px;
 /* conteneur animé */
 .scrollText{
   display:flex;
-  gap:60px;
   white-space:nowrap;
-
-  animation: scrollLoop 10s linear infinite;
+  animation: scrollLoop 9s linear infinite; /* un peu plus rapide */
 }
 
 /* texte */
 .scrollText span{
   flex-shrink:0;
+  padding-right:80px;
 }
 
-/* animation améliorée */
+/* animation */
 @keyframes scrollLoop{
 
   0%{
     transform:translateX(0);
   }
 
-  80%{
+  75%{
     transform:translateX(-50%);
   }
 
-  /* pause avant recommencer */
+  /* petite pause quand le texte finit */
 
   90%{
     transform:translateX(-50%);
@@ -1476,7 +1475,7 @@ height:100px;
     transform:translateX(0);
   }
 
-}'
+ }
 </style>
 
 <script type="application/ld+json">
