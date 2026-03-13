@@ -1407,8 +1407,7 @@ padding-bottom:90px;
 content:"";
 display:block;
 height:100px;
-}
-
+ }
 .shopDesc{
   font-size:15px;
   min-height:40px;
@@ -1448,7 +1447,7 @@ height:100px;
   gap:60px;
   white-space:nowrap;
 
-  animation: scrollLoop 8s linear infinite; /* vitesse un peu plus douce */
+  animation: scrollLoop 10s linear infinite;
 }
 
 /* texte */
@@ -1456,19 +1455,28 @@ height:100px;
   flex-shrink:0;
 }
 
-/* animation corrigée */
+/* animation améliorée */
 @keyframes scrollLoop{
 
   0%{
     transform:translateX(0);
   }
 
-  100%{
-    transform:translateX(-100%);
+  80%{
+    transform:translateX(-50%);
   }
 
-}
+  /* pause avant recommencer */
 
+  90%{
+    transform:translateX(-50%);
+  }
+
+  100%{
+    transform:translateX(0);
+  }
+
+}'
 </style>
 
 <script type="application/ld+json">
