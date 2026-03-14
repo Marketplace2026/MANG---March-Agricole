@@ -62,76 +62,122 @@ body {
 );
   overflow-x: hidden;
 }
-
-/* ===== HEADER MANG ===== */
+/* ===== HEADER ===== */
 
 header.topbar{
+
   background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+
   border-radius:18px;
-  padding:12px 12px 6px 12px;
+
+  padding:16px 10px;
+
   margin-bottom:20px;
 
   display:flex;
-  justify-content:center;
+  flex-direction:column;
   align-items:center;
 
+  text-align:center;
+
   position:relative;
+
   overflow:hidden;
 
   box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
-/* effet lumière moderne */
+
+/* ===== FOND AGRICOLE ANIMÉ ===== */
+
 header.topbar::before{
-  content:"";
+
+  content:"🌾 🚜 🌱 🥬 🌽";
+
   position:absolute;
+
+  font-size:40px;
+
+  opacity:0.08;
+
   width:200%;
+
   height:200%;
+
   top:-50%;
+
   left:-50%;
 
-  background:radial-gradient(circle, rgba(255,255,255,0.15), transparent 60%);
+  animation:farmMove 35s linear infinite;
 
-  animation:headerLight 10s linear infinite;
 }
 
-@keyframes headerLight{
+
+/* animation fond */
+
+@keyframes farmMove{
 
   0%{
-    transform:translate(0,0);
+    transform:translate(0,0) rotate(0deg);
   }
 
   50%{
-    transform:translate(20%,20%);
+    transform:translate(20%,20%) rotate(5deg);
   }
 
   100%{
-    transform:translate(0,0);
+    transform:translate(0,0) rotate(0deg);
   }
 
 }
-/* logo centré */
+
+
+/* ===== LOGO ===== */
+
 .logo-box{
+
   width:100%;
-  text-align:center;
+
+  position:relative;
+
+  z-index:2;
+
 }
 
 .logo-box img{
-  width:70%;
-  max-width:320px;
+
+  width:65%;
+
+  max-width:300px;
+
   display:block;
+
   margin:auto;
+
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,0.25));
+
 }
 
 
-/* CONTENEUR SLOGAN */
+/* ===== SLOGAN ===== */
+
 .slogan-container{
+
   width:100%;
+
   overflow:hidden;
+
   margin-top:8px;
+
+  position:relative;
+
+  z-index:2;
+
 }
 
-/* TEXTE */
+
+/* texte défilant */
+
 .slogan-track{
 
   display:inline-block;
@@ -142,15 +188,23 @@ header.topbar::before{
 
   font-weight:700;
 
-  color:white;
-
   padding-left:100%;
 
-  animation:sloganScroll 22s linear infinite;
+  animation:sloganScroll 25s linear infinite;
+
+  background:linear-gradient(90deg,#ffffff,#ffe066,#ffffff);
+
+  background-size:200% auto;
+
+  -webkit-background-clip:text;
+
+  -webkit-text-fill-color:transparent;
 
 }
 
-/* animation lente */
+
+/* animation slogan */
+
 @keyframes sloganScroll{
 
   0%{
@@ -162,7 +216,6 @@ header.topbar::before{
   }
 
 }
-
 
 /* ===== SEARCH BAR ===== */
 
@@ -1614,23 +1667,20 @@ height:100px;
 
 <header class="topbar">
 
+  <!-- LOGO -->
   <div class="logo-box">
     <img src="assets/img/logos.png" alt="MANG">
   </div>
 
+  <!-- SLOGAN ANIMÉ -->
   <div class="slogan-container">
     <div class="slogan-track">
-
-      <span>
       🌍 MANG – La nouvelle génération du marché agricole en Afrique 🌾 | Achetez • Vendez • Connectez producteurs et acheteurs
-      </span>
-
     </div>
   </div>
 
-
 </header>
-
+ 
 <!-- PANEL NOTIFICATIONS -->
 <div id="notifOverlay" style="display:none;">
   <div id="notifPanel">
