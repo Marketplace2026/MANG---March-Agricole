@@ -130,18 +130,23 @@ header.topbar .top-actions button {
   width: 100%;
   min-height: 280px;
   border: 1px solid #ddd;
-  border-radius: 12px;
+  
   padding: 8px;
   background: white;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
   box-sizing: border-box;
+ 
+  border-radius:14px;
+  overflow:hidden;
+  transition:all 0.3s ease;
+  box-shadow:0 6px 18px rgba(0,0,0,0.1);
 }
 
-.shopCard:hover{
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+shopCard:hover{
+  transform:translateY(-6px);
+  box-shadow:0 12px 25px rgba(0,0,0,0.18);
 }
  .fullscreen-overlay {
   position: fixed;
