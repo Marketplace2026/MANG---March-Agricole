@@ -110,25 +110,57 @@ header.topbar::before{
   }
 
 }
-
-/* ===== LOGO ===== */
-
+/* logo centré */
 .logo-box{
   width:100%;
   text-align:center;
-  z-index:2;
 }
 
 .logo-box img{
-  width:95%;
-  max-height:120px;
-
-  object-fit:contain;
-
+  width:70%;
+  max-width:320px;
   display:block;
   margin:auto;
+}
 
-  filter:drop-shadow(0 6px 12px rgba(0,0,0,0.25));
+
+/* CONTENEUR SLOGAN */
+.slogan-container{
+  width:100%;
+  overflow:hidden;
+  margin-top:8px;
+}
+
+/* TEXTE */
+.slogan-track{
+
+  display:inline-block;
+
+  white-space:nowrap;
+
+  font-size:14px;
+
+  font-weight:700;
+
+  color:white;
+
+  padding-left:100%;
+
+  animation:sloganScroll 22s linear infinite;
+
+}
+
+/* animation lente */
+@keyframes sloganScroll{
+
+  0%{
+    transform:translateX(0);
+  }
+
+  100%{
+    transform:translateX(-100%);
+  }
+
 }
 
 
@@ -180,67 +212,7 @@ header.topbar::before{
   color:#94a3b8;
   font-size:15px;
 }
-/* CONTENEUR */
-.slogan-container{
-  width:100%;
-  overflow:hidden;
-  margin-top:6px;
-}
 
-/* piste animation */
-.slogan-track{
-  display:flex;
-  gap:80px;
-  white-space:nowrap;
-  animation:sloganScroll 18s linear infinite;
-}
-
-/* TEXTE */
-.slogan-text{
-
-  font-size:14px;
-  font-weight:700;
-
-  background:linear-gradient(
-  90deg,
-  #ffffff,
-  #ffe066,
-  #ffffff
-  );
-
-  background-size:200% auto;
-
-  color:white;
-
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-
-  animation:shine 3s linear infinite;
-}
-
-/* défilement */
-
-@keyframes sloganScroll{
-
-  0%{
-    transform:translateX(0);
-  }
-
-  100%{
-    transform:translateX(-50%);
-  }
-
-}
-
-/* effet lumière */
-
-@keyframes shine{
-
-  to{
-    background-position:200% center;
-  }
-
-}
 /* ===== BOUTIQUES : 2 PAR LIGNE + SCROLL VERTICAL ===== */
 .shops-container{
   display: grid;
@@ -1639,26 +1611,24 @@ height:100px;
 </head>
 <body>
 
-<header class="topbar">
-<div class="logo-box">
 
-  <img src="assets/img/logos.png" alt="MANG - Marché Agricole Nouvelle Génération">
+<header class="topbar">
+
+  <div class="logo-box">
+    <img src="assets/img/logos.png" alt="MANG">
+  </div>
 
   <div class="slogan-container">
     <div class="slogan-track">
 
-      <span class="slogan-text">
-      🌍 MANG – La nouvelle génération du marché agricole en Afrique 🌾 | Achetez • Vendez • Connectez producteurs et acheteurs
-      </span>
-
-      <span class="slogan-text">
+      <span>
       🌍 MANG – La nouvelle génération du marché agricole en Afrique 🌾 | Achetez • Vendez • Connectez producteurs et acheteurs
       </span>
 
     </div>
   </div>
 
-</div>
+
 </header>
 
 <!-- PANEL NOTIFICATIONS -->
