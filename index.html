@@ -62,7 +62,7 @@ body {
 );
   overflow-x: hidden;
 }
-/* ===== HEADER ===== */
+ /* ===== HEADER ===== */
 
 header.topbar{
 
@@ -70,7 +70,7 @@ header.topbar{
 
   border-radius:18px;
 
-  padding:16px 10px;
+  padding:10px 10px 6px 10px; /* réduit l'espace */
 
   margin-bottom:20px;
 
@@ -88,27 +88,29 @@ header.topbar{
 }
 
 
-/* ===== FOND AGRICOLE ANIMÉ ===== */
+/* ===== FOND AGRICOLE ANIMÉ PLUS VISIBLE ===== */
 
 header.topbar::before{
 
-  content:"🌾 🚜 🌱 🥬 🌽";
+  content:"🌾 🚜 🌱 🥬 🌽 🌾 🚜 🌱 🥬 🌽";
 
   position:absolute;
 
-  font-size:40px;
+  font-size:48px;
 
-  opacity:0.08;
+  opacity:0.15; /* plus visible */
 
-  width:200%;
+  width:250%;
 
-  height:200%;
+  height:250%;
 
-  top:-50%;
+  top:-70%;
 
-  left:-50%;
+  left:-70%;
 
-  animation:farmMove 35s linear infinite;
+  letter-spacing:40px;
+
+  animation:farmMove 40s linear infinite;
 
 }
 
@@ -122,7 +124,7 @@ header.topbar::before{
   }
 
   50%{
-    transform:translate(20%,20%) rotate(5deg);
+    transform:translate(25%,25%) rotate(6deg);
   }
 
   100%{
@@ -142,17 +144,21 @@ header.topbar::before{
 
   z-index:2;
 
+  margin:0;
+  padding:0;
 }
 
 .logo-box img{
 
-  width:65%;
+  width:60%;
 
-  max-width:300px;
+  max-width:280px;
 
   display:block;
 
   margin:auto;
+
+  margin-bottom:2px; /* rapproche le slogan */
 
   filter:drop-shadow(0 6px 12px rgba(0,0,0,0.25));
 
@@ -167,7 +173,9 @@ header.topbar::before{
 
   overflow:hidden;
 
-  margin-top:8px;
+  margin-top:0; /* supprime l'espace */
+
+  padding:0;
 
   position:relative;
 
@@ -184,7 +192,7 @@ header.topbar::before{
 
   white-space:nowrap;
 
-  font-size:14px;
+  font-size:15px;
 
   font-weight:700;
 
@@ -216,7 +224,6 @@ header.topbar::before{
   }
 
 }
-
 /* ===== SEARCH BAR ===== */
 
 .search-bar{
