@@ -63,64 +63,94 @@ body {
   overflow-x: hidden;
 }
  /* ===== HEADER ===== */
+
 header.topbar{
+
 background:linear-gradient(135deg,#1B8F3A,#2ECC71);
-padding:0;
-margin:0;
+
+padding:8px 10px;
+
 margin-bottom:20px;
 
-display:flex;
-flex-direction:column;
+border-radius:0 0 20px 20px;
 
-border-radius:0 0 18px 18px;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
 
-position:relative;
 overflow:hidden;
 
-box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
+
+/* ===== LIGNE LOGO + SLOGAN ===== */
+
 .logo-row{
+
 width:100%;
-display:flex;
-align-items:center;
-padding:0;
-margin:0;
 
-justify-content:flex-start;
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
 }
- .logo-box{
-height:65px;   /* logo un peu plus petit */
+
+/* ===== LOGO ===== */
+
+.logo-box{
+
+height:65px;
+
 display:flex;
+
 align-items:center;
 
-margin-left:0px; /* pousse le logo à gauche */
- }
- 
+flex-shrink:0;
+
+}
+
 .logo-box img{
-height:70px;
+
+height:65px;
+
 width:auto;
+
 display:block;
+
 }
- .slogan-container{
-width:100%;
+
+/* ===== SLOGAN ===== */
+
+.slogan-container{
+
+flex:1;
+
 overflow:hidden;
-padding-bottom:10px;
+
 }
+
+/* texte défilant */
+
 .slogan-track{
 
 display:inline-block;
+
 white-space:nowrap;
 
-font-size:19px;
+font-size:17px;
+
 font-weight:700;
 
 color:white;
 
-padding-left:100%; /* commence à droite */
+padding-left:100%;
 
-animation:sloganScroll 20s linear infinite;
- }
- @keyframes sloganScroll{
+animation:sloganScroll 18s linear infinite;
+
+}
+
+/* animation */
+
+@keyframes sloganScroll{
 
 0%{
 transform:translateX(0);
@@ -130,7 +160,28 @@ transform:translateX(0);
 transform:translateX(-100%);
 }
 
- }
+}
+
+/* ===== PETITE LIGNE LUMINEUSE ===== */
+
+header.topbar::after{
+
+content:"";
+
+display:block;
+
+height:3px;
+
+width:100%;
+
+margin-top:6px;
+
+background:linear-gradient(90deg,#ffffff,#ffe066,#ffffff);
+
+opacity:0.7;
+
+}
+
 /* ===== SEARCH BAR ===== */
 
 .search-bar{
@@ -1581,19 +1632,23 @@ height:100px;
  <header class="topbar">
 
   <div class="logo-row">
-    <div class="logo-box">
-      <img src="assets/img/logos.png">
-    </div>
-  </div>
 
-  <div class="slogan-container">
-    <div class="slogan-track">
-      🌍 MANG – La nouvelle génération du marché agricole en Afrique •
-      🌽 Acheter • Vendre • Produire • Connecter les agriculteurs •
+    <!-- Logo -->
+    <div class="logo-box">
+      <img src="assets/img/logo.png" alt="MANG">
     </div>
+
+    <!-- Slogan -->
+    <div class="slogan-container">
+      <div class="slogan-track">
+        🌍 MANG – La nouvelle génération du marché agricole en Afrique • 🌽 Achetez • Vendez • Connectez producteurs et acheteurs • 🚜 La marketplace agricole moderne
+      </div>
+    </div>
+
   </div>
 
  </header>
+
 <!-- PANEL NOTIFICATIONS -->
 <div id="notifOverlay" style="display:none;">
   <div id="notifPanel">
