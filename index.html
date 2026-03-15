@@ -92,9 +92,9 @@ overflow:hidden;
 .logo-box {
   display: flex;
   align-items: center;
-  flex-shrink: 0;
-  margin-left: -5px;    /* pousse le logo vers la gauche si nécessaire */
-  height: auto;          /* laisse l'image définir la hauteur */
+  justify-content: flex-start;  /* pousse logo à gauche */
+  overflow: hidden;             /* coupe les bords de l'image */
+  height: 45px;                 /* hauteur du conteneur */
 }
 
 .logo-box img {
