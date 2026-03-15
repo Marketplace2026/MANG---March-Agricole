@@ -81,37 +81,27 @@ overflow:hidden;
 }
 
 /* ===== LIGNE LOGO + SLOGAN ===== */
-
-.logo-row{
-
-width:100%;
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
+.logo-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/* ===== LOGO ===== */
-.logo-box{
-
-height:45px;   /* logo plus petit */
-
-display:flex;
-align-items:center;
-
-margin-left:-10px;   /* collé au bord gauche */
-
-flex-shrink:0;
-
+.logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: -5px; /* pousser à gauche */
+  flex-shrink: 0;
 }
- .logo-box img{
-height:30px;   /* réduit le logo */
-width:auto;
-display:block;
- }
+
+.logo-box img {
+  max-height: 30px;  /* taille maximale */
+  height: auto;      /* laisse le navigateur garder les proportions */
+  width: auto;       /* largeur auto pour garder les proportions */
+  display: block;
+}
 /* ===== SLOGAN ===== */
 
 .slogan-container{
