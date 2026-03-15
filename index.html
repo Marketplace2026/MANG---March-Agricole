@@ -187,24 +187,30 @@ opacity:0.7;
 
 }
 
- /* ===== SEARCH BAR ===== */
+ /* ===== SEARCH BAR FIXE ===== */
 .search-bar {
-  max-width: 950px;
-  margin: 0px auto 5px;      /* seulement 5px en haut et en bas */
+  position: fixed;      /* rend la barre fixe */
+  top: 90px;            /* distance sous le header (ajuste si besoin) */
+  left: 0;
+  width: 100%;
+
   display: flex;
   justify-content: center;
+
+  margin: 5px 0;
+  z-index: 999;
 }
 
 /* Input recherche */
 #searchInput {
   width: 92%;
-  padding: 8px 12px;         /* réduit un peu le padding pour moins d'espace */
+  padding: 8px 12px;
   border-radius: 40px;
   border: 2px solid #e2e8f0;
   font-size: 16px;
   outline: none;
   background: #fff;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.08); /* légèrement plus fin */
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
   transition: all 0.25s ease;
 }
 
@@ -222,7 +228,6 @@ opacity:0.7;
   color: #94a3b8;
   font-size: 15px;
 }
- 
 /* ===== BOUTIQUES : 2 PAR LIGNE + SCROLL VERTICAL ===== */
 .shops-container{
   display: grid;
