@@ -62,7 +62,7 @@ body {
 );
   overflow-x: hidden;
 }
- /* ===== HEADER ===== */
+/* ===== HEADER ===== */
 
 header.topbar{
 
@@ -80,53 +80,85 @@ overflow:hidden;
 
 }
 
- .logo-row {
-  width: 100%;
-  display: flex;
-  align-items: center;  /* centre verticalement le logo et le slogan */
-  gap: 10px;
-  padding: 0;           /* supprime tout padding */
-  margin: 0;            /* supprime tout margin */
+/* ===== LIGNE LOGO + SLOGAN ===== */
+
+.logo-row{
+
+width:100%;
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
 }
 
-.logo-box {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;  /* pousse logo à gauche */
-  overflow: hidden;             /* coupe les bords de l'image */
-  height: 45px;                 /* hauteur du conteneur */
+/* ===== LOGO ===== */
+
+.logo-box{
+
+height:65px;
+
+display:flex;
+
+align-items:center;
+
+flex-shrink:0;
+
 }
 
-.logo-box img {
+ .logo-box img {
   max-height: 35px;      /* ajuste ici la taille du logo */
   width: auto;
   display: block;
+ }
+ 
+
+/* ===== SLOGAN ===== */
+
+.slogan-container{
+
+flex:1;
+
+overflow:hidden;
+
 }
 
-.slogan-container {
-  flex: 1;
-  overflow: hidden;
-  padding: 0;           /* supprime padding pour enlever l’espace en bas */
-  margin: 0;            /* supprime margin pour enlever l’espace en haut */
+/* texte défilant */
+
+.slogan-track{
+
+display:inline-block;
+
+white-space:nowrap;
+
+font-size:17px;
+
+font-weight:700;
+
+color:white;
+
+padding-left:100%;
+
+animation:sloganScroll 18s linear infinite;
+
 }
 
-.slogan-track {
-  display: inline-block;
-  white-space: nowrap;
-  font-size: 18px;
-  font-weight: 700;
-  animation: sloganScroll 18s linear infinite;
-  color: white;
+/* animation */
+
+@keyframes sloganScroll{
+
+0%{
+transform:translateX(0);
 }
 
-@keyframes sloganScroll {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
+100%{
+transform:translateX(-100%);
 }
+
+}
+
 /* ===== PETITE LIGNE LUMINEUSE ===== */
 
 header.topbar::after{
