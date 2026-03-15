@@ -63,150 +63,83 @@ body {
   overflow-x: hidden;
 }
  /* ===== HEADER ===== */
-
 header.topbar{
+background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+padding:0;
+margin:0;
+margin-bottom:20px;
 
-  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
-
-  
-  padding:0px ! important ;
-
-  margin-bottom:20px;
-
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-border-radius:0 0 18px 18px;
- 
-  text-align:center;
-
-  position:relative;
-
-  overflow:hidden;
-
-  box-shadow:0 10px 25px rgba(0,0,0,0.15);
-}
-
-
-/* ===== FOND AGRICOLE ANIMÉ PLUS VISIBLE ===== */
-
-header.topbar::before{
-
-  content:"🌾 🚜 🌱 🥬 🌽 🌾 🚜 🌱 🥬 🌽";
-
-  position:absolute;
-
-  font-size:48px;
-
-  opacity:0.15; /* plus visible */
-
-  width:250%;
-
-  height:250%;
-
-  top:-70%;
-
-  left:-70%;
-
-  letter-spacing:40px;
-
-  animation:farmMove 40s linear infinite;
-
-}
-
-
-/* animation fond */
-
-@keyframes farmMove{
-
-  0%{
-    transform:translate(0,0) rotate(0deg);
-  }
-
-  50%{
-    transform:translate(25%,25%) rotate(6deg);
-  }
-
-  100%{
-    transform:translate(0,0) rotate(0deg);
-  }
-
-}
-
-.logo-box{
 display:flex;
-justify-content:center;
+flex-direction:column;
+
+border-radius:0 0 18px 18px;
+
+position:relative;
+overflow:hidden;
+
+box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+
+ .logo-box{
+display:flex;
 align-items:center;
+justify-content:flex-start;
+
+width:100%;
+height:90px;
+
+padding:0;
+margin:0;
+
 overflow:hidden;
 }
 
 .logo-box img{
-height:70px;
+height:100%;
 width:auto;
 
-/* zoom pour cacher les marges noires */
-transform:scale(1.4);
+display:block;
+margin:0;
+padding:0;
 }
 
-/* ===== SLOGAN ===== */
+ .slogan-container{
+width:100%;
+overflow:hidden;
 
-.slogan-container{
+position:absolute;
+bottom:10px;
+left:0;
 
-  width:100%;
-
-  overflow:hidden;
-
-  margin-bottom: 25px;
-
-  padding:0;
-
-  position:relative;
-
-  z-index:2;
-
+z-index:3;
 }
-
-
-/* texte défilant */
 
 .slogan-track{
 
-  display:inline-block;
+white-space:nowrap;
 
-  white-space:nowrap;
+font-size:20px;
+font-weight:700;
 
-  font-size:20px;
+animation:sloganScroll 20s linear infinite;
 
-  font-weight:700;
+background:linear-gradient(90deg,#ffffff,#ffe066,#ffffff);
+background-size:200% auto;
 
-  padding-left:100%;
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+ @keyframes sloganScroll{
 
-  animation:sloganScroll 25s linear infinite;
-
-  background:linear-gradient(90deg,#ffffff,#ffe066,#ffffff);
-
-  background-size:200% auto;
-
-  -webkit-background-clip:text;
-
-  -webkit-text-fill-color:transparent;
-
+0%{
+transform:translateX(100%);
 }
 
-
-/* animation slogan */
-
-@keyframes sloganScroll{
-
-  0%{
-    transform:translateX(0);
-  }
-
-  100%{
-    transform:translateX(-100%);
-  }
-
+100%{
+transform:translateX(-100%);
 }
+
+ }
 /* ===== SEARCH BAR ===== */
 
 .search-bar{
@@ -1654,20 +1587,17 @@ height:100px;
 </head>
 <body>
 
-
 <header class="topbar">
 
-  <!-- LOGO -->
-  <div class="logo-box">
-    <img src="assets/img/logos.png" alt="MANG">
-  </div>
+<div class="logo-box">
+<img src="assets/img/logo.png">
+</div>
 
-  <!-- SLOGAN ANIMÉ -->
-  <div class="slogan-container">
-    <div class="slogan-track">
-      🌍 MANG – La nouvelle génération du marché agricole en Afrique 🌾 | Achetez • Vendez • Connectez producteurs et acheteurs
-    </div>
-  </div>
+<div class="slogan-container">
+<div class="slogan-track">
+🌍 MANG – La nouvelle génération du marché agricole en Afrique
+</div>
+</div>
 
 </header>
  
