@@ -290,48 +290,53 @@ shopCard:hover{
 .shopCard:hover .zoomable-image{
   transform:scale(1.08);
 }
-/* ===== CONTENEUR BOUTONS HORIZONTAUX ===== */
+ /* ===== CONTENEUR BOUTONS HORIZONTAUX ===== */
 .topButtons {
   display: flex;
-  gap: 10px;
-  padding: 10px;
-  overflow-x: auto;
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: #1b8f3a transparent;
+  gap: 8px;                  /* espace entre les boutons */
+  overflow-x: auto;           /* scroll horizontal si trop large */
+  padding: 4px 8px;           /* petits espaces haut/bas et côtés */
+  margin: 0;                  
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;    /* tu peux mettre un fond si voulu */
 }
 
-/* Scrollbar pour Chrome / Edge / Safari */
+/* cacher la scrollbar horizontal pour un rendu propre */
 .topButtons::-webkit-scrollbar {
   height: 6px;
 }
 .topButtons::-webkit-scrollbar-thumb {
-  background: #1b8f3a;
+  background: #2e8b57;        /* couleur du scroll */
   border-radius: 3px;
-}
-.topButtons::-webkit-scrollbar-track {
-  background: transparent;
 }
 
 /* ===== BOUTONS ===== */
 .topBtn {
-  flex-shrink: 0; /* empêche de rétrécir quand scroll */
-  padding: 8px 14px;
+  flex-shrink: 0;
+  padding: 6px 14px;          /* petits paddings haut/bas pour réduire espace */
   font-size: 14px;
   font-weight: 600;
   color: white;
-  background: #28a745; /* couleur uniforme */
+  background: #28a745;        /* couleur unique pour tous */
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  white-space: nowrap; /* texte toujours sur une ligne */
-  transition: 0.2s;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-/* Effet hover */
+/* effet au survol */
 .topBtn:hover {
   background: #1b8f3a;
   transform: translateY(-2px);
 }
+
+/* optionnel : sur mobile rendre scroll rapide plus fluide */
+.topButtons {
+  -webkit-overflow-scrolling: touch;
+}
+
  .fullscreen-overlay {
   position: fixed;
   inset: 0;
@@ -1653,15 +1658,15 @@ height:100px;
   </div>
 
 </div>
-<!-- CONTENEUR BOUTONS HORIZONTAUX -->
+
+ <!-- CONTENEUR BOUTONS HORIZONTAUX -->
 <div class="topButtons">
-  <button id="resetFilterBtn" class="topBtn secondary">🔄 Toutes les boutiques</button>
+  <button id="resetFilterBtn" class="topBtn">🔄 Toutes les boutiques</button>
   <button id="topShopsBtn" class="topBtn">🔥 Top boutiques</button>
   <button id="filterCategoryBtn" class="topBtn">📂 Catégories</button>
   <button id="livraisonFilterBtn" class="topBtn">🚚 Livraison</button>
   <button id="nearbyShopsBtn" class="topBtn">📍 Boutiques proches</button>
-</div>
-  
+</div> 
 
 <!-- MODALE CATÉGORIES -->
 <div id="categoryModal" class="categoryModal hidden">
