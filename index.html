@@ -133,37 +133,20 @@ header.topbar::before{
 
 }
 
-
-/* ===== LOGO ===== */
-
 .logo-box{
-
-  width:100%;
-
-  position:relative;
-
-  z-index:2;
-
-  margin:0;
-  padding:0;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
 }
 
 .logo-box img{
+height:70px;
+width:auto;
 
-  width:60%;
-
-  max-width:280px;
-
-  display:block;
-
-  margin:5px;
-
-  margin-bottom:0px; /* rapproche le slogan */
-
-  filter:drop-shadow(0 6px 12px rgba(0,0,0,0.25));
-
+/* zoom pour cacher les marges noires */
+transform:scale(1.4);
 }
-
 
 /* ===== SLOGAN ===== */
 
