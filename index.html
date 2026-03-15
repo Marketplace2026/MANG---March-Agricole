@@ -51,35 +51,32 @@
 
 <style>
 /* ===== GLOBAL ===== */
+
 body {
   margin: 0;
-  padding: 5px 15px 15px 15px;
+  padding: 0; /* on gère le padding par le header fixe */
   font-family: Arial, sans-serif;
-  background: linear-gradient(
-  180deg,
-  #f3f8f4 0%,
-  #ffffff 100%
-);
+  background: linear-gradient(180deg, #f3f8f4 0%, #ffffff 100%);
   overflow-x: hidden;
+  padding-top: 90px; /* hauteur du header fixe */
 }
+
 /* ===== HEADER ===== */
-
-header.topbar{
-
-background:linear-gradient(135deg,#1B8F3A,#2ECC71);
-
-padding:8px 10px;
-
-margin-bottom:20px;
-
-border-radius:0 0 20px 20px;
-
-box-shadow:0 8px 20px rgba(0,0,0,0.15);
-
-overflow:hidden;
-
+header.topbar {
+  position: fixed;           /* header toujours visible */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;             /* au-dessus du contenu */
+  background: linear-gradient(135deg,#1B8F3A,#2ECC71);
+  padding: 8px 15px;
+  border-radius: 0 0 20px 20px; /* coins arrondis en bas seulement */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  overflow: hidden;
 }
-
 /* ===== LIGNE LOGO + SLOGAN ===== */
 
 .logo-row{
