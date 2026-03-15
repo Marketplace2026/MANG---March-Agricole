@@ -240,20 +240,22 @@ opacity:0.7;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 9px;              /* espace seulement entre les cartes */
-  padding: 0;             /* ❌ plus d’espace sur les côtés */
+  padding: 0;             /* plus d’espace sur les côtés */
   margin: 0;
   width: 100%;
   box-sizing: border-box;
 
-  max-height: calc(100vh - 220px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* ❌ on enlève max-height et overflow interne */
+  /* max-height: calc(100vh - 220px); */
+  /* overflow-y: auto; */
+  /* overflow-x: hidden; */
 }
-/* Scrollbar vertical */
-.shops-container::-webkit-scrollbar{
+
+/* Scrollbar globale pour la page entière */
+body::-webkit-scrollbar{
   width: 6px;
 }
-.shops-container::-webkit-scrollbar-thumb{
+body::-webkit-scrollbar-thumb{
   background: #2e8b57;
   border-radius: 4px;
 }
