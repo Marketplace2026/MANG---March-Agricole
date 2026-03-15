@@ -290,51 +290,42 @@ shopCard:hover{
 .shopCard:hover .zoomable-image{
   transform:scale(1.08);
 }
-/* ===== CONTENEUR BOUTONS HORIZONTAUX ===== */
+ /* Conteneur horizontal scroll sans fond */
 .topButtons {
   display: flex;
   gap: 10px;               /* espace entre les boutons */
-  overflow-x: auto;        /* scroll horizontal si trop large */
-  padding: 8px 12px;
+  overflow-x: auto;        /* scroll horizontal si besoin */
+  padding: 8px 0;
   margin: 0;
-  background: #2e8b57;     /* fond vert sombre pour contraste */
-  border-radius: 0 0 18px 18px; /* coins arrondis en bas du header */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  scrollbar-width: thin;    /* Firefox */
-  scrollbar-color: #1b8f3a #2e8b57; /* Firefox */
+  width: 100%;
 }
 
-/* Scrollbar pour Chrome/Edge/Safari */
+/* Hide scrollbar on Chrome/Edge/Safari (optionnel) */
 .topButtons::-webkit-scrollbar {
-  height: 6px;
-}
-.topButtons::-webkit-scrollbar-thumb {
-  background: #1b8f3a;
-  border-radius: 3px;
+  height: 0px;
 }
 
-/* ===== BOUTONS ===== */
+/* Boutons individuels */
 .topBtn {
-  flex: 0 0 auto;          /* empêche le bouton de s’étirer */
+  flex: 0 0 auto;          /* ne pas s’étirer */
   padding: 8px 18px;
   font-size: 15px;
   font-weight: 600;
-  color: white;
+  color: #fff;
   background: linear-gradient(135deg,#28a745,#1b8f3a);
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  transition: all 0.25s ease;
   white-space: nowrap;
+  transition: all 0.25s ease;
 }
 
 .topBtn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  background: linear-gradient(135deg,#1b8f3a,#28a745);
 }
 
-/* ===== BOUTON SECONDARY (ex: "Toutes les boutiques") ===== */
+/* Bouton secondaire (ex: "Toutes les boutiques") */
 .topBtn.secondary {
   background: white;
   color: #2e8b57;
@@ -347,13 +338,6 @@ shopCard:hover{
   border-color: #28a745;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 480px) {
-  .topBtn {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
-}
  .fullscreen-overlay {
   position: fixed;
   inset: 0;
