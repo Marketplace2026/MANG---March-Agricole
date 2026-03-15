@@ -185,33 +185,36 @@ background:linear-gradient(90deg,#ffffff,#ffe066,#ffffff);
 
 opacity:0.7;
 
+
 }
 
-/* ===== SEARCH BAR FIXE ===== */
+ /* ===== SEARCH BAR FIXE ===== */
 .search-bar{
   position: fixed;
-  top: 85px;          /* hauteur exacte du header (ajuste si besoin) */
+  top: 85px;        /* colle sous le header (ajuste si besoin) */
   left: 0;
   width: 100%;
 
   display: flex;
   justify-content: center;
 
+  margin: 0;        /* IMPORTANT : enlève l'espace */
   padding: 5px 0;
 
-  background: linear-gradient(135deg,#1B8F3A,#2ECC71); /* même fond que header */
-  
+  background: linear-gradient(135deg,#1B8F3A,#2ECC71);
+
   z-index: 999;
 }
+
 /* Input recherche */
-#searchInput {
+#searchInput{
   width: 92%;
   padding: 8px 12px;
   border-radius: 40px;
   border: 2px solid #e2e8f0;
   font-size: 16px;
   outline: none;
-  background: #fff;
+  background: white;
   box-shadow: 0 6px 15px rgba(0,0,0,0.08);
   transition: all 0.25s ease;
 }
