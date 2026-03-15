@@ -290,63 +290,69 @@ shopCard:hover{
 .shopCard:hover .zoomable-image{
   transform:scale(1.08);
 }
-
- /* ===== CONTENEUR BOUTONS HORIZONTAUX ===== */
+/* ===== CONTENEUR BOUTONS HORIZONTAUX ===== */
 .topButtons {
   display: flex;
-  gap: 12px;               /* espace entre boutons */
+  gap: 10px;               /* espace entre les boutons */
+  overflow-x: auto;        /* scroll horizontal si trop large */
   padding: 8px 12px;
-  overflow-x: auto;         /* permet le scroll horizontal */
-  scrollbar-width: none;    /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
-  scroll-behavior: smooth;  /* scroll doux */
-  background: rgba(255,255,255,0.08); /* léger fond transparent */
-  border-radius: 12px;
-  margin-top: 8px;
+  margin: 0;
+  background: #2e8b57;     /* fond vert sombre pour contraste */
+  border-radius: 0 0 18px 18px; /* coins arrondis en bas du header */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  scrollbar-width: thin;    /* Firefox */
+  scrollbar-color: #1b8f3a #2e8b57; /* Firefox */
 }
 
-/* Cache la scrollbar pour Webkit */
+/* Scrollbar pour Chrome/Edge/Safari */
 .topButtons::-webkit-scrollbar {
-  display: none;
+  height: 6px;
+}
+.topButtons::-webkit-scrollbar-thumb {
+  background: #1b8f3a;
+  border-radius: 3px;
 }
 
 /* ===== BOUTONS ===== */
-.topButtons .topBtn, 
-.topButtons button {
-  flex-shrink: 0;           /* empêche le rétrécissement */
+.topBtn {
+  flex: 0 0 auto;          /* empêche le bouton de s’étirer */
   padding: 8px 18px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  border-radius: 25px;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;       /* empêche le texte de passer à la ligne */
-  transition: all 0.25s ease;
-  background: linear-gradient(135deg, #28a745, #1b8f3a);
   color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg,#28a745,#1b8f3a);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
-/* Bouton secondaire style "blanc" */
-.topButtons .topBtn.secondary {
-  background: #ffffff22; /* léger blanc transparent */
-  color: #1b8f3a;
-  font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+.topBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg,#1b8f3a,#28a745);
 }
 
-/* Hover effects */
-.topButtons .topBtn:hover,
-.topButtons button:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+/* ===== BOUTON SECONDARY (ex: "Toutes les boutiques") ===== */
+.topBtn.secondary {
+  background: white;
+  color: #2e8b57;
+  border: 2px solid #1b8f3a;
 }
 
-/* Active / sélectionné */
-.topButtons .topBtn.active {
-  background: linear-gradient(135deg, #ffe066, #ffb400);
-  color: #1b1b1b;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+.topBtn.secondary:hover {
+  background: #1b8f3a;
+  color: white;
+  border-color: #28a745;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .topBtn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
 }
  .fullscreen-overlay {
   position: fixed;
@@ -1009,58 +1015,7 @@ flex-direction:column;
   font-weight: bold;
   cursor: pointer;
 }
-/* CONTENEUR BOUTONS HORIZONTAUX */
-.topButtons {
-  display: flex;
-  gap: 10px;               /* espace entre les boutons */
-  padding: 10px;
-  overflow-x: auto;         /* scroll horizontal si trop large */
-  -webkit-overflow-scrolling: touch; /* scroll smooth sur mobile */
-  scrollbar-width: thin;    /* Firefox */
-}
-#nearbyShopsBtn{
-  flex: 0 0 auto;          /* empêche les boutons de s’étirer */
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
-  background-color: #2e8b57;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-  white-space: nowrap;      /* empêche le texte de passer à la ligne */
-}
-  
-/* Scrollbar personnalisée */
-.topButtons::-webkit-scrollbar {
-  height: 6px;
-}
-.topButtons::-webkit-scrollbar-thumb {
-  background-color: rgba(0,0,0,0.2);
-  border-radius: 3px;
-}
 
-/* BOUTONS */
-.topBtn {
-  flex: 0 0 auto;          /* empêche les boutons de s’étirer */
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
-  background-color: #2e8b57;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-  white-space: nowrap;      /* empêche le texte de passer à la ligne */
-}
-
-.topBtn.secondary {
-  background-color:  #2e7d32;
-}
-
-.topBtn:hover {
-  filter: brightness(0.9);
-}
  /* ===== LIVRAISON BADGE ===== */
 .livraison-badge{
   display:inline-block;
@@ -1745,19 +1700,13 @@ height:100px;
   </div>
 
 </div>
-
-  <!-- CONTENEUR BOUTONS HORIZONTAUX -->
+<!-- CONTENEUR BOUTONS HORIZONTAUX -->
 <div class="topButtons">
- <button id="resetFilterBtn" class="topBtn secondary">🔄 Toutes les boutiques</button>
- 
+  <button id="resetFilterBtn" class="topBtn secondary">🔄 Toutes les boutiques</button>
   <button id="topShopsBtn" class="topBtn">🔥 Top boutiques</button>
   <button id="filterCategoryBtn" class="topBtn">📂 Catégories</button>
-   <button id="livraisonFilterBtn">🚚 Livraison</button>
-  
-  
-  <button id="nearbyShopsBtn">
-  📍 Boutiques proches
-</button>
+  <button id="livraisonFilterBtn" class="topBtn">🚚 Livraison</button>
+  <button id="nearbyShopsBtn" class="topBtn">📍 Boutiques proches</button>
 </div>
   
 
