@@ -186,55 +186,42 @@ opacity:0.7;
 
 }
 
-/* ===== SEARCH BAR ===== */
-
-.search-bar{
-  max-width:950px;
-  margin:18px auto 25px;
-
-  display:flex;
-  justify-content:center;
+ /* ===== SEARCH BAR ===== */
+.search-bar {
+  max-width: 950px;
+  margin: 5px auto 5px;      /* seulement 5px en haut et en bas */
+  display: flex;
+  justify-content: center;
 }
 
-/* input recherche */
-#searchInput{
-
-  width:92%;
-  padding:10px 10px;
-
-  border-radius:40px;
-
-  border:2px solid #e2e8f0;
-
-  font-size:16px;
-
-  outline:none;
-
-  background:white;
-
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
-
-  transition:all 0.25s ease;
+/* Input recherche */
+#searchInput {
+  width: 92%;
+  padding: 8px 12px;         /* réduit un peu le padding pour moins d'espace */
+  border-radius: 40px;
+  border: 2px solid #e2e8f0;
+  font-size: 16px;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08); /* légèrement plus fin */
+  transition: all 0.25s ease;
 }
 
-/* focus moderne */
-#searchInput:focus{
-
-  border-color:#1B8F3A;
-
+/* Focus moderne */
+#searchInput:focus {
+  border-color: #1B8F3A;
   box-shadow:
-  0 10px 25px rgba(0,0,0,0.12),
-  0 0 0 3px rgba(46,204,113,0.25);
-
-  transform:scale(1.01);
+    0 8px 20px rgba(0,0,0,0.12),
+    0 0 0 3px rgba(46,204,113,0.25);
+  transform: scale(1.01);
 }
 
-/* placeholder */
-#searchInput::placeholder{
-  color:#94a3b8;
-  font-size:15px;
+/* Placeholder */
+#searchInput::placeholder {
+  color: #94a3b8;
+  font-size: 15px;
 }
-
+ 
 /* ===== BOUTIQUES : 2 PAR LIGNE + SCROLL VERTICAL ===== */
 .shops-container{
   display: grid;
