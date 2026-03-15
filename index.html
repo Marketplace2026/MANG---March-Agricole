@@ -187,20 +187,22 @@ opacity:0.7;
 
 }
 
- /* ===== SEARCH BAR FIXE ===== */
-.search-bar {
-  position: fixed;      /* rend la barre fixe */
-  top: 90px;            /* distance sous le header (ajuste si besoin) */
+/* ===== SEARCH BAR FIXE ===== */
+.search-bar{
+  position: fixed;
+  top: 85px;          /* hauteur exacte du header (ajuste si besoin) */
   left: 0;
   width: 100%;
 
   display: flex;
   justify-content: center;
 
-  margin: 5px 0;
+  padding: 5px 0;
+
+  background: linear-gradient(135deg,#1B8F3A,#2ECC71); /* même fond que header */
+  
   z-index: 999;
 }
-
 /* Input recherche */
 #searchInput {
   width: 92%;
@@ -294,6 +296,7 @@ shopCard:hover{
   width: 100%;
   box-sizing: border-box;
   background: transparent;    /* tu peux mettre un fond si voulu */
+ 
 }
 
 /* cacher la scrollbar horizontal pour un rendu propre */
