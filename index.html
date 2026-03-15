@@ -50,40 +50,109 @@
 
 
 <style>
-/* ===== GLOBAL ===== */
 
-body {
-  margin: 0;
-  padding: 5px 10px 0px 15px;/* on gère le padding par le header fixe */
+ /* ===== BODY ===== */
+body{
+  margin:0;
+  padding:0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(180deg, #f3f8f4 0%, #ffffff 100%);
-  overflow-x: hidden;
-  padding-top: 150px; /* hauteur du header fixe */
+
+  background: linear-gradient(
+    180deg,
+    #f3f8f4 0%,
+    #ffffff 100%
+  );
+
+  overflow-x:hidden;
+
+  /* espace pour header + search bar */
+  padding-top:130px;
 }
 
-/* ===== HEADER ===== */
-header.topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
 
-  background: linear-gradient(135deg,#1B8F3A,#2ECC71);
+/* ===== HEADER FIXE ===== */
+header.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
 
-  padding: 8px 10px;
+  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
 
-  border-radius: 0 0 20px 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  padding:6px 10px;
 
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  border-radius:0 0 20px 20px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
 
-  overflow: hidden;
+  display:flex;
+  flex-direction:column;
 
-  margin: 0;   /* IMPORTANT */
+  gap:4px;
+
+  z-index:1000;
+
+  margin:0;
 }
+
+
+/* ===== SEARCH BAR FIXE ===== */
+.search-bar{
+  position:fixed;
+
+  top:78px; /* position exacte sous le header */
+
+  left:0;
+  width:100%;
+
+  display:flex;
+  justify-content:center;
+
+  padding:5px 0;
+
+  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+
+  z-index:999;
+}
+
+
+/* ===== INPUT RECHERCHE ===== */
+#searchInput{
+  width:92%;
+
+  padding:8px 12px;
+
+  border-radius:40px;
+  border:2px solid #e2e8f0;
+
+  font-size:16px;
+
+  outline:none;
+  background:white;
+
+  box-shadow:0 6px 15px rgba(0,0,0,0.08);
+
+  transition:all 0.25s ease;
+}
+
+
+/* ===== FOCUS ===== */
+#searchInput:focus{
+  border-color:#1B8F3A;
+
+  box-shadow:
+  0 8px 20px rgba(0,0,0,0.12),
+  0 0 0 3px rgba(46,204,113,0.25);
+
+  transform:scale(1.01);
+}
+
+
+/* ===== PLACEHOLDER ===== */
+#searchInput::placeholder{
+  color:#94a3b8;
+  font-size:15px;
+}
+
 /* ===== LIGNE LOGO + SLOGAN ===== */
 
 .logo-row{
@@ -194,51 +263,6 @@ opacity:0.7;
 
 }
 
- /* ===== SEARCH BAR FIXE ===== */
-.search-bar{
-  position: fixed;
-  top: 85px;        /* colle sous le header (ajuste si besoin) */
-  left: 0;
-  width: 100%;
-
-  display: flex;
-  justify-content: center;
-
-  margin: 0;        /* IMPORTANT : enlève l'espace */
-  padding: 0px 0;
-
-  background: linear-gradient(135deg,#1B8F3A,#2ECC71);
-
-  z-index: 999;
-}
-
-/* Input recherche */
-#searchInput{
-  width: 92%;
-  padding: 8px 12px;
-  border-radius: 40px;
-  border: 2px solid #e2e8f0;
-  font-size: 16px;
-  outline: none;
-  background: white;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-  transition: all 0.25s ease;
-}
-
-/* Focus moderne */
-#searchInput:focus {
-  border-color: #1B8F3A;
-  box-shadow:
-    0 8px 20px rgba(0,0,0,0.12),
-    0 0 0 3px rgba(46,204,113,0.25);
-  transform: scale(1.01);
-}
-
-/* Placeholder */
-#searchInput::placeholder {
-  color: #94a3b8;
-  font-size: 15px;
-}
 /* ===== BOUTIQUES : 2 PAR LIGNE + SCROLL VERTICAL ===== */
 .shops-container{
   display: grid;
