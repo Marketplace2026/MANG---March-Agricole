@@ -28,42 +28,33 @@
 <meta name="twitter:description" content="Discover shops and products on Sell Live marketplace.">
 <style>
 /* ===== BODY ===== */
-  body {
-  margin: 0;
-    padding: 5px 15px 15px 15px;
   
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(
-  180deg,
-  #f3f8f4 0%,
-  #ffffff 100%
-);
-  color: #333;
-  }
-
-
-/* ===== HEADER ===== */
-
-.topbar{
-
-background:linear-gradient(135deg,#1B8F3A,#2ECC71);
-
-padding:14px 12px;
-
-color:white;
-
-border-radius:0 0 18px 18px;
-
-box-shadow:0 6px 18px rgba(0,0,0,0.15);
-
-display:flex;
-
-flex-direction:column;
-
-gap:8px;
-
+body {
+  margin: 0;
+  padding: 5px 10px 0px 15px;/* on gère le padding par le header fixe */
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #f3f8f4 0%, #ffffff 100%);
+  overflow-x: hidden;
+  padding-top: 90px; /* hauteur du header fixe */
 }
 
+/* ===== HEADER ===== */
+.topbar {
+  position: fixed;           /* header toujours visible */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;             /* au-dessus du contenu */
+  background: linear-gradient(135deg,#1B8F3A,#2ECC71);
+  padding: 8px 15px;
+  border-radius: 0 0 20px 20px; /* coins arrondis en bas seulement */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  overflow: hidden;
+ margin-bottom:5px;
+}
 
 /* ===== LIGNE UTILISATEUR ===== */
 
