@@ -290,54 +290,48 @@ shopCard:hover{
 .shopCard:hover .zoomable-image{
   transform:scale(1.08);
 }
- /* Conteneur horizontal scroll sans fond */
+/* ===== CONTENEUR BOUTONS HORIZONTAUX ===== */
 .topButtons {
   display: flex;
-  gap: 10px;               /* espace entre les boutons */
-  overflow-x: auto;        /* scroll horizontal si besoin */
-  padding: 8px 0;
-  margin: 0;
-  width: 100%;
+  gap: 10px;
+  padding: 10px;
+  overflow-x: auto;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #1b8f3a transparent;
 }
 
-/* Hide scrollbar on Chrome/Edge/Safari (optionnel) */
+/* Scrollbar pour Chrome / Edge / Safari */
 .topButtons::-webkit-scrollbar {
-  height: 0px;
+  height: 6px;
+}
+.topButtons::-webkit-scrollbar-thumb {
+  background: #1b8f3a;
+  border-radius: 3px;
+}
+.topButtons::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* Boutons individuels */
+/* ===== BOUTONS ===== */
 .topBtn {
-  flex: 0 0 auto;          /* ne pas s’étirer */
-  padding: 8px 18px;
-  font-size: 15px;
+  flex-shrink: 0; /* empêche de rétrécir quand scroll */
+  padding: 8px 14px;
+  font-size: 14px;
   font-weight: 600;
-  color: #fff;
-  background: linear-gradient(135deg,#28a745,#1b8f3a);
+  color: white;
+  background: #28a745; /* couleur uniforme */
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.25s ease;
+  white-space: nowrap; /* texte toujours sur une ligne */
+  transition: 0.2s;
 }
 
+/* Effet hover */
 .topBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-/* Bouton secondaire (ex: "Toutes les boutiques") */
-.topBtn.secondary {
-  background: white;
-  color: #2e8b57;
-  border: 2px solid #1b8f3a;
-}
-
-.topBtn.secondary:hover {
   background: #1b8f3a;
-  color: white;
-  border-color: #28a745;
+  transform: translateY(-2px);
 }
-
  .fullscreen-overlay {
   position: fixed;
   inset: 0;
