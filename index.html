@@ -3112,8 +3112,7 @@ async function loadShops() {
       else if (shop.premium_level === "premium1") {
         premiumBadge = `<span class="premium-badge bronze">🥉 Premium 1</span>`;
       }
-
-      div.innerHTML = `
+div.innerHTML = `
 <div style="position:relative;width:100%;height:150px;overflow:hidden;border-radius:12px 12px 0 0;">
   
   <img 
@@ -3124,7 +3123,7 @@ async function loadShops() {
 
   ${premiumBadge}
 
-  <!-- Bouton suivre avec compteur -->
+  <!-- Bouton suivre -->
   <button class="favoriteShopBtn"
     data-shop-id="${shop.id}"
     style="
@@ -3146,7 +3145,9 @@ async function loadShops() {
   >
 
     <span class="favIcon">🤍</span>
-    <span class="favCount">0</span>
+    <span class="favCount" style="color:#1B8F3A;font-weight:700;">
+      ${shop.followers_count || 0}
+    </span>
 
   </button>
 
@@ -3169,7 +3170,7 @@ async function loadShops() {
   <!-- Propriétaire -->
   <div style="font-size:14px;line-height:1.2;">
     <span style="color:#555;">👤</span>
-    <span style="font-weight:600;color:#1b8f3a;">
+    <span style="font-weight:600;color:#1B8F3A;">
       ${shop.ownerUsername}
     </span>
   </div>
@@ -3177,13 +3178,13 @@ async function loadShops() {
   <!-- Description -->
   <div class="shopDesc" style="font-size:13px;">
     <span class="scrollText">
-      ${ shop.description ? shop.description : "" }
+      ${shop.description ? shop.description : ""}
     </span>
   </div>
 
 </div>
 `;
-
+      
       
   // 🔹 Clic sur la carte pour ouvrir la boutique
   div.onclick = (e) => {
