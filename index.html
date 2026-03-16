@@ -291,24 +291,23 @@ body::-webkit-scrollbar-thumb{
   border-radius: 4px;
 }
 
-/* Carte boutique */
-.shopCard{
+/* ===== Carte boutique corrigée ===== */
+.shopCard {
   width: 100%;
-  min-height: 280px;
+  height: auto;              /* Hauteur dépend du contenu */
   border: 1px solid #ddd;
-  
-  padding: 4px;
+  padding: 2px;              /* Padding réduit pour moins d’espace */
   background: white;
-  text-align: center;
+  text-align: left;          /* Texte aligné à gauche */
   cursor: pointer;
   
   box-sizing: border-box;
- margin-top:5px;
- 
-  border-radius:14px;
-  overflow:hidden;
-  transition:all 0.3s ease;
-  box-shadow:0 6px 18px rgba(0,0,0,0.1);
+  margin-top: 5px;
+
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
 }
 
 shopCard:hover{
