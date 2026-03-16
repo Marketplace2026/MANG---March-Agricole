@@ -1472,7 +1472,7 @@ display:flex;
 align-items:center;
 justify-content:center;
 
-margin-top:-28px;
+margin-top:-30px;
 
 box-shadow:0 10px 25px rgba(0,0,0,0.25);
 
@@ -2053,9 +2053,9 @@ sellBtn.onclick = () => {
   // Rediriger vers la page vente.html
   location.href = "vente.html";
 };
-  window.goProfile = function(){
+  document.getElementById("profileBtn").onclick = () => {
   window.location.href = "profile.html";
- }
+};
   // Mettre à jour le statut en ligne de l'utilisateur
 async function setUserOnline() {
   if (!currentUser) return;
