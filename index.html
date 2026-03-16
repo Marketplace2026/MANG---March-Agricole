@@ -3114,86 +3114,75 @@ async function loadShops() {
       }
 
       div.innerHTML = `
-  <div style="position:relative;width:100%;height:180px;overflow:hidden;">
-    
-    <img 
-      src="${shop.image_url || 'https://via.placeholder.com/300x160'}" 
-      alt="${shop.name}" 
-      class="zoomable-image"
-      style="width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;">
-
-    ${premiumBadge}
-
-  </div>
-
-  <div style="padding:12px; display:flex; flex-direction:column; gap:4px;">
+<div style="position:relative;width:100%;height:150px;overflow:hidden;border-radius:12px 12px 0 0;">
   
-          <h3 style="margin-bottom:3px; margin-top:3px; font-size:18px;font-weight:700;color:#2c3e50;">
-            ${shop.name}
-          </h3>
+  <img 
+    src="${shop.image_url || 'https://via.placeholder.com/300x160'}" 
+    alt="${shop.name}" 
+    class="zoomable-image"
+    style="width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;">
 
-<div style="margin-bottom:8px;">
+  ${premiumBadge}
 
-  <!-- Propriétaire -->
-  <span style="
-    font-size:16px;
-    color:#000;
-    font-weight:500;
-  ">
-    Propriétaire :
-  </span>
+  <!-- Bouton suivre avec compteur -->
+  <button class="favoriteShopBtn"
+    data-shop-id="${shop.id}"
+    style="
+      position:absolute;
+      top:8px;
+      right:8px;
+      padding:4px 8px;
+      border-radius:20px;
+      border:none;
+      background:white;
+      box-shadow:0 3px 8px rgba(0,0,0,0.25);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      font-size:13px;
+      font-weight:600;
+    "
+  >
 
-  <span style="
+    <span class="favIcon">🤍</span>
+    <span class="favCount">0</span>
+
+  </button>
+
+</div>
+
+
+<div style="padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
+
+  <!-- Nom boutique -->
+  <h3 style="
+    margin:0;
     font-size:16px;
     font-weight:700;
-    letter-spacing:0.4px;
-    color:#1b8f3a;
+    color:#2c3e50;
+    line-height:1.2;
   ">
-    ${shop.ownerUsername}
-  </span>
+    ${shop.name}
+  </h3>
+
+  <!-- Propriétaire -->
+  <div style="font-size:14px;line-height:1.2;">
+    <span style="color:#555;">👤</span>
+    <span style="font-weight:600;color:#1b8f3a;">
+      ${shop.ownerUsername}
+    </span>
+  </div>
+
+  <!-- Description -->
+  <div class="shopDesc" style="font-size:13px;">
+    <span class="scrollText">
+      ${ shop.description ? shop.description : "" }
+    </span>
+  </div>
 
 </div>
-
-
-
-<!-- Description -->
-<div class="shopDesc">
-  <span class="scrollText">
-    ${ shop.description ? shop.description : "" }
-  </span>
-</div>
-          
-<div style="display:flex; flex-direction:column; gap:8px;">
-
-            <button class="favoriteShopBtn"
-              data-shop-id="${shop.id}"
-              style="
-                padding:2px 4px;
-                margin-top:10px;
-                font-size:13px;
-                cursor:pointer;
-                border:none;
-                border-radius:6px;
-                background:#e0f7fa;
-                color:#007bff;
-                font-weight:500;
-                display:flex;
-                align-items:center;
-                gap:4px;
-                transition:0.2s;"
-              onmouseover="this.style.background='#b2ebf2'" 
-              onmouseout="this.style.background='#e0f7fa'">
-
-              <span class="favIcon">🤍</span>
-              <span class="favText">Suivre</span>
-              <span class="favCount">0</span>
-            </button>
-
-            
-
-          </div>
-        </div>  
-      `;
+`;
 
       
   // 🔹 Clic sur la carte pour ouvrir la boutique
