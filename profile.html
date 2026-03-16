@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mon Profil - MANG</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"><style>
+<title>Profil - MANG</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
 
 *{
 margin:0;
@@ -12,9 +12,8 @@ font-family:'Poppins',sans-serif;
 }
 
 body{
-background:#f5f5f5;
-color:#203a43;
-min-height:100vh;
+background:#f4f6f8;
+color:#333;
 }
 
 /* container */
@@ -22,32 +21,35 @@ min-height:100vh;
 .container{
 max-width:480px;
 margin:auto;
-padding:15px;
+padding:16px;
 display:flex;
 flex-direction:column;
-gap:15px;
+gap:16px;
 }
 
-/* cartes */
+/* carte */
 
 .card{
 background:white;
-border-radius:18px;
+border-radius:16px;
 padding:18px;
-box-shadow:0 4px 14px rgba(0,0,0,0.08);
+box-shadow:0 4px 12px rgba(0,0,0,0.06);
 }
 
-/* profil */
+/* header profil */
 
-.user-box{
+.profile-header{
 background:#1B8F3A;
 color:white;
 text-align:center;
+padding:28px 20px;
+border-radius:16px;
 position:relative;
-padding-top:30px;
 }
 
-.back-arrow{
+/* bouton retour */
+
+.back-btn{
 position:absolute;
 left:15px;
 top:15px;
@@ -57,19 +59,22 @@ cursor:pointer;
 
 /* avatar */
 
-.user-circle{
-width:85px;
-height:85px;
+.avatar{
+width:90px;
+height:90px;
 border-radius:50%;
 background:white;
 color:#1B8F3A;
-font-size:34px;
 display:flex;
 align-items:center;
 justify-content:center;
-margin:0 auto 10px auto;
+font-size:36px;
 font-weight:700;
+margin:auto;
+margin-bottom:10px;
 }
+
+/* email */
 
 .email{
 font-size:14px;
@@ -78,7 +83,7 @@ opacity:0.9;
 
 /* stats */
 
-.stat{
+.stat-row{
 display:flex;
 justify-content:space-between;
 padding:12px 0;
@@ -86,57 +91,82 @@ border-bottom:1px solid #eee;
 font-size:14px;
 }
 
-.stat:last-child{
+.stat-row:last-child{
 border:none;
 }
 
-/* actions */
+/* menu actions */
 
-.actions{
+.menu{
 display:flex;
 flex-direction:column;
-gap:10px;
+gap:8px;
 }
 
-/* boutons */
+/* bouton menu */
 
-.action-btn{
+.menu-btn{
+background:white;
 border:none;
-padding:14px;
+
+padding:14px 16px;
+
 border-radius:12px;
-font-size:14px;
-font-weight:600;
-cursor:pointer;
 
 display:flex;
 align-items:center;
 justify-content:space-between;
 
-transition:0.25s;
+font-size:14px;
+
+cursor:pointer;
+
+box-shadow:0 2px 6px rgba(0,0,0,0.05);
+
+transition:0.2s;
 }
 
-.action-btn:hover{
-transform:translateY(-2px);
-opacity:0.95;
+.menu-btn:hover{
+transform:translateY(-1px);
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
 }
 
-/* styles boutons */
+/* gauche bouton */
 
-.orders{ background:#2196f3; color:white; }
-.favorites{ background:#e91e63; color:white; }
-.wallet{ background:#1B8F3A; color:white; }
-.password{ background:#ffb300; color:white; }
-.logout{ background:#ff5252; color:white; }
+.menu-left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+/* icone */
+
+.icon{
+font-size:18px;
+color:#1B8F3A;
+}
+
+/* flèche */
+
+.arrow{
+color:#bbb;
+font-size:16px;
+}
 
 /* badge commandes */
 
-#order-badge{
+.badge{
 background:red;
 color:white;
-font-size:11px;
+font-size:10px;
 padding:2px 6px;
 border-radius:20px;
-display:none;
+}
+
+/* bouton logout */
+
+.logout{
+color:#e53935;
 }
 
 /* message */
@@ -145,34 +175,45 @@ display:none;
 margin-top:10px;
 font-size:13px;
 text-align:center;
-color:#555;
+color:#666;
 }
 
-</style></head><body><div class="container"><!-- PROFIL --><div class="card user-box"><span class="back-arrow" onclick="window.location.href='vente.html'">←</span>
+</style></head><body><div class="container"><!-- HEADER PROFIL --><div class="profile-header"><span class="back-btn" onclick="window.location.href='index.html'">←</span>
 
-<div class="user-circle" id="initialLetter">U</div>
-<h3 id="displayName">Utilisateur</h3>
-<div class="email" id="userEmail"></div></div><!-- STATISTIQUES --><div class="card"><div class="stat">
-<span>Solde actuel</span>
+<div class="avatar" id="initialLetter">U</div><h3 id="displayName">Utilisateur</h3><div class="email" id="userEmail"></div></div><!-- STATISTIQUES --><div class="card"><div class="stat-row">
+<span>Solde</span>
 <span id="walletBalance">0 FCFA</span>
-</div><div class="stat">
+</div><div class="stat-row">
 <span>Transactions</span>
 <span id="totalTransactions">0</span>
-</div><div class="stat">
-<span>Date d'inscription</span>
+</div><div class="stat-row">
+<span>Inscription</span>
 <span id="createdAt"></span>
-</div></div><!-- ACTIONS --><div class="card"><div class="actions"><button id="btnMesCommandes" class="action-btn orders">
-<span>📦 Mes commandes</span>
-<span id="order-badge"></span>
-</button><button class="action-btn favorites" onclick="window.location.href='favoris.html'">
-❤️ Mes favoris
-</button><button class="action-btn wallet" onclick="goWallet()">
-💳 Mon portefeuille
-</button><button class="action-btn password" id="changePassBtn" onclick="goChangePassword()">
-🔒 Modifier mot de passe
-</button><button class="action-btn logout" onclick="logout()">
-🚪 Déconnexion
-</button></div><div class="message" id="msgBox"></div></div></div><script type="module">
+</div></div><!-- MENU --><div class="card"><div class="menu"><button id="btnMesCommandes" class="menu-btn"><div class="menu-left">
+<span class="icon">📦</span>
+<span>Mes commandes</span>
+</div><div>
+<span id="order-badge" class="badge"></span>
+<span class="arrow">›</span>
+</div></button><button class="menu-btn" onclick="window.location.href='favoris.html'"><div class="menu-left">
+<span class="icon">❤️</span>
+<span>Mes favoris</span>
+</div><span class="arrow">›</span>
+
+</button><button class="menu-btn" onclick="goWallet()"><div class="menu-left">
+<span class="icon">💳</span>
+<span>Mon portefeuille</span>
+</div><span class="arrow">›</span>
+
+</button><button class="menu-btn" id="changePassBtn" onclick="goChangePassword()"><div class="menu-left">
+<span class="icon">🔒</span>
+<span>Modifier mot de passe</span>
+</div><span class="arrow">›</span>
+
+</button><button class="menu-btn logout" onclick="logout()"><div class="menu-left">
+<span class="icon">🚪</span>
+<span>Déconnexion</span>
+</div></button></div><div class="message" id="msgBox"></div></div></div><script type="module">
 
 import { supabase } from './supabase.js';
 
@@ -202,7 +243,7 @@ const { data:wallet } = await supabase
 .eq("user_id",user.id)
 .single();
 
-document.getElementById("walletBalance").innerText=
+document.getElementById("walletBalance").innerText =
 (wallet?.available_balance || 0).toLocaleString("fr-FR")+" FCFA";
 
 const { count } = await supabase
@@ -210,7 +251,7 @@ const { count } = await supabase
 .select("*",{count:"exact",head:true})
 .eq("user_id",user.id);
 
-document.getElementById("totalTransactions").innerText=count || 0;
+document.getElementById("totalTransactions").innerText = count || 0;
 
 await loadNewOrdersCount();
 
@@ -222,19 +263,16 @@ console.error(err);
 
 loadProfile();
 
-/* portefeuille */
 
 window.goWallet=function(){
 window.location.href="dashboard.html";
 }
 
-/* commandes */
 
 document.getElementById("btnMesCommandes").addEventListener("click",()=>{
 window.location.href="commande.html";
 });
 
-/* mot de passe */
 
 window.goChangePassword=async function(){
 
@@ -259,7 +297,6 @@ btn.innerText="🔒 Modifier mot de passe";
 
 }
 
-/* logout */
 
 window.logout=async function(){
 
@@ -268,7 +305,6 @@ window.location.href="login.html";
 
 }
 
-/* badge commandes */
 
 async function loadNewOrdersCount(){
 
@@ -284,7 +320,6 @@ const { count } = await supabase
 const badge=document.getElementById("order-badge");
 
 if(count && count>0){
-badge.style.display="inline-block";
 badge.textContent=count;
 }else{
 badge.style.display="none";
