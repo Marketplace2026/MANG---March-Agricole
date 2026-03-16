@@ -3112,6 +3112,7 @@ async function loadShops() {
       else if (shop.premium_level === "premium1") {
         premiumBadge = `<span class="premium-badge bronze">🥉 Premium 1</span>`;
       }
+
 div.innerHTML = `
 <div style="position:relative;width:100%;height:150px;overflow:hidden;border-radius:12px 12px 0 0;">
   
@@ -3121,15 +3122,7 @@ div.innerHTML = `
     class="zoomable-image"
     style="width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;">
 
-  <!-- Badge premium -->
-  <div style="
-      position:absolute;
-      top:8px;
-      left:8px;
-      z-index:2;
-  ">
-    ${premiumBadge}
-  </div>
+  ${premiumBadge}
 
   <!-- Bouton suivre -->
   <button class="favoriteShopBtn"
@@ -3149,15 +3142,16 @@ div.innerHTML = `
       gap:3px;
       font-size:13px;
       font-weight:600;
-      z-index:2;
     "
   >
 
-    <span class="favIcon">🤍</span>
-    <span class="favText" style="display:none;">Suivre</span>
-    <span class="favCount" style="color:#1B8F3A;font-weight:700;">
-      ${shop.followers_count || 0}
-    </span>
+   <span class="favIcon">🤍</span>
+
+<span class="favText" style="display:none;">Suivre</span>
+
+<span class="favCount" style="color:#1B8F3A;font-weight:700;">
+  ${shop.followers_count || 0}
+</span> 
 
   </button>
 
@@ -3191,7 +3185,6 @@ div.innerHTML = `
 
 </div>
 `;
-
 
   // 🔹 Clic sur la carte pour ouvrir la boutique
   div.onclick = (e) => {
