@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
+<!DOCTYPE html><html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mon Profil - MANG</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
+<title>Mon Profil - MANG</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"><style>
 
 *{
 margin:0;
@@ -18,11 +13,12 @@ font-family:'Poppins',sans-serif;
 
 body{
 background:#f5f5f5;
-min-height:100vh;
 color:#203a43;
+min-height:100vh;
 }
 
 /* container */
+
 .container{
 max-width:480px;
 margin:auto;
@@ -33,6 +29,7 @@ gap:15px;
 }
 
 /* cartes */
+
 .card{
 background:white;
 border-radius:18px;
@@ -40,7 +37,8 @@ padding:18px;
 box-shadow:0 4px 14px rgba(0,0,0,0.08);
 }
 
-/* carte profil */
+/* profil */
+
 .user-box{
 background:#1B8F3A;
 color:white;
@@ -49,7 +47,6 @@ position:relative;
 padding-top:30px;
 }
 
-/* flèche retour */
 .back-arrow{
 position:absolute;
 left:15px;
@@ -58,7 +55,8 @@ font-size:22px;
 cursor:pointer;
 }
 
-/* cercle utilisateur */
+/* avatar */
+
 .user-circle{
 width:85px;
 height:85px;
@@ -73,13 +71,13 @@ margin:0 auto 10px auto;
 font-weight:700;
 }
 
-/* email */
 .email{
 font-size:14px;
 opacity:0.9;
 }
 
 /* stats */
+
 .stat{
 display:flex;
 justify-content:space-between;
@@ -92,69 +90,57 @@ font-size:14px;
 border:none;
 }
 
-/* zone boutons */
+/* actions */
+
 .actions{
 display:flex;
-flex-wrap:wrap;
+flex-direction:column;
 gap:10px;
-justify-content:center;
 }
 
 /* boutons */
-button{
+
+.action-btn{
 border:none;
-padding:12px 16px;
-border-radius:10px;
+padding:14px;
+border-radius:12px;
 font-size:14px;
 font-weight:600;
 cursor:pointer;
-transition:0.3s;
+
 display:flex;
 align-items:center;
-gap:6px;
+justify-content:space-between;
+
+transition:0.25s;
 }
 
-button:hover{
+.action-btn:hover{
 transform:translateY(-2px);
 opacity:0.95;
 }
 
-/* couleurs boutons */
-.wallet{
-background:#1B8F3A;
-color:white;
-}
+/* styles boutons */
 
-.password{
-background:#ffb300;
-color:white;
-}
-
-.logout{
-background:#ff5252;
-color:white;
-}
-
-.btn-primary{
-background:#2196f3;
-color:white;
-position:relative;
-}
+.orders{ background:#2196f3; color:white; }
+.favorites{ background:#e91e63; color:white; }
+.wallet{ background:#1B8F3A; color:white; }
+.password{ background:#ffb300; color:white; }
+.logout{ background:#ff5252; color:white; }
 
 /* badge commandes */
+
 #order-badge{
-position:absolute;
-top:-6px;
-right:-6px;
 background:red;
 color:white;
 font-size:11px;
 padding:2px 6px;
-border-radius:50%;
+border-radius:20px;
 display:none;
 }
 
 /* message */
+
 .message{
 margin-top:10px;
 font-size:13px;
@@ -162,75 +148,31 @@ text-align:center;
 color:#555;
 }
 
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<!-- profil -->
-<div class="card user-box">
-
-<span class="back-arrow" onclick="window.location.href='vente.html'">←</span>
+</style></head><body><div class="container"><!-- PROFIL --><div class="card user-box"><span class="back-arrow" onclick="window.location.href='vente.html'">←</span>
 
 <div class="user-circle" id="initialLetter">U</div>
 <h3 id="displayName">Utilisateur</h3>
-<div class="email" id="userEmail"></div>
-
-</div>
-
-<!-- statistiques -->
-<div class="card">
-
-<div class="stat">
+<div class="email" id="userEmail"></div></div><!-- STATISTIQUES --><div class="card"><div class="stat">
 <span>Solde actuel</span>
 <span id="walletBalance">0 FCFA</span>
-</div>
-
-<div class="stat">
+</div><div class="stat">
 <span>Transactions</span>
 <span id="totalTransactions">0</span>
-</div>
-
-<div class="stat">
+</div><div class="stat">
 <span>Date d'inscription</span>
 <span id="createdAt"></span>
-</div>
-
-</div>
-
-<!-- actions -->
-<div class="card">
-
-<div class="actions">
-
-<button id="btnMesCommandes" class="btn-primary">
-📦 Commandes
+</div></div><!-- ACTIONS --><div class="card"><div class="actions"><button id="btnMesCommandes" class="action-btn orders">
+<span>📦 Mes commandes</span>
 <span id="order-badge"></span>
-</button>
-
-<button class="wallet" onclick="goWallet()">
-💳 Portefeuille
-</button>
-
-<button class="password" id="changePassBtn" onclick="goChangePassword()">
-🔒 Mot de passe
-</button>
-
-<button class="logout" onclick="logout()">
+</button><button class="action-btn favorites" onclick="window.location.href='favoris.html'">
+❤️ Mes favoris
+</button><button class="action-btn wallet" onclick="goWallet()">
+💳 Mon portefeuille
+</button><button class="action-btn password" id="changePassBtn" onclick="goChangePassword()">
+🔒 Modifier mot de passe
+</button><button class="action-btn logout" onclick="logout()">
 🚪 Déconnexion
-</button>
-
-</div>
-
-<div class="message" id="msgBox"></div>
-
-</div>
-
-</div>
-
-<script type="module">
+</button></div><div class="message" id="msgBox"></div></div></div><script type="module">
 
 import { supabase } from './supabase.js';
 
@@ -281,16 +223,19 @@ console.error(err);
 loadProfile();
 
 /* portefeuille */
+
 window.goWallet=function(){
 window.location.href="dashboard.html";
 }
 
 /* commandes */
+
 document.getElementById("btnMesCommandes").addEventListener("click",()=>{
 window.location.href="commande.html";
 });
 
 /* mot de passe */
+
 window.goChangePassword=async function(){
 
 const btn=document.getElementById("changePassBtn");
@@ -310,11 +255,12 @@ msg.innerText="📩 Email envoyé. Vérifiez votre boîte mail";
 }
 
 btn.disabled=false;
-btn.innerText="🔒 Mot de passe";
+btn.innerText="🔒 Modifier mot de passe";
 
 }
 
 /* logout */
+
 window.logout=async function(){
 
 await supabase.auth.signOut();
@@ -323,11 +269,10 @@ window.location.href="login.html";
 }
 
 /* badge commandes */
+
 async function loadNewOrdersCount(){
 
 if(!currentUser) return;
-
-try{
 
 const { count } = await supabase
 .from('orders')
@@ -345,13 +290,7 @@ badge.textContent=count;
 badge.style.display="none";
 }
 
-}catch(err){
-console.error(err);
 }
 
-}
-
-</script>
-
-</body>
+</script></body>
 </html>
