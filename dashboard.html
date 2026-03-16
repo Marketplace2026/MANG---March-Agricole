@@ -10,7 +10,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -18,15 +17,21 @@ box-sizing:border-box;
 font-family:'Poppins',sans-serif;
 }
 
-/* ===== BODY ===== */
-
 body{
-background:#f5f7fb;
-color:#1f2937;
-min-height:100vh;
-padding-bottom:90px;
+background:#f4f6f8;
+color:#333;
 }
 
+/* CONTAINER */
+
+.container{
+max-width:480px;
+margin:auto;
+padding:16px;
+display:flex;
+flex-direction:column;
+gap:16px;
+}
 
 /* HEADER */
 
@@ -47,13 +52,56 @@ align-items:center;
 gap:12px;
 
 box-shadow:0 10px 25px rgba(0,0,0,0.15);
-}  
 
-.back{
-font-size:20px;
-cursor:pointer;
-color:#374151;
 }
+/* bouton retour */
+.back{
+
+font-size:30px;
+
+cursor:pointer;
+
+margin-right:5px;
+
+}
+/* avatar */
+
+.avatar{
+
+width:55px;
+height:55px;
+
+border-radius:50%;
+
+background:white;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:24px;
+font-weight:700;
+
+color:#1B8F3A;
+
+}
+
+/* HEADER INFO */
+
+.header-info h1{
+
+font-size:18px;
+font-weight:600;
+
+}
+
+.header-info p{
+
+font-size:13px;
+opacity:0.9;
+
+}
+
 
 .profile{
 display:flex;
