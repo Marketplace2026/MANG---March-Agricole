@@ -1,8 +1,15 @@
-<!DOCTYPE html><html lang="fr">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profil - MANG</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+
+<title>Profil - MANG</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
 
 *{
 margin:0;
@@ -27,58 +34,138 @@ flex-direction:column;
 gap:16px;
 }
 
+/* ===================== */
 /* HEADER PROFIL */
+/* ===================== */
 
 .profile-header{
+
 background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+
 color:white;
-border-radius:16px;
-padding:30px 20px;
+
+border-radius:18px;
+
+padding:35px 20px 28px;
+
 text-align:center;
+
 position:relative;
+
+box-shadow:0 10px 25px rgba(0,0,0,0.15);
+
 }
+
+/* bouton retour */
 
 .back-btn{
+
 position:absolute;
+
 left:15px;
 top:15px;
-font-size:22px;
-cursor:pointer;
-}
 
-.avatar{
-width:95px;
-height:95px;
+font-size:30px;
+
+background:rgba(255,255,255,0.2);
+
+width:36px;
+height:36px;
+
 border-radius:50%;
-background:white;
-color:#1B8F3A;
+
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:38px;
-font-weight:700;
-margin:auto;
-margin-bottom:10px;
+
+cursor:pointer;
+
 }
 
+/* avatar */
+
+.avatar{
+
+width:100px;
+height:100px;
+
+border-radius:50%;
+
+background:white;
+color:#1B8F3A;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:40px;
+font-weight:700;
+
+margin:auto;
+margin-bottom:10px;
+
+border:4px solid rgba(255,255,255,0.6);
+
+box-shadow:0 6px 18px rgba(0,0,0,0.2);
+
+}
+
+/* nom utilisateur */
+
+#displayName{
+font-size:20px;
+margin-top:5px;
+}
+
+/* email */
+
 .email{
-font-size:14px;
+font-size:13px;
 opacity:0.9;
 }
 
+/* badge */
+
+.user-badge{
+
+margin-top:6px;
+
+display:inline-block;
+
+background:rgba(255,255,255,0.25);
+
+padding:4px 10px;
+
+border-radius:20px;
+
+font-size:11px;
+
+}
+
+/* ===================== */
 /* CARTE STATS */
+/* ===================== */
 
 .card{
+
 background:white;
+
 border-radius:14px;
+
 padding:16px;
+
 box-shadow:0 3px 10px rgba(0,0,0,0.06);
+
 }
 
 .stats{
+
 display:flex;
+
 justify-content:space-between;
+
 text-align:center;
+
 }
 
 .stat{
@@ -86,25 +173,39 @@ flex:1;
 }
 
 .stat h3{
+
 font-size:18px;
+
 color:#1B8F3A;
+
 }
 
 .stat p{
+
 font-size:12px;
+
 color:#777;
+
 }
 
+/* ===================== */
 /* MENU */
+/* ===================== */
 
 .menu{
+
 display:flex;
+
 flex-direction:column;
+
 gap:6px;
+
 }
 
 .menu-btn{
+
 background:white;
+
 border:none;
 
 padding:15px;
@@ -112,7 +213,9 @@ padding:15px;
 border-radius:12px;
 
 display:flex;
+
 align-items:center;
+
 justify-content:space-between;
 
 font-size:14px;
@@ -122,35 +225,55 @@ cursor:pointer;
 box-shadow:0 2px 6px rgba(0,0,0,0.05);
 
 transition:0.2s;
+
 }
 
 .menu-btn:hover{
+
 transform:translateY(-1px);
+
 box-shadow:0 4px 10px rgba(0,0,0,0.08);
+
 }
 
 .menu-left{
+
 display:flex;
+
 align-items:center;
+
 gap:10px;
+
 }
 
 .icon{
+
 font-size:18px;
+
 color:#1B8F3A;
+
 }
 
 .arrow{
+
 font-size:16px;
+
 color:#bbb;
+
 }
 
 .badge{
+
 background:red;
+
 color:white;
+
 font-size:10px;
+
 padding:2px 6px;
+
 border-radius:20px;
+
 }
 
 .logout{
@@ -158,53 +281,148 @@ color:#e53935;
 }
 
 .message{
+
 margin-top:10px;
+
 font-size:13px;
+
 text-align:center;
+
 color:#666;
+
 }
 
-</style></head><body><div class="container"><!-- HEADER --><div class="profile-header"><span class="back-btn" onclick="window.location.href='vente.html'">←</span>
+</style>
 
-<div class="avatar" id="initialLetter">U</div><h3 id="displayName">Utilisateur</h3><div class="email" id="userEmail"></div></div><!-- STATISTIQUES --><div class="card"><div class="stats"><div class="stat">
-<h3 id="walletBalance">0</h3>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- HEADER -->
+
+<div class="profile-header">
+
+<span class="back-btn" onclick="window.location.href='vente.html'">←</span>
+
+<div class="avatar" id="initialLetter">U</div>
+
+<h3 id="displayName">Utilisateur</h3>
+
+<div class="email" id="userEmail"></div>
+
+<div class="user-badge">Utilisateur MANG</div>
+
+</div>
+
+<!-- STATISTIQUES -->
+
+<div class="card">
+
+<div class="stats">
+
+<div class="stat">
+<h3 id="walletBalance">0 FCFA</h3>
 <p>Solde</p>
-</div><div class="stat">
+</div>
+
+<div class="stat">
 <h3 id="totalTransactions">0</h3>
 <p>Transactions</p>
-</div><div class="stat">
+</div>
+
+<div class="stat">
 <h3 id="createdAt"></h3>
 <p>Inscription</p>
-</div></div></div><!-- MENU --><div class="card"><div class="menu"><button id="btnMesCommandes" class="menu-btn"><div class="menu-left">
+</div>
+
+</div>
+
+</div>
+
+<!-- MENU -->
+
+<div class="card">
+
+<div class="menu">
+
+<button id="btnMesCommandes" class="menu-btn">
+
+<div class="menu-left">
 <span class="icon">📦</span>
 <span>Mes commandes</span>
-</div><div>
+</div>
+
+<div>
 <span id="order-badge" class="badge"></span>
 <span class="arrow">›</span>
-</div></button><button class="menu-btn" onclick="window.location.href='favoris.html'"><div class="menu-left">
+</div>
+
+</button>
+
+<button class="menu-btn" onclick="window.location.href='favoris.html'">
+
+<div class="menu-left">
 <span class="icon">❤️</span>
 <span>Mes favoris</span>
-</div><span class="arrow">›</span>
+</div>
 
-</button><button class="menu-btn" onclick="window.location.href='mes-boutiques.html'"><div class="menu-left">
+<span class="arrow">›</span>
+
+</button>
+
+<button class="menu-btn" onclick="window.location.href='vente.html'">
+
+<div class="menu-left">
 <span class="icon">🏪</span>
 <span>Mes boutiques</span>
-</div><span class="arrow">›</span>
+</div>
 
-</button><button class="menu-btn" onclick="goWallet()"><div class="menu-left">
+<span class="arrow">›</span>
+
+</button>
+
+<button class="menu-btn" onclick="goWallet()">
+
+<div class="menu-left">
 <span class="icon">💳</span>
 <span>Mon portefeuille</span>
-</div><span class="arrow">›</span>
+</div>
 
-</button><button class="menu-btn" id="changePassBtn" onclick="goChangePassword()"><div class="menu-left">
+<span class="arrow">›</span>
+
+</button>
+
+<button class="menu-btn" id="changePassBtn" onclick="goChangePassword()">
+
+<div class="menu-left">
 <span class="icon">🔒</span>
 <span>Modifier mot de passe</span>
-</div><span class="arrow">›</span>
+</div>
 
-</button><button class="menu-btn logout" onclick="logout()"><div class="menu-left">
+<span class="arrow">›</span>
+
+</button>
+
+<button class="menu-btn logout" onclick="logout()">
+
+<div class="menu-left">
 <span class="icon">🚪</span>
 <span>Déconnexion</span>
-</div></button></div><div class="message" id="msgBox"></div></div></div><script type="module">
+</div>
+
+</button>
+
+</div>
+
+<div class="message" id="msgBox"></div>
+
+</div>
+
+</div>
+
+<script type="module">
 
 import { supabase } from './supabase.js';
 
@@ -217,15 +435,20 @@ try{
 const { data:{user}, error } = await supabase.auth.getUser();
 
 if(error || !user){
+
 window.location.href="login.html";
 return;
+
 }
 
 currentUser=user;
 
 document.getElementById("userEmail").innerText=user.email;
+
 document.getElementById("displayName").innerText=user.email.split("@")[0];
+
 document.getElementById("initialLetter").innerText=user.email.charAt(0).toUpperCase();
+
 document.getElementById("createdAt").innerText=new Date(user.created_at).toLocaleDateString();
 
 const { data:wallet } = await supabase
@@ -235,7 +458,7 @@ const { data:wallet } = await supabase
 .single();
 
 document.getElementById("walletBalance").innerText =
-(wallet?.available_balance || 0).toLocaleString("fr-FR");
+(wallet?.available_balance || 0).toLocaleString("fr-FR") + " FCFA";
 
 const { count } = await supabase
 .from("wallet_transactions")
@@ -247,23 +470,26 @@ document.getElementById("totalTransactions").innerText = count || 0;
 await loadNewOrdersCount();
 
 }catch(err){
+
 console.error(err);
+
 }
 
 }
 
 loadProfile();
 
-
 window.goWallet=function(){
+
 window.location.href="dashboard.html";
+
 }
 
-
 document.getElementById("btnMesCommandes").addEventListener("click",()=>{
-window.location.href="commande.html";
-});
 
+window.location.href="commande.html";
+
+});
 
 window.goChangePassword=async function(){
 
@@ -278,9 +504,13 @@ redirectTo:"https://marketplace2026.github.io/MANG---March-Agricole/reset-passwo
 });
 
 if(error){
+
 msg.innerText="❌ Erreur lors de l'envoi";
+
 }else{
+
 msg.innerText="📩 Email envoyé. Vérifiez votre boîte mail";
+
 }
 
 btn.disabled=false;
@@ -288,14 +518,13 @@ btn.innerText="🔒 Modifier mot de passe";
 
 }
 
-
 window.logout=async function(){
 
 await supabase.auth.signOut();
+
 window.location.href="login.html";
 
 }
-
 
 async function loadNewOrdersCount(){
 
@@ -311,12 +540,18 @@ const { count } = await supabase
 const badge=document.getElementById("order-badge");
 
 if(count && count>0){
+
 badge.textContent=count;
+
 }else{
+
 badge.style.display="none";
-}
 
 }
 
-</script></body>
+}
+
+</script>
+
+</body>
 </html>
