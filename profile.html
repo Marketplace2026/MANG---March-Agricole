@@ -8,156 +8,191 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
-body{
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  min-height:100vh;
-  color:white;
+body {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  color: #fff;
 }
 
-.container{
-  max-width:500px;
-  margin:auto;
-  padding:20px;
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.card{
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(20px);
-  border-radius:20px;
-  padding:25px;
-  margin-bottom:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.user-box{
-  text-align:center;
+.user-box {
+  text-align: center;
 }
 
-.user-circle{
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  background:white;
-  color:#203a43;
-  font-size:35px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:0 auto 15px;
-  font-weight:700;
+.user-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #fff;
+  color: #203a43;
+  font-size: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-weight: 700;
 }
 
-.email{
-  opacity:0.8;
-  font-size:14px;
+.email {
+  opacity: 0.85;
+  font-size: 14px;
 }
 
-.stat{
-  display:flex;
-  justify-content:space-between;
-  padding:12px 0;
-  border-bottom:1px solid rgba(255,255,255,0.2);
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.stat:last-child{
-  border:none;
+.stat:last-child {
+  border: none;
 }
 
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-  margin-top:10px;
-  font-size:14px;
-  transition:0.3s;
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
 
-.wallet{ background:#00c853; color:white; }
-.password{ background:#ffb300; }
-.logout{ background:#ff5252; color:white; }
-
-button:hover{
-  transform:translateY(-2px);
-  opacity:0.9;
+.wallet {
+  background: #00c853;
+  color: #fff;
 }
 
-button:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-  transform:none;
+.password {
+  background: #ffb300;
+  color: #fff;
 }
 
-.back{
-  padding:20px;
-  cursor:pointer;
-  font-weight:600;
+.logout {
+  background: #ff5252;
+  color: #fff;
 }
 
-.message{
-  margin-top:15px;
-  font-size:13px;
-  text-align:center;
-  opacity:0.9;
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  opacity: 0.9;
 }
-   .btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: 0.3s;
-  }
 
-  .btn-primary {
-    background-color: #4CAF50;
-    color: white;
-  }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
-  .menu-btn {
+.back {
+  padding: 18px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  transition: 0.3s;
+}
+
+.back:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.message {
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+/* Boutons spécifiques */
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #45a049;
+}
+
+.menu-btn {
   display: block;
   width: 100%;
   text-align: center;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 20px;
-  font-weight: bold;
+  padding: 14px;
+  margin: 8px 0;
+  border-radius: 18px;
+  font-weight: 600;
   font-size: 16px;
   text-decoration: none;
   position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: 0.3s;
 }
 
-/* Même style que bouton vert */
+.menu-btn:hover {
+  transform: translateY(-2px);
+}
+
 .commandes-btn {
   background: #00c853;
   color: white;
 }
 
-/* Badge rouge */
+/* Badge notification */
 #order-badge {
   position: absolute;
-  top: 8px;
-  right: 15px;
-  background:#00c853;
+  top: -5px;
+  right: -8px;
+  background: red;
   color: white;
   font-size: 12px;
-  padding: 3px 7px;
+  padding: 2px 6px;
   border-radius: 50%;
   display: none;
 }
-  .btn-primary:hover {
-    background-color: #45a049;
-  }
 </style>
 </head>
 
