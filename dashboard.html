@@ -335,21 +335,24 @@ cursor:pointer;
 <body>
 
 <!-- HEADER -->
+<div class="container">
 
 <div class="header">
 
-<div class="back" onclick="window.location.href='profile.html'">⬅</div>
+<div class="back" onclick="window.location.href='profile.html'">←</div>
 
-<div class="profile">
-<div class="profile-circle">👤</div>
+<div class="avatar" id="userAvatar">U</div>
 
-<div>
-<div><b>Mon portefeuille</b></div>
-<small id="userEmail"></small>
-</div>
+<div class="header-info">
+  
+<h1>Mon portefeuille</h1>
+
+<p id="userEmail"></p>
+
 </div>
 
 </div>
+
 
 <div class="container" id="walletContainer" style="display:none;">
 
