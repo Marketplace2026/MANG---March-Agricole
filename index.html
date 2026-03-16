@@ -3112,17 +3112,19 @@ async function loadShops() {
         premiumBadge = `<span class="premium-badge bronze">🥉 Premium 1</span>`;
       }
 
+
 div.innerHTML = `
-<div style="position:relative;width:100%;height:140px;overflow:hidden;border-radius:12px 12px 0 0;">
+<div style="position:relative;width:100%;height:150px;overflow:hidden;border-radius:12px 12px 0 0;">
   
   <img 
-    src="${shop.image_url || 'https://via.placeholder.com/300x140'}" 
+    src="${shop.image_url || 'https://via.placeholder.com/300x160'}" 
     alt="${shop.name}" 
     class="zoomable-image"
     style="width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;">
 
   ${premiumBadge}
- <!-- Bouton suivre -->
+
+  <!-- Bouton suivre -->
   <button class="favoriteShopBtn"
     data-shop-id="${shop.id}"
     style="
@@ -3137,13 +3139,14 @@ div.innerHTML = `
       cursor:pointer;
       display:flex;
       align-items:center;
-      gap:2px;
+      gap:3px;
       font-size:13px;
       font-weight:600;
       z-index:3;
     "
   >
     <span class="favIcon">🤍</span>
+    <span class="favText" style="display:none;">Suivre</span>
     <span class="favCount" style="color:#1B8F3A;font-weight:700;">
       ${shop.followers_count || 0}
     </span>
@@ -3151,7 +3154,7 @@ div.innerHTML = `
 
 </div>
 
-<div style="padding:0 6px 2px 6px; display:flex; flex-direction:column; gap:2px;">
+<div style="padding:4px 8px;display:flex;flex-direction:column;gap:2px;">
 
   <!-- Nom boutique -->
   <h3 style="
@@ -3159,32 +3162,28 @@ div.innerHTML = `
     font-size:16px;
     font-weight:700;
     color:#2c3e50;
-    line-height:1.1;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+    line-height:1.2;
   ">
     ${shop.name}
   </h3>
 
   <!-- Propriétaire -->
-  <div style="font-size:13px; line-height:1.1; margin:0; padding:0;">
+  <div style="font-size:14px;line-height:1.2;">
     <span style="color:#555;">👤</span>
-    <span style="font-weight:600; color:#1b8f3a;">
+    <span style="font-weight:600;color:#1B8F3A;">
       ${shop.ownerUsername}
     </span>
   </div>
 
   <!-- Description -->
-  <div class="shopDesc" style="font-size:12px; line-height:1.1; margin:0; padding:0;">
+  <div class="shopDesc" style="font-size:13px;line-height:1.2;margin:0;padding:0;">
     <span class="scrollText">
       ${shop.description ? shop.description : ""}
     </span>
   </div>
 
 </div>
-`; 
-
+`;
 
   // 🔹 Clic sur la carte pour ouvrir la boutique
   div.onclick = (e) => {
