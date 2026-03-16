@@ -27,27 +27,16 @@ flex-direction:column;
 gap:16px;
 }
 
-/* carte */
-
-.card{
-background:white;
-border-radius:16px;
-padding:18px;
-box-shadow:0 4px 12px rgba(0,0,0,0.06);
-}
-
-/* header profil */
+/* HEADER PROFIL */
 
 .profile-header{
-background:#1B8F3A;
+background:linear-gradient(135deg,#1B8F3A,#2ECC71);
 color:white;
-text-align:center;
-padding:28px 20px;
 border-radius:16px;
+padding:30px 20px;
+text-align:center;
 position:relative;
 }
-
-/* bouton retour */
 
 .back-btn{
 position:absolute;
@@ -57,59 +46,68 @@ font-size:22px;
 cursor:pointer;
 }
 
-/* avatar */
-
 .avatar{
-width:90px;
-height:90px;
+width:95px;
+height:95px;
 border-radius:50%;
 background:white;
 color:#1B8F3A;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:36px;
+font-size:38px;
 font-weight:700;
 margin:auto;
 margin-bottom:10px;
 }
-
-/* email */
 
 .email{
 font-size:14px;
 opacity:0.9;
 }
 
-/* stats */
+/* CARTE STATS */
 
-.stat-row{
+.card{
+background:white;
+border-radius:14px;
+padding:16px;
+box-shadow:0 3px 10px rgba(0,0,0,0.06);
+}
+
+.stats{
 display:flex;
 justify-content:space-between;
-padding:12px 0;
-border-bottom:1px solid #eee;
-font-size:14px;
+text-align:center;
 }
 
-.stat-row:last-child{
-border:none;
+.stat{
+flex:1;
 }
 
-/* menu actions */
+.stat h3{
+font-size:18px;
+color:#1B8F3A;
+}
+
+.stat p{
+font-size:12px;
+color:#777;
+}
+
+/* MENU */
 
 .menu{
 display:flex;
 flex-direction:column;
-gap:8px;
+gap:6px;
 }
-
-/* bouton menu */
 
 .menu-btn{
 background:white;
 border:none;
 
-padding:14px 16px;
+padding:15px;
 
 border-radius:12px;
 
@@ -131,29 +129,21 @@ transform:translateY(-1px);
 box-shadow:0 4px 10px rgba(0,0,0,0.08);
 }
 
-/* gauche bouton */
-
 .menu-left{
 display:flex;
 align-items:center;
 gap:10px;
 }
 
-/* icone */
-
 .icon{
 font-size:18px;
 color:#1B8F3A;
 }
 
-/* flèche */
-
 .arrow{
-color:#bbb;
 font-size:16px;
+color:#bbb;
 }
-
-/* badge commandes */
 
 .badge{
 background:red;
@@ -163,13 +153,9 @@ padding:2px 6px;
 border-radius:20px;
 }
 
-/* bouton logout */
-
 .logout{
 color:#e53935;
 }
-
-/* message */
 
 .message{
 margin-top:10px;
@@ -178,18 +164,18 @@ text-align:center;
 color:#666;
 }
 
-</style></head><body><div class="container"><!-- HEADER PROFIL --><div class="profile-header"><span class="back-btn" onclick="window.location.href='index.html'">←</span>
+</style></head><body><div class="container"><!-- HEADER --><div class="profile-header"><span class="back-btn" onclick="window.location.href='vente.html'">←</span>
 
-<div class="avatar" id="initialLetter">U</div><h3 id="displayName">Utilisateur</h3><div class="email" id="userEmail"></div></div><!-- STATISTIQUES --><div class="card"><div class="stat-row">
-<span>Solde</span>
-<span id="walletBalance">0 FCFA</span>
-</div><div class="stat-row">
-<span>Transactions</span>
-<span id="totalTransactions">0</span>
-</div><div class="stat-row">
-<span>Inscription</span>
-<span id="createdAt"></span>
-</div></div><!-- MENU --><div class="card"><div class="menu"><button id="btnMesCommandes" class="menu-btn"><div class="menu-left">
+<div class="avatar" id="initialLetter">U</div><h3 id="displayName">Utilisateur</h3><div class="email" id="userEmail"></div></div><!-- STATISTIQUES --><div class="card"><div class="stats"><div class="stat">
+<h3 id="walletBalance">0</h3>
+<p>Solde</p>
+</div><div class="stat">
+<h3 id="totalTransactions">0</h3>
+<p>Transactions</p>
+</div><div class="stat">
+<h3 id="createdAt"></h3>
+<p>Inscription</p>
+</div></div></div><!-- MENU --><div class="card"><div class="menu"><button id="btnMesCommandes" class="menu-btn"><div class="menu-left">
 <span class="icon">📦</span>
 <span>Mes commandes</span>
 </div><div>
@@ -198,6 +184,11 @@ color:#666;
 </div></button><button class="menu-btn" onclick="window.location.href='favoris.html'"><div class="menu-left">
 <span class="icon">❤️</span>
 <span>Mes favoris</span>
+</div><span class="arrow">›</span>
+
+</button><button class="menu-btn" onclick="window.location.href='mes-boutiques.html'"><div class="menu-left">
+<span class="icon">🏪</span>
+<span>Mes boutiques</span>
 </div><span class="arrow">›</span>
 
 </button><button class="menu-btn" onclick="goWallet()"><div class="menu-left">
@@ -244,7 +235,7 @@ const { data:wallet } = await supabase
 .single();
 
 document.getElementById("walletBalance").innerText =
-(wallet?.available_balance || 0).toLocaleString("fr-FR")+" FCFA";
+(wallet?.available_balance || 0).toLocaleString("fr-FR");
 
 const { count } = await supabase
 .from("wallet_transactions")
