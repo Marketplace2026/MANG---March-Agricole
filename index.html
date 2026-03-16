@@ -3131,7 +3131,7 @@ div.innerHTML = `
       position:absolute;
       top:8px;
       right:8px;
-      padding:4px 8px;
+      padding:3px 7px;
       border-radius:20px;
       border:none;
       background:white;
@@ -3139,15 +3139,16 @@ div.innerHTML = `
       cursor:pointer;
       display:flex;
       align-items:center;
-      gap:4px;
+      gap:3px;
       font-size:13px;
       font-weight:600;
     "
   >
 
     <span class="favIcon">🤍</span>
-    <span class="favText" style="font-size:12px;">Suivre</span>
-    <span class="favCount" style="color:#1B8F3A;font-weight:700;">0</span>
+    <span class="favCount" style="color:#1B8F3A;font-weight:700;">
+      ${shop.followers_count || 0}
+    </span>
 
   </button>
 
