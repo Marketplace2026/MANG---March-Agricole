@@ -1353,9 +1353,8 @@ flex-direction:column;
   font-size: 15px;
 }
 
-
-/* ===================== */
-/* BARRE BAS NAVIGATION */
+ /* ===================== */
+/* NAVIGATION BAS */
 /* ===================== */
 
 .bottom-nav{
@@ -1364,21 +1363,25 @@ bottom:0;
 left:0;
 right:0;
 
-height:65px;
+height:68px;
+
 background:#ffffff;
 
 display:flex;
 align-items:center;
 justify-content:space-around;
 
-box-shadow:0 -3px 12px rgba(0,0,0,0.08);
+box-shadow:0 -4px 15px rgba(0,0,0,0.08);
 
-z-index:999;
+border-top-left-radius:16px;
+border-top-right-radius:16px;
+
+z-index:9999;
 }
 
 
 /* ===================== */
-/* NAV ITEM */
+/* BOUTONS NAV */
 /* ===================== */
 
 .nav-item{
@@ -1390,18 +1393,20 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 
+width:65px;
+
 font-size:11px;
-color:#666;
+color:#777;
 
 cursor:pointer;
 
 position:relative;
 
-width:60px;
+transition:all 0.25s ease;
 }
 
 .nav-item .icon{
-font-size:20px;
+font-size:21px;
 margin-bottom:2px;
 }
 
@@ -1415,55 +1420,61 @@ font-size:11px;
 .nav-item.active{
 color:#1B8F3A;
 font-weight:600;
+transform:translateY(-2px);
 }
 
 
 /* ===================== */
-/* BADGE */
+/* BADGE NOTIFICATION */
 /* ===================== */
 
 .badge{
 position:absolute;
+
 top:-4px;
-right:5px;
+right:8px;
 
 background:#ff3b30;
 color:white;
 
 font-size:9px;
-padding:2px 5px;
 
-border-radius:10px;
+padding:2px 6px;
+
+border-radius:20px;
 
 min-width:16px;
+
 text-align:center;
 }
 
 
 /* ===================== */
-/* BOUTON CENTRAL */
+/* BOUTON CENTRAL + */
 /* ===================== */
 
 .sell-btn{
 
-width:58px;
-height:58px;
+width:60px;
+height:60px;
 
 background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+
 color:white;
 
 border:none;
 border-radius:50%;
 
-font-size:28px;
+font-size:30px;
+font-weight:bold;
 
 display:flex;
 align-items:center;
 justify-content:center;
 
-margin-top:-25px;
+margin-top:-28px;
 
-box-shadow:0 8px 20px rgba(0,0,0,0.25);
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
 
 transition:all 0.3s ease;
 
@@ -1481,43 +1492,50 @@ transform:scale(0.9);
 
 
 /* ===================== */
-/* ANIMATION */
+/* ANIMATION BOUTON + */
 /* ===================== */
 
 @keyframes sellPulse{
 
 0%{
 transform:scale(1);
-box-shadow:0 8px 20px rgba(0,0,0,0.25);
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
 }
 
 50%{
 transform:scale(1.08);
-box-shadow:0 12px 28px rgba(0,0,0,0.35);
+box-shadow:0 15px 35px rgba(0,0,0,0.35);
 }
 
 100%{
 transform:scale(1);
-box-shadow:0 8px 20px rgba(0,0,0,0.25);
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
 }
 
 }
+
+
+/* ===================== */
+/* AVATAR PROFIL */
+/* ===================== */
+
 .nav-avatar{
 width:22px;
 height:22px;
 border-radius:50%;
 object-fit:cover;
- }
- 
+}
+
 
 /* ===================== */
-/* ESPACE POUR LE SCROLL */
+/* ESPACE SCROLL */
 /* ===================== */
 
 body{
-padding-bottom:90px;
+padding-bottom:75px;
 }
 
+ 
 /* espace supplémentaire après la dernière carte */
 
 #shopsList::after{
