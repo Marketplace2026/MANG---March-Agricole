@@ -3657,16 +3657,20 @@ const livraisonDiv = document.getElementById("shopViewLivraison");
 livraisonDiv.innerHTML = shop.livraison === true
   ? `<span class="livraison-badge livraison-oui">🚚 Livraison disponible</span>`
   : `<span class="livraison-badge livraison-non">📦 Livraison non disponible</span>`;
- 
-
+   
 // ================= WHATSAPP NUMERO (BANDE VERTE) =================
-const whatsappDiv = document.getElementById("shopViewWhatsapp");
-if (shop.whatsapp) {
-const phone = shop.whatsapp.replace(/\s+/g, '');
-whatsappDiv.innerHTML =     <div class="whatsapp-band">     📞 ${phone}     </div>    ;
-} else {
-whatsappDiv.innerHTML = "";
- }
+    const whatsappDiv = document.getElementById("shopViewWhatsapp");
+    if (shop.whatsapp) {
+      const phone = shop.whatsapp.replace(/\s+/g, '');
+      whatsappDiv.innerHTML = `
+        <div class="whatsapp-band">
+          📞 ${phone}
+        </div>
+      `;
+    } else {
+      whatsappDiv.innerHTML = "";
+    } 
+
 
 function formatAvailability(value) {
   const map = {
