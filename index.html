@@ -1738,7 +1738,6 @@ height:100px;
 </div>
 
 
-
 <!-- MODAL VUE BOUTIQUE -->
   <div id="shopViewModal">
   <div id="shopViewContent">
@@ -1837,100 +1836,106 @@ height:100px;
 
   </div>
 </div>
+</div>
+<!-- Chat et Messagerie restent inchangés -->
+<div class="chat-container" id="chatContainer">
+  <div class="chat-header">
+    <span id="chatTitle">Discussion</span>
+    <div>
+      <button onclick="openShopStats()">📊</button>
+      <button id="deleteChat">🗑️</button>
+      <button id="closeChat">✕</button>
+    </div>
   </div>
+  <div id="shopStats"
+     style="
+       display:none;
+       padding:12px;
+       background:#f7f7f7;
+       border-bottom:1px solid #ddd;
+       font-size:14px;
+     ">
+  </div>
+  <div id="shopStatsModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:10000;
+  justify-content:center;
+  align-items:center;
+">
+  <div style="
+    background:#fff;
+    padding:16px;
+    border-radius:12px;
+    width:90%;
+    max-width:320px;
+  ">
+    <h3>📊 Statistiques</h3>
+    <div id="shopStatsContent"></div>
+    <button onclick="closeShopStats()" style="margin-top:12px;width:100%;">
+      Fermer
+    </button>
+  </div>
+</div>
+  <div class="messages-list" id="messagesList"></div>
+  <div class="input-area">
+    <div id="chatInputContainer">
+      <div id="mediaPreview"></div>
+      <div style="display:flex; gap:8px; align-items:center; width:100%;">
+        <button id="fileBtn" class="btn-file">📎</button>
+        <input type="text" id="messageInput" placeholder="Écris un message...">
+        <button id="sendBtn" class="btn-send">➤</button>
+        <button id="audioBtn" class="btn-audio">🎤</button>
+      </div>
+      <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*,audio/*">
+    </div>
+  </div>
+</div>
 
+<div id="discussionsPanel">
+  <div class="messagerie-header">
+    <strong>Messagerie</strong>
+    <span class="close-btn" id="closeMessagerie">✕</span>
+  </div>
+  <div class="tabs">
+  <button id="tabAchat" class="active">Achat</button>
+  <button id="tabVente" >Vente</button>
+</div>
+<div id="discussionsList"></div>
+</div>
 
-<!-- Chat et Messagerie restent inchangés -->  
-<div class="chat-container" id="chatContainer">  
-  <div class="chat-header">  
-    <span id="chatTitle">Discussion</span>  
-    <div>  
-      <button onclick="openShopStats()">📊</button>  
-      <button id="deleteChat">🗑️</button>  
-      <button id="closeChat">✕</button>  
-    </div>  
-  </div>  
-  <div id="shopStats"  
-     style="  
-       display:none;  
-       padding:12px;  
-       background:#f7f7f7;  
-       border-bottom:1px solid #ddd;  
-       font-size:14px;  
-     ">  
-  </div>  
-  <div id="shopStatsModal" style="  
-  display:none;  
-  position:fixed;  
-  inset:0;  
-  background:rgba(0,0,0,0.5);  
-  z-index:10000;  
-  justify-content:center;  
-  align-items:center;  
-">  
-  <div style="  
-    background:#fff;  
-    padding:16px;  
-    border-radius:12px;  
-    width:90%;  
-    max-width:320px;  
-  ">  
-    <h3>📊 Statistiques</h3>  
-    <div id="shopStatsContent"></div>  
-    <button onclick="closeShopStats()" style="margin-top:12px;width:100%;">  
-      Fermer  
-    </button>  
-  </div>  
-</div>  
-  <div class="messages-list" id="messagesList"></div>  
-  <div class="input-area">  
-    <div id="chatInputContainer">  
-      <div id="mediaPreview"></div>  
-      <div style="display:flex; gap:8px; align-items:center; width:100%;">  
-        <button id="fileBtn" class="btn-file">📎</button>  
-        <input type="text" id="messageInput" placeholder="Écris un message...">  
-        <button id="sendBtn" class="btn-send">➤</button>  
-        <button id="audioBtn" class="btn-audio">🎤</button>  
-      </div>  
-      <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*,audio/*">  
-    </div>  
-  </div>  
-</div>  <div id="discussionsPanel">  
-  <div class="messagerie-header">  
-    <strong>Messagerie</strong>  
-    <span class="close-btn" id="closeMessagerie">✕</span>  
-  </div>  
-  <div class="tabs">  
-  <button id="tabAchat" class="active">Achat</button>  
-  <button id="tabVente" >Vente</button>  
-</div>  
-<div id="discussionsList"></div>  
-</div>  <div id="mediaModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:10000;">  
-  <div id="mediaContent" style="max-width:90%; max-height:90%;"></div>  
-  <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>  
-</div>  
-<!-- CONTENEUR PRODUITS -->  
-<div id="shopProductsScroll" class="shop-products-scroll"></div>  <!-- ===========================  
-MODALE COMMANDE  
-=========================== -->  <div id="orderModal" class="modal" style="display:none;">  
-  <div class="modal-content">  
-    <span class="close" onclick="closeOrderModal()">&times;</span>  
-    <h3>Renseignez vos informations de livraison</h3>  <label>Adresse de livraison *</label>  
-<input id="orderAddress" type="text" placeholder="Adresse complète">  
+<div id="mediaModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:10000;">
+  <div id="mediaContent" style="max-width:90%; max-height:90%;"></div>
+  <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>
+</div>
+<!-- CONTENEUR PRODUITS -->
+<div id="shopProductsScroll" class="shop-products-scroll"></div>
 
-<label>Téléphone *</label>  
-<input id="orderPhone" type="text" placeholder="Numéro de téléphone">  
+<!-- ===========================
+MODALE COMMANDE
+=========================== -->
+<div id="orderModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeOrderModal()">&times;</span>
+    <h3>Renseignez vos informations de livraison</h3>
+    
+    <label>Adresse de livraison *</label>
+    <input id="orderAddress" type="text" placeholder="Adresse complète">
 
-<label>Note (optionnelle)</label>  
-<textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
+    <label>Téléphone *</label>
+    <input id="orderPhone" type="text" placeholder="Numéro de téléphone">
 
-<label>Quantité *</label>
+    <label>Note (optionnelle)</label>
+    <textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
+
+   <label>Quantité *</label>
 <input id="orderQuantity" type="number" min="1" value="1" placeholder="Quantité">
 
-<button id="createOrderBtn">Créer la commande</button>
-
-  </div>  
-</div>  
+    <button id="createOrderBtn">Créer la commande</button>
+  </div>
+</div>
   
  <div class="bottom-nav" id="bottomNav">    <button class="nav-item active" id="homeBtn">  
     <div class="icon">🏠</div>  
