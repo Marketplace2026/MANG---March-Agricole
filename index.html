@@ -1893,317 +1893,227 @@ to{transform:translateY(0);}
 
 </div>
 
+   <!-- MODAL VUE BOUTIQUE -->  <div id="shopViewModal" class="shop-modal-overlay">    <div id="shopViewContent" class="shop-modal">  <span id="closeShopView" class="close-btn">✕</span>  
 
-<!-- MODALE CATÉGORIES -->
-<div id="categoryModal" class="categoryModal hidden">
-  <div class="categoryBox">
+<!-- IMAGE COVER -->  
+<div id="shopViewCover"></div>  
 
-    <input
-      type="text"
-      id="categorySearch"
-      class="categorySearch"
-      placeholder="🔍 Rechercher une catégorie..."
-    >
+<!-- HEADER (avatar + nom) -->  
+<div class="shop-header">  
+  <div id="shopViewAvatar"></div>  
 
-    <div id="categoryList"></div>
+  <div class="shop-meta">  
+    <div id="shopViewName"></div>  
+    <div id="shopViewLocation"></div>  
+  </div>  
+</div>  
 
-    <div class="categoryActions">
-      <button id="closeCategoryBtn">Fermer</button>
-    </div>
+<!-- BODY -->  
+<div class="shop-body">  
 
-  </div>
-</div>
+  <div id="shopViewCategory"></div>  
 
-  <div id="livraisonOptions" class="livraison-options hidden">
-    <div data-value="true">🚚 Disponible</div>
-    <div data-value="false">📦 Non disponible</div>
-  </div>
-</div>
+  <div class="divider"></div>  
 
-<!-- OVERLAY TOP BOUTIQUES -->
-<div id="topShopsOverlay" style="display:none;">
-  <div id="topShopsPanel">
-    <div class="topShopsHeader">
-      <h3>🔥 Top 5 Boutiques</h3>
-      <button id="closeTopShops">×</button>
-    </div>
-    <div id="topShopsContainer"></div>
-  </div>
-</div>
+  <div id="shopViewDesc"></div>  
+
+  <div id="shopViewLivraison"></div>  
+
+  <div id="shopViewWhatsapp"></div>
+
+<button id="contactShopBtn">💬 Discuter avec la boutique </button>
+
+<p><strong>Produits disponibles</strong></p>  
+<div id="shopProductsScroll"></div>  
  
-
- 
- <!-- CONTENEUR BOUTONS HORIZONTAUX -->
-<div class="topButtons">
-  <button id="resetFilterBtn" class="topBtn">🔄 Tous</button>
-  <button id="topShopsBtn" class="topBtn">🔥 Top boutiques</button>
-  <button id="filterCategoryBtn" class="topBtn">📂 Catégories</button>
-  <button id="livraisonFilterBtn" class="topBtn">🚚 Livraison</button>
-  <button id="nearbyShopsBtn" class="topBtn">📍 Boutiques proches</button>
-</div> 
- 
-  <!-- LISTE DES BOUTIQUES -->
-<div class="shops-container" id="shopsList">
-  <!-- Les boutiques seront injectées ici par JS -->
   
-</div>
- 
-  <!-- MODAL VUE BOUTIQUE -->
-<div id="shopViewModal" class="shop-modal-overlay">
 
-  <div id="shopViewContent" class="shop-modal">
+<!-- Likes et commentaires -->  
+<div style="display:flex; align-items:center; gap:8px; margin-top:6px;">  
 
-    <span id="closeShopView" class="close-btn">✕</span>
+  <!-- Bouton Like principal -->  
+  <button id="likeShopBtn" style="  
+      padding:4px 8px;  
+      font-size:12px;  
+      cursor:pointer;  
+      border:none;  
+      border-radius:6px;  
+      background:#e0f7fa;  
+      color:#007bff;  
+      font-weight:500;  
+      display:flex;  
+      align-items:center;  
+      gap:4px;  
+      transition:0.2s;"  
+      onmouseover="this.style.background='#b2ebf2'"   
+      onmouseout="this.style.background='#e0f7fa'">  
+    👍 J'aime  
+  </button>  
 
-    <!-- IMAGE COVER -->
-    <div id="shopViewCover"></div>
+  <!-- Compteur / point cliquable -->  
+  <div id="likeCountContainer" style="display:flex; align-items:center; gap:4px; cursor:pointer;">  
+    <span id="likeCount" style="font-size:12px; color:#555;">0</span>  
+    <span style="  
+      display:inline-block;  
+      width:10px;  
+      height:10px;  
+      background:#007bff;  
+      border-radius:50%;  
+      transition:0.2s;"  
+      onmouseover="this.style.background='#005bbb'"  
+      onmouseout="this.style.background='#007bff'">  
+    </span>  
+  </div>  
+</div>  
 
-    <!-- HEADER -->
-    <div class="shop-header">
-      <div id="shopViewAvatar"></div>
+<!-- Liste des utilisateurs likant la boutique -->  
+<div id="shopLikesList" style="  
+    position:absolute;  
+    display:none;  
+    background:#fff;  
+    border:1px solid #ddd;  
+    border-radius:6px;  
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);  
+    padding:8px;  
+    max-height:200px;  
+    overflow-y:auto;  
+    font-size:12px;  
+    z-index:999;">  
+</div>  
 
-      <div class="shop-meta">
-        <div id="shopViewName"></div>
-        <div id="shopViewLocation"></div>
-      </div>
-    </div>
+<div class="comments-section" style="background:#f1f2f6; padding:10px; border-radius:8px;">  
+  <h4>Commentaires</h4>  
+  <div id="commentsList" style="height:400px; overflow-y:auto; margin-bottom:5px;"></div>  
+<div class="commentInputWrapper">
 
-    <!-- BODY -->
-    <div class="shop-body">
+  <input type="text" id="commentInput" placeholder="Écrire un commentaire...">  
+  <button id="sendCommentBtn">➤</button>  
+</div>  <!-- ✅ Copier lien boutique (MAINTENANT DANS LE MODAL) -->  
+<button id="copyLinkBtn" style="  
+  margin-top:12px;  
+  padding:8px 12px;  
+  background:#17a2b8;  
+  color:#fff;  
+  border:none;  
+  border-radius:6px;  
+  cursor:pointer;  
+  height:30px;  
+  width:80%;">  
+  Copier le lien  
+</button>
 
-      <div id="shopViewCategory"></div>
+  </div>  
+</div>  
+</div>  
+<!-- Chat et Messagerie restent inchangés -->  
+<div class="chat-container" id="chatContainer">  
+  <div class="chat-header">  
+    <span id="chatTitle">Discussion</span>  
+    <div>  
+      <button onclick="openShopStats()">📊</button>  
+      <button id="deleteChat">🗑️</button>  
+      <button id="closeChat">✕</button>  
+    </div>  
+  </div>  
+  <div id="shopStats"  
+     style="  
+       display:none;  
+       padding:12px;  
+       background:#f7f7f7;  
+       border-bottom:1px solid #ddd;  
+       font-size:14px;  
+     ">  
+  </div>  
+  <div id="shopStatsModal" style="  
+  display:none;  
+  position:fixed;  
+  inset:0;  
+  background:rgba(0,0,0,0.5);  
+  z-index:10000;  
+  justify-content:center;  
+  align-items:center;  
+">  
+  <div style="  
+    background:#fff;  
+    padding:16px;  
+    border-radius:12px;  
+    width:90%;  
+    max-width:320px;  
+  ">  
+    <h3>📊 Statistiques</h3>  
+    <div id="shopStatsContent"></div>  
+    <button onclick="closeShopStats()" style="margin-top:12px;width:100%;">  
+      Fermer  
+    </button>  
+  </div>  
+</div>  
+  <div class="messages-list" id="messagesList"></div>  
+  <div class="input-area">  
+    <div id="chatInputContainer">  
+      <div id="mediaPreview"></div>  
+      <div style="display:flex; gap:8px; align-items:center; width:100%;">  
+        <button id="fileBtn" class="btn-file">📎</button>  
+        <input type="text" id="messageInput" placeholder="Écris un message...">  
+        <button id="sendBtn" class="btn-send">➤</button>  
+        <button id="audioBtn" class="btn-audio">🎤</button>  
+      </div>  
+      <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*,audio/*">  
+    </div>  
+  </div>  
+</div>  <div id="discussionsPanel">  
+  <div class="messagerie-header">  
+    <strong>Messagerie</strong>  
+    <span class="close-btn" id="closeMessagerie">✕</span>  
+  </div>  
+  <div class="tabs">  
+  <button id="tabAchat" class="active">Achat</button>  
+  <button id="tabVente" >Vente</button>  
+</div>  
+<div id="discussionsList"></div>  
+</div>  <div id="mediaModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:10000;">  
+  <div id="mediaContent" style="max-width:90%; max-height:90%;"></div>  
+  <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>  
+</div>  
+<!-- CONTENEUR PRODUITS -->  
+<div id="shopProductsScroll" class="shop-products-scroll"></div>  <!-- ===========================  
+MODALE COMMANDE  
+=========================== -->  <div id="orderModal" class="modal" style="display:none;">  
+  <div class="modal-content">  
+    <span class="close" onclick="closeOrderModal()">&times;</span>  
+    <h3>Renseignez vos informations de livraison</h3>  <label>Adresse de livraison *</label>  
+<input id="orderAddress" type="text" placeholder="Adresse complète">  
 
-      <div class="divider"></div>
+<label>Téléphone *</label>  
+<input id="orderPhone" type="text" placeholder="Numéro de téléphone">  
 
-      <div id="shopViewDesc"></div>
+<label>Note (optionnelle)</label>  
+<textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
 
-      <div id="shopViewLivraison"></div>
-
-      <div id="shopViewWhatsapp"></div>
-
-      <!-- CONTACT -->
-      <button id="contactShopBtn">💬 Discuter avec la boutique</button>
-
-      <!-- PRODUITS -->
-      <p><strong>Produits disponibles</strong></p>
-      <div id="shopProductsScroll"></div>
-
-      <!-- LIKES -->
-      <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
-
-        <button id="likeShopBtn" style="
-            padding:4px 8px;
-            font-size:12px;
-            cursor:pointer;
-            border:none;
-            border-radius:6px;
-            background:#e0f7fa;
-            color:#007bff;
-            font-weight:500;
-            display:flex;
-            align-items:center;
-            gap:4px;
-            transition:0.2s;"
-            onmouseover="this.style.background='#b2ebf2'" 
-            onmouseout="this.style.background='#e0f7fa'">
-          👍 J'aime
-        </button>
-
-        <div id="likeCountContainer" style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-          <span id="likeCount" style="font-size:12px; color:#555;">0</span>
-          <span style="
-            display:inline-block;
-            width:10px;
-            height:10px;
-            background:#007bff;
-            border-radius:50%;
-            transition:0.2s;"
-            onmouseover="this.style.background='#005bbb'"
-            onmouseout="this.style.background='#007bff'">
-          </span>
-        </div>
-
-      </div>
-
-      <!-- LISTE LIKES -->
-      <div id="shopLikesList" style="
-          position:absolute;
-          display:none;
-          background:#fff;
-          border:1px solid #ddd;
-          border-radius:6px;
-          box-shadow:0 2px 8px rgba(0,0,0,0.1);
-          padding:8px;
-          max-height:200px;
-          overflow-y:auto;
-          font-size:12px;
-          z-index:999;">
-      </div>
-
-      <!-- COMMENTAIRES -->
-      <div class="comments-section" style="background:#f1f2f6; padding:10px; border-radius:8px;">
-
-        <h4>Commentaires</h4>
-
-        <div id="commentsList" style="height:400px; overflow-y:auto; margin-bottom:5px;"></div>
-
-        <div class="commentInputWrapper">
-          <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
-          <button id="sendCommentBtn">➤</button>
-        </div>
-
-      </div>
-
-      <!-- COPY LINK -->
-      <button id="copyLinkBtn" style="
-        margin-top:12px;
-        padding:8px 12px;
-        background:#17a2b8;
-        color:#fff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        height:30px;
-        width:80%;">
-        Copier le lien
-      </button>
-
-    </div> <!-- FIN shop-body -->
-
-  </div> <!-- FIN shop-modal -->
-
-</div> <!-- FIN overlay --> 
-<!-- Chat et Messagerie restent inchangés -->
-<div class="chat-container" id="chatContainer">
-  <div class="chat-header">
-    <span id="chatTitle">Discussion</span>
-    <div>
-      <button onclick="openShopStats()">📊</button>
-      <button id="deleteChat">🗑️</button>
-      <button id="closeChat">✕</button>
-    </div>
-  </div>
-  <div id="shopStats"
-     style="
-       display:none;
-       padding:12px;
-       background:#f7f7f7;
-       border-bottom:1px solid #ddd;
-       font-size:14px;
-     ">
-  </div>
-  <div id="shopStatsModal" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.5);
-  z-index:10000;
-  justify-content:center;
-  align-items:center;
-">
-  <div style="
-    background:#fff;
-    padding:16px;
-    border-radius:12px;
-    width:90%;
-    max-width:320px;
-  ">
-    <h3>📊 Statistiques</h3>
-    <div id="shopStatsContent"></div>
-    <button onclick="closeShopStats()" style="margin-top:12px;width:100%;">
-      Fermer
-    </button>
-  </div>
-</div>
-  <div class="messages-list" id="messagesList"></div>
-  <div class="input-area">
-    <div id="chatInputContainer">
-      <div id="mediaPreview"></div>
-      <div style="display:flex; gap:8px; align-items:center; width:100%;">
-        <button id="fileBtn" class="btn-file">📎</button>
-        <input type="text" id="messageInput" placeholder="Écris un message...">
-        <button id="sendBtn" class="btn-send">➤</button>
-        <button id="audioBtn" class="btn-audio">🎤</button>
-      </div>
-      <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*,audio/*">
-    </div>
-  </div>
-</div>
-
-<div id="discussionsPanel">
-  <div class="messagerie-header">
-    <strong>Messagerie</strong>
-    <span class="close-btn" id="closeMessagerie">✕</span>
-  </div>
-  <div class="tabs">
-  <button id="tabAchat" class="active">Achat</button>
-  <button id="tabVente" >Vente</button>
-</div>
-<div id="discussionsList"></div>
-</div>
-
-<div id="mediaModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:10000;">
-  <div id="mediaContent" style="max-width:90%; max-height:90%;"></div>
-  <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>
-</div>
-<!-- CONTENEUR PRODUITS -->
-<div id="shopProductsScroll" class="shop-products-scroll"></div>
-
-<!-- ===========================
-MODALE COMMANDE
-=========================== -->
-<div id="orderModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" onclick="closeOrderModal()">&times;</span>
-    <h3>Renseignez vos informations de livraison</h3>
-    
-    <label>Adresse de livraison *</label>
-    <input id="orderAddress" type="text" placeholder="Adresse complète">
-
-    <label>Téléphone *</label>
-    <input id="orderPhone" type="text" placeholder="Numéro de téléphone">
-
-    <label>Note (optionnelle)</label>
-    <textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
-
-   <label>Quantité *</label>
+<label>Quantité *</label>
 <input id="orderQuantity" type="number" min="1" value="1" placeholder="Quantité">
 
-    <button id="createOrderBtn">Créer la commande</button>
-  </div>
-</div>
- <div class="bottom-nav" id="bottomNav">
+<button id="createOrderBtn">Créer la commande</button>
 
-  <button class="nav-item active" id="homeBtn">
-    <div class="icon">🏠</div>
-    <span>Accueil</span>
-  </button>
-
-  <button class="nav-item" id="messageBtn">
-    <div class="icon">💬</div>
-    <span>Messages</span>
-    <span id="messageBadge" class="badge">0</span>
-  </button>
-
-  <!-- Bouton central -->
-  <button class="sell-btn" id="sellBtn">
-    ➕
-  </button>
-
-  <button class="nav-item" id="notifBtn">
-    <div class="icon">🔔</div>
-    <span>Notif</span>
-    <span id="notifCount" class="badge">0</span>
-  </button>
-
-  <button class="nav-item" id="profileBtn">
-    <div class="icon">👤</div>
-    <span>Profil</span>
-  </button>
-
- </div>
-
-
+  </div>  
+</div>  
+ <div class="bottom-nav" id="bottomNav">    <button class="nav-item active" id="homeBtn">  
+    <div class="icon">🏠</div>  
+    <span>Accueil</span>  
+  </button>    <button class="nav-item" id="messageBtn">  
+    <div class="icon">💬</div>  
+    <span>Messages</span>  
+    <span id="messageBadge" class="badge">0</span>  
+  </button>    <!-- Bouton central -->    <button class="sell-btn" id="sellBtn">  
+    ➕  
+  </button>    <button class="nav-item" id="notifBtn">  
+    <div class="icon">🔔</div>  
+    <span>Notif</span>  
+    <span id="notifCount" class="badge">0</span>  
+  </button>    <button class="nav-item" id="profileBtn">  
+    <div class="icon">👤</div>  
+    <span>Profil</span>  
+  </button>   </div>  
+ 
 <script type="module">
 import { supabase } from './supabase.js';
 
