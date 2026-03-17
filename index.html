@@ -3605,60 +3605,31 @@ async function openShop(shop) {
     if (!shop) return;
     currentShop = shop;
 
-// ================= AFFICHAGE MODAL =================
-modal.style.display = "flex";
+ 
+    // ================= AFFICHAGE MODAL =================
+    modal.style.display = "flex";
+    shopViewName.textContent = shop.name || "Nom boutique";
+    shopViewDesc.textContent = shop.description || "-";
+    shopViewCategory.textContent = shop.category || "-";
+    shopViewLocation.textContent = shop.location || "-";
 
-// IMAGE COVER (haut)
-const coverDiv = document.getElementById("shopViewCover");
-if (coverDiv) {
-  coverDiv.innerHTML = shop.image_url
-    ? `<img src="${shop.image_url}" class="shop-cover">`
-    : `<div class="shop-cover"></div>`;
-}
+    // ================= LIVRAISON BADGE =================
+    const livraisonDiv = document.getElementById("shopViewLivraison");
+    if (shop.livraison === true) {
+      livraisonDiv.innerHTML = `
+        <span class="livraison-badge livraison-oui">
+          🚚 Livraison disponible
+        </span>
+      `;
+    } else {
+      livraisonDiv.innerHTML = `
+        <span class="livraison-badge livraison-non">
+          📦 Livraison non disponible
+        </span>
+      `;
+    }
 
-// AVATAR (petit rond)
-const avatarDiv = document.getElementById("shopViewAvatar");
-if (avatarDiv) {
-  avatarDiv.innerHTML = `
-    <img src="${shop.image_url || ''}" class="shop-avatar">
-  `;
-}
-
-// NOM
-shopViewName.innerHTML = `
-  <div class="shop-name">${shop.name || "Nom boutique"}</div>
-`;
-
-// DESCRIPTION
-shopViewDesc.innerHTML = `
-  <div class="shop-desc">
-    ${shop.description || "Aucune description"}
-  </div>
-`;
-
-// CATEGORIE
-shopViewCategory.innerHTML = `
-  <div class="shop-category">
-    🏷 ${shop.category || "Non catégorisé"}
-  </div>
-`;
-
-// LOCALISATION
-shopViewLocation.innerHTML = `
-  <div class="shop-location">
-    📍 ${shop.location || "Non défini"}
-  </div>
-`;
-
-
-// ================= LIVRAISON BADGE =================
-const livraisonDiv = document.getElementById("shopViewLivraison");
-
-livraisonDiv.innerHTML = shop.livraison === true
-  ? `<span class="livraison-badge livraison-oui">🚚 Livraison disponible</span>`
-  : `<span class="livraison-badge livraison-non">📦 Livraison non disponible</span>`;
-   
-// ================= WHATSAPP NUMERO (BANDE VERTE) =================
+    // ================= WHATSAPP NUMERO (BANDE VERTE) =================
     const whatsappDiv = document.getElementById("shopViewWhatsapp");
     if (shop.whatsapp) {
       const phone = shop.whatsapp.replace(/\s+/g, '');
@@ -3669,7 +3640,9 @@ livraisonDiv.innerHTML = shop.livraison === true
       `;
     } else {
       whatsappDiv.innerHTML = "";
-    } 
+ }
+
+
 
 
 function formatAvailability(value) {
