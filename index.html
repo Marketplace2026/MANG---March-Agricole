@@ -1893,7 +1893,15 @@ to{transform:translateY(0);}
 
 </div>
 
-   <!-- MODAL VUE BOUTIQUE -->  <div id="shopViewModal" class="shop-modal-overlay">    <div id="shopViewContent" class="shop-modal">  <span id="closeShopView" class="close-btn">✕</span>  
+   <!-- LISTE DES BOUTIQUES -->
+<div class="shops-container" id="shopsList">
+  <!-- Les boutiques seront injectées ici par JS -->
+  
+</div>
+
+   <!-- MODAL VUE BOUTIQUE -->
+ <div id="shopViewModal" class="shop-modal-overlay">    
+  <div id="shopViewContent" class="shop-modal">  <span id="closeShopView" class="close-btn">✕</span>  
 
 <!-- IMAGE COVER -->  
 <div id="shopViewCover"></div>  
@@ -2096,6 +2104,7 @@ MODALE COMMANDE
 
   </div>  
 </div>  
+  
  <div class="bottom-nav" id="bottomNav">    <button class="nav-item active" id="homeBtn">  
     <div class="icon">🏠</div>  
     <span>Accueil</span>  
@@ -2112,7 +2121,8 @@ MODALE COMMANDE
   </button>    <button class="nav-item" id="profileBtn">  
     <div class="icon">👤</div>  
     <span>Profil</span>  
-  </button>   </div>  
+  </button>  
+ </div>  
  
 <script type="module">
 import { supabase } from './supabase.js';
