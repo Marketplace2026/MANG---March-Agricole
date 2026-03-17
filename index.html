@@ -1841,122 +1841,6 @@ height:100px;
   }
 
 }
-/* GRID PRODUITS (IMPORTANT) */
-.products-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-  padding: 10px;
-}
-
-/* CARTE PRODUIT */
-.product-card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  transition: 0.2s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.product-card:hover {
-  transform: translateY(-3px);
-}
-
-/* IMAGE */
-.product-image-container {
-  position: relative;
-}
-
-.product-image {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-}
-
-/* BADGE DISPO (petit et propre) */
-.badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 10px;
-  color: white;
-  font-weight: 500;
-  max-width: fit-content;
-}
-
-.badge.in {
-  background: #2ecc71;
-}
-
-.badge.out {
-  background: #e74c3c;
-}
-
-/* FAVORI (évite chevauchement) */
-.favoriteProductBtn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: white;
-  border: none;
-  border-radius: 50%;
-  padding: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-/* INFO */
-.product-info {
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-/* TITRE */
-.product-title {
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-/* DESCRIPTION */
-.product-desc {
-  font-size: 11px;
-  color: #666;
-  line-height: 1.2;
-}
-
-/* BAS */
-.product-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 6px;
-}
-
-/* PRIX */
-.product-price {
-  font-size: 13px;
-  font-weight: bold;
-  color: #27ae60;
-}
-
-/* BOUTON */
-.orderBtn {
-  background: #1877f2;
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  cursor: pointer;
-}
 
 </style>
 
@@ -4022,47 +3906,145 @@ if (prodError) {
     const div = document.createElement("div");
     div.className = "productCard";
 
-    div.className = "product-card";
+    
+div.className = "product-card";
 
 div.innerHTML = `
-  <div class="product-image-container">
-    <img 
-      src="${p.image_url || 'https://via.placeholder.com/300'}" 
-      alt="${p.name || 'Produit'}"
-      class="product-image zoomable-product"
-      loading="lazy"
-    />
+  <div style="
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+    display:flex;
+    flex-direction:column;
+  ">
 
-    ${p.availability === "indisponible" ? 
-      `<span class="badge out">Indisponible</span>` : 
-      `<span class="badge in">Disponible</span>`
-    }
+    <!-- IMAGE -->
+    <div style="position:relative;">
+      <img 
+        src="${p.image_url || 'https://via.placeholder.com/300'}" 
+        alt="${(p.name || 'Produit').replace(/"/g, '')}"
+        loading="lazy"
+        style="
+          width:100%;
+          height:140px;
+          object-fit:cover;
+          display:block;
+        "
+      />
 
-    <button class="favoriteProductBtn" data-id="${p.id}" title="Ajouter aux favoris">
-      🤍
-    </button>
-  </div>
+      <!-- BADGE -->
+      <span style="
+        position:absolute;
+        top:6px;
+        left:6px;
+        background:${p.availability === "indisponible" ? "#e74c3c" : "#2ecc71"};
+        color:#fff;
+        font-size:10px;
+        padding:3px 7px;
+        border-radius:10px;
+        font-weight:500;
+      ">
+        ${p.availability === "indisponible" ? "Indisponible" : "Disponible"}
+      </span>
 
-  <div class="product-info">
-    <h5 class="product-title">${p.name || 'Produit'}</h5>
-
-    ${p.description ? 
-      `<p class="product-desc">${p.description.substring(0, 60)}...</p>` 
-      : ""}
-
-    <div class="product-bottom">
-      <p class="product-price">${p.price || '0'} FCFA</p>
-
-      <button class="orderBtn"
-        data-seller-id="${p.owner_id || ''}"
-        data-product-id="${p.id || ''}"
-        data-amount="${p.price || 0}">
-        🛒 Commander
+      <!-- FAVORI -->
+      <button 
+        class="favoriteProductBtn" 
+        data-id="${p.id}"
+        style="
+          position:absolute;
+          top:6px;
+          right:6px;
+          background:#fff;
+          border:none;
+          border-radius:50%;
+          padding:6px;
+          font-size:12px;
+          cursor:pointer;
+          box-shadow:0 1px 4px rgba(0,0,0,0.15);
+        "
+      >
+        🤍
       </button>
+    </div>
+
+    <!-- INFOS -->
+    <div style="
+      padding:8px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    ">
+
+      <!-- TITRE -->
+      <div style="
+        font-size:13px;
+        font-weight:600;
+        line-height:1.2;
+        color:#222;
+      ">
+        ${p.name || 'Produit'}
+      </div>
+
+      <!-- DESCRIPTION -->
+      ${
+        p.description 
+        ? `<div style="
+            font-size:11px;
+            color:#666;
+            line-height:1.2;
+          ">
+            ${p.description.substring(0, 50)}...
+          </div>`
+        : ""
+      }
+
+      <!-- BAS -->
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-top:4px;
+      ">
+
+        <!-- PRIX -->
+        <div style="
+          font-size:13px;
+          font-weight:bold;
+          color:#27ae60;
+        ">
+          ${p.price || '0'} FCFA
+        </div>
+
+        <!-- BOUTON -->
+        <button 
+          class="orderBtn"
+          data-seller-id="${p.owner_id || ''}"
+          data-product-id="${p.id || ''}"
+          data-amount="${p.price || 0}"
+          style="
+            background:#1877f2;
+            color:#fff;
+            border:none;
+            padding:4px 8px;
+            border-radius:6px;
+            font-size:11px;
+            cursor:pointer;
+          "
+        >
+          🛒
+        </button>
+
+      </div>
     </div>
   </div>
 `;
 
+   div.onmousedown = () => div.style.transform = "scale(0.97)";
+div.onmouseup = () => div.style.transform = "scale(1)";
+div.onmouseleave = () => div.style.transform = "scale(1)";
+   
     shopProductsScroll.appendChild(div);
   });
 
