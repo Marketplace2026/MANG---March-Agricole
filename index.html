@@ -3987,18 +3987,26 @@ div.innerHTML = `
         ${p.name || 'Produit'}
       </div>
 
-      <!-- DESCRIPTION -->
-      ${
-        p.description 
-        ? `<div style="
-            font-size:11px;
-            color:#666;
-            line-height:1.2;
-          ">
-            ${p.description.substring(0, 50)}...
-          </div>`
-        : ""
-      }
+      ${p.description ? `
+  <div style="font-size:11px; color:#666; line-height:1.2;">
+    
+    <span class="desc-text" style="display:inline;">
+      ${p.description.length > 50 
+        ? p.description.substring(0, 50) + '...' 
+        : p.description}
+    </span>
+
+    ${p.description.length > 50 ? `
+      <span 
+        class="toggle-desc" 
+        style="color:#1877f2; cursor:pointer; font-weight:500; margin-left:4px;"
+      >
+        Voir plus
+      </span>
+    ` : ""}
+
+  </div>
+` : ""}
 
       <!-- BAS -->
       <div style="
@@ -4041,7 +4049,29 @@ div.innerHTML = `
   </div>
 `;
 
-   div.onmousedown = () => div.style.transform = "scale(0.97)";
+   // ✅ ICI EXACTEMENT
+setTimeout(() => {
+  const toggleBtn = div.querySelector(".toggle-desc");
+  const descText = div.querySelector(".desc-text");
+
+  if (toggleBtn && descText) {
+    let expanded = false;
+
+    toggleBtn.onclick = () => {
+      if (!expanded) {
+        descText.textContent = p.description;
+        toggleBtn.textContent = "Voir moins";
+      } else {
+        descText.textContent = p.description.substring(0, 50) + "...";
+        toggleBtn.textContent = "Voir plus";
+      }
+      expanded = !expanded;
+    };
+  }
+}, 0);
+
+// ✅ TON EFFET TOUCH (laisse ici)
+div.onmousedown = () => div.style.transform = "scale(0.97)";
 div.onmouseup = () => div.style.transform = "scale(1)";
 div.onmouseleave = () => div.style.transform = "scale(1)";
    
