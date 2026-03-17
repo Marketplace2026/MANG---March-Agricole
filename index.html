@@ -1883,7 +1883,7 @@ to{opacity:1; transform:scale(1);}
   
 </div>
  
-   <!-- MODAL VUE BOUTIQUE -->
+  <!-- MODAL VUE BOUTIQUE -->
 <div id="shopViewModal" class="shop-modal-overlay">
 
   <div id="shopViewContent" class="shop-modal">
@@ -1893,7 +1893,7 @@ to{opacity:1; transform:scale(1);}
     <!-- IMAGE COVER -->
     <div id="shopViewCover"></div>
 
-    <!-- HEADER (avatar + nom) -->
+    <!-- HEADER -->
     <div class="shop-header">
       <div id="shopViewAvatar"></div>
 
@@ -1916,93 +1916,98 @@ to{opacity:1; transform:scale(1);}
 
       <div id="shopViewWhatsapp"></div>
 
-    
-   
-   <button id="contactShopBtn">💬 Discuter avec la boutique </button>
-  
-    <p><strong>Produits disponibles</strong></p>
-    <div id="shopProductsScroll"></div>
-   
-    
+      <!-- CONTACT -->
+      <button id="contactShopBtn">💬 Discuter avec la boutique</button>
 
-    <!-- Likes et commentaires -->
-    <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+      <!-- PRODUITS -->
+      <p><strong>Produits disponibles</strong></p>
+      <div id="shopProductsScroll"></div>
 
-      <!-- Bouton Like principal -->
-      <button id="likeShopBtn" style="
-          padding:4px 8px;
-          font-size:12px;
-          cursor:pointer;
-          border:none;
+      <!-- LIKES -->
+      <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+
+        <button id="likeShopBtn" style="
+            padding:4px 8px;
+            font-size:12px;
+            cursor:pointer;
+            border:none;
+            border-radius:6px;
+            background:#e0f7fa;
+            color:#007bff;
+            font-weight:500;
+            display:flex;
+            align-items:center;
+            gap:4px;
+            transition:0.2s;"
+            onmouseover="this.style.background='#b2ebf2'" 
+            onmouseout="this.style.background='#e0f7fa'">
+          👍 J'aime
+        </button>
+
+        <div id="likeCountContainer" style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+          <span id="likeCount" style="font-size:12px; color:#555;">0</span>
+          <span style="
+            display:inline-block;
+            width:10px;
+            height:10px;
+            background:#007bff;
+            border-radius:50%;
+            transition:0.2s;"
+            onmouseover="this.style.background='#005bbb'"
+            onmouseout="this.style.background='#007bff'">
+          </span>
+        </div>
+
+      </div>
+
+      <!-- LISTE LIKES -->
+      <div id="shopLikesList" style="
+          position:absolute;
+          display:none;
+          background:#fff;
+          border:1px solid #ddd;
           border-radius:6px;
-          background:#e0f7fa;
-          color:#007bff;
-          font-weight:500;
-          display:flex;
-          align-items:center;
-          gap:4px;
-          transition:0.2s;"
-          onmouseover="this.style.background='#b2ebf2'" 
-          onmouseout="this.style.background='#e0f7fa'">
-        👍 J'aime
+          box-shadow:0 2px 8px rgba(0,0,0,0.1);
+          padding:8px;
+          max-height:200px;
+          overflow-y:auto;
+          font-size:12px;
+          z-index:999;">
+      </div>
+
+      <!-- COMMENTAIRES -->
+      <div class="comments-section" style="background:#f1f2f6; padding:10px; border-radius:8px;">
+
+        <h4>Commentaires</h4>
+
+        <div id="commentsList" style="height:400px; overflow-y:auto; margin-bottom:5px;"></div>
+
+        <div class="commentInputWrapper">
+          <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
+          <button id="sendCommentBtn">➤</button>
+        </div>
+
+      </div>
+
+      <!-- COPY LINK -->
+      <button id="copyLinkBtn" style="
+        margin-top:12px;
+        padding:8px 12px;
+        background:#17a2b8;
+        color:#fff;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        height:30px;
+        width:80%;">
+        Copier le lien
       </button>
 
-      <!-- Compteur / point cliquable -->
-      <div id="likeCountContainer" style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-        <span id="likeCount" style="font-size:12px; color:#555;">0</span>
-        <span style="
-          display:inline-block;
-          width:10px;
-          height:10px;
-          background:#007bff;
-          border-radius:50%;
-          transition:0.2s;"
-          onmouseover="this.style.background='#005bbb'"
-          onmouseout="this.style.background='#007bff'">
-        </span>
-      </div>
-    </div>
+    </div> <!-- FIN shop-body -->
 
-    <!-- Liste des utilisateurs likant la boutique -->
-    <div id="shopLikesList" style="
-        position:absolute;
-        display:none;
-        background:#fff;
-        border:1px solid #ddd;
-        border-radius:6px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.1);
-        padding:8px;
-        max-height:200px;
-        overflow-y:auto;
-        font-size:12px;
-        z-index:999;">
-    </div>
+  </div> <!-- FIN shop-modal -->
 
-    <div class="comments-section" style="background:#f1f2f6; padding:10px; border-radius:8px;">
-      <h4>Commentaires</h4>
-      <div id="commentsList" style="height:400px; overflow-y:auto; margin-bottom:5px;"></div>
-    <div class="commentInputWrapper">
-  <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
-  <button id="sendCommentBtn">➤</button>
-</div>
-
-    <!-- ✅ Copier lien boutique (MAINTENANT DANS LE MODAL) -->
-    <button id="copyLinkBtn" style="
-      margin-top:12px;
-      padding:8px 12px;
-      background:#17a2b8;
-      color:#fff;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-      height:30px;
-      width:80%;">
-      Copier le lien
-    </button>
-
-  </div>
-</div>
-</div>
+</div> <!-- FIN overlay --> 
 <!-- Chat et Messagerie restent inchangés -->
 <div class="chat-container" id="chatContainer">
   <div class="chat-header">
