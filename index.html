@@ -1893,7 +1893,55 @@ to{transform:translateY(0);}
 
 </div>
 
-   <!-- LISTE DES BOUTIQUES -->
+<!-- MODALE CATÉGORIES -->
+<div id="categoryModal" class="categoryModal hidden">
+  <div class="categoryBox">
+
+    <input
+      type="text"
+      id="categorySearch"
+      class="categorySearch"
+      placeholder="🔍 Rechercher une catégorie..."
+    >
+
+    <div id="categoryList"></div>
+
+    <div class="categoryActions">
+      <button id="closeCategoryBtn">Fermer</button>
+    </div>
+
+  </div>
+</div>
+
+  <div id="livraisonOptions" class="livraison-options hidden">
+    <div data-value="true">🚚 Disponible</div>
+    <div data-value="false">📦 Non disponible</div>
+  </div>
+</div>
+
+<!-- OVERLAY TOP BOUTIQUES -->
+<div id="topShopsOverlay" style="display:none;">
+  <div id="topShopsPanel">
+    <div class="topShopsHeader">
+      <h3>🔥 Top 5 Boutiques</h3>
+      <button id="closeTopShops">×</button>
+    </div>
+    <div id="topShopsContainer"></div>
+  </div>
+</div>
+ 
+
+ 
+ <!-- CONTENEUR BOUTONS HORIZONTAUX -->
+<div class="topButtons">
+  <button id="resetFilterBtn" class="topBtn">🔄 Tous</button>
+  <button id="topShopsBtn" class="topBtn">🔥 Top boutiques</button>
+  <button id="filterCategoryBtn" class="topBtn">📂 Catégories</button>
+  <button id="livraisonFilterBtn" class="topBtn">🚚 Livraison</button>
+  <button id="nearbyShopsBtn" class="topBtn">📍 Boutiques proches</button>
+</div> 
+ 
+  <!-- LISTE DES BOUTIQUES -->
 <div class="shops-container" id="shopsList">
   <!-- Les boutiques seront injectées ici par JS -->
   
