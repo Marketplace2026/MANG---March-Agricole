@@ -3605,72 +3605,30 @@ async function openShop(shop) {
     if (!shop) return;
     currentShop = shop;
 
-    // ================= AFFICHAGE MODAL =================
+   // ================= AFFICHAGE MODAL =================
 modal.style.display = "flex";
-
-// IMAGE COVER (haut)
-const coverDiv = document.getElementById("shopViewCover");
-if (coverDiv) {
-  coverDiv.innerHTML = shop.image_url
-    ? `<img src="${shop.image_url}" class="shop-cover">`
-    : `<div class="shop-cover"></div>`;
-}
-
-// AVATAR (petit rond)
-const avatarDiv = document.getElementById("shopViewAvatar");
-if (avatarDiv) {
-  avatarDiv.innerHTML = `
-    <img src="${shop.image_url || ''}" class="shop-avatar">
-  `;
-}
-
-// NOM
-shopViewName.innerHTML = `
-  <div class="shop-name">${shop.name || "Nom boutique"}</div>
-`;
-
-// DESCRIPTION
-shopViewDesc.innerHTML = `
-  <div class="shop-desc">
-    ${shop.description || "Aucune description"}
-  </div>
-`;
-
-// CATEGORIE
-shopViewCategory.innerHTML = `
-  <div class="shop-category">
-    🏷 ${shop.category || "Non catégorisé"}
-  </div>
-`;
-
-// LOCALISATION
-shopViewLocation.innerHTML = `
-  <div class="shop-location">
-    📍 ${shop.location || "Non défini"}
-  </div>
-`;
-
+shopViewName.textContent = shop.name || "Nom boutique";
+shopViewDesc.textContent = shop.description || "-";
+shopViewCategory.textContent = shop.category || "-";
+shopViewLocation.textContent = shop.location || "-";
 
 // ================= LIVRAISON BADGE =================
 const livraisonDiv = document.getElementById("shopViewLivraison");
+if (shop.livraison === true) {
+livraisonDiv.innerHTML =     <span class="livraison-badge livraison-oui">     🚚 Livraison disponible     </span>    ;
+} else {
+livraisonDiv.innerHTML =     <span class="livraison-badge livraison-non">     📦 Livraison non disponible     </span>    ;
+}
 
-livraisonDiv.innerHTML = shop.livraison === true
-  ? `<span class="livraison-badge livraison-oui">🚚 Livraison disponible</span>`
-  : `<span class="livraison-badge livraison-non">📦 Livraison non disponible</span>`;
-   
+// ================= WHATSAPP NUMERO (BANDE VERTE) =================
+const whatsappDiv = document.getElementById("shopViewWhatsapp");
+if (shop.whatsapp) {
+const phone = shop.whatsapp.replace(/\s+/g, '');
+whatsappDiv.innerHTML =     <div class="whatsapp-band">     📞 ${phone}     </div>    ;
+} else {
+whatsappDiv.innerHTML = "";
+ }
 
-    // ================= WHATSAPP NUMERO (BANDE VERTE) =================
-    const whatsappDiv = document.getElementById("shopViewWhatsapp");
-    if (shop.whatsapp) {
-      const phone = shop.whatsapp.replace(/\s+/g, '');
-      whatsappDiv.innerHTML = `
-        <div class="whatsapp-band">
-          📞 ${phone}
-        </div>
-      `;
-    } else {
-      whatsappDiv.innerHTML = "";
-    }
 function formatAvailability(value) {
   const map = {
     now: "✅ Disponible maintenant",
