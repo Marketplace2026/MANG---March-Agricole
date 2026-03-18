@@ -1077,26 +1077,49 @@ async function loadFavoriteProducts() {
   favoritesProductsList.innerHTML = "";
 
   products.forEach(product => {
-    const div = document.createElement("div");
-    div.className = "favoriteItem";
-    div.style.cssText = `
-      display:flex;
-      gap:10px;
-      padding:10px;
-      border-bottom:1px solid #eee;
-      cursor:pointer;
-      align-items:center;
-    `;
 
-    div.innerHTML = `
-      <img src="${product.image_url || 'https://via.placeholder.com/80'}"
-           style="width:80px;height:60px;border-radius:8px;object-fit:cover;">
-      <div>
-        <strong>${product.name}</strong>
-        <p style="color:#2e8b57;font-weight:600;">${product.price || "-"} FCFA</p>
-      </div>
-    `;
+const div = document.createElement("div");
+div.className = "favoriteItem";
+div.style.cssText = `
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fdfdfd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  align-items: center;
+`;
 
+div.onmouseenter = () => {
+  div.style.transform = "translateY(-2px)";
+  div.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)";
+};
+div.onmouseleave = () => {
+  div.style.transform = "translateY(0)";
+  div.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+};
+
+div.innerHTML = `
+  <img src="${product.image_url || 'https://via.placeholder.com/80'}"
+       style="
+         width:80px;
+         height:60px;
+         border-radius:10px;
+         object-fit:cover;
+         flex-shrink:0;
+       ">
+  <div style="display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+    <strong style="font-size:16px; color:#1B8F3A;">${product.name}</strong>
+    <p style="
+      font-size:14px;
+      color:#2e8b57;
+      font-weight:600;
+      margin:4px 0 0 0;
+    ">${product.price || "-"} FCFA</p>
+  </div>
+`;
     div.onclick = async () => {
       favoritesModal.style.display = "none";
 
