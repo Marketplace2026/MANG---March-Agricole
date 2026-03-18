@@ -488,9 +488,6 @@ shopCard:hover{
 }
 
 
-
-
-  
 /* ===================== */
 /* CONTAINER CHAT */
 /* ===================== */
@@ -524,26 +521,25 @@ shopCard:hover{
 /* ===================== */
 /* HEADER */
 /* ===================== */
-.chat-container{
-  position:fixed;
-  top:0;
-  right:-100%;
-  width:100%;
-  max-width:380px;
 
-  height:100vh; /* plein écran */
+.chat-header{
+  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+  color:white;
 
-  background:#fff;
+  padding:14px;
 
   display:flex;
-  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
 
-  transition:0.3s ease;
+  font-weight:600;
+  font-size:15px;
 
-  z-index:10000; /* PLUS GRAND que navbar */
-
-  box-shadow:-10px 0 40px rgba(0,0,0,0.15);
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
+ 
+
+
 
 .chat-header button{
   background:rgba(255,255,255,0.2);
@@ -585,7 +581,7 @@ shopCard:hover{
   gap:10px;
 
   background:#f4f6f8;
- padding-bottom:90px;
+ 
 }
 
 /* BULLES */
@@ -692,27 +688,22 @@ shopCard:hover{
 /* ===================== */
 /* INPUT (CORRIGÉ) */
 /* ===================== */
-
 .input-area{
-  position: absolute;
-  bottom: 0;
-  left: 0;
+position:sticky;
+bottom:0;
 
-  width: 100%;
+padding:10px;
 
-  padding: 10px;
+border-top:1px solid #eee;
 
-  border-top: 1px solid #eee;
+background:white;
+padding-bottom:90px;
+display:flex;
+flex-direction:column;
+gap:8px;
 
-  background: white;
-
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  z-index: 5;
+z-index:10;
 }
-
 #chatInputContainer{
   display:flex;
   align-items:center;
