@@ -393,7 +393,6 @@ color:#666;
 
   display: none;
   justify-content: flex-end;
-
   z-index: 9999;
 }
 
@@ -421,7 +420,6 @@ color:#666;
 
   padding:15px;
   border-bottom:1px solid #eee;
-
   font-weight:600;
 }
 
@@ -454,31 +452,6 @@ color:#666;
   color:#777;
 }
 
-/* ACTIONS */
-.shopsActions{
-  display:flex;
-  gap:10px;
-  padding:12px;
-}
-
-.shopsActions button{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:13px;
-}
-
-#createShopBtn{
-  background:#1B8F3A;
-  color:white;
-}
-
-#addProductBtn{
-  background:#eee;
-}
-
 /* LISTE */
 #shopsList{
   flex:1;
@@ -501,16 +474,27 @@ color:#666;
   margin-bottom:5px;
 }
 
-.shopCard button{
-  margin-top:8px;
-  width:100%;
+.shopCard p{
+  font-size:12px;
+  color:#777;
+}
+
+/* ACTIONS DANS CARD */
+.shopActions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+.shopActions button{
+  flex:1;
   padding:8px;
   border:none;
   border-radius:8px;
   background:#f1f1f1;
   cursor:pointer;
+  font-size:12px;
 }
-
 </style>
 
 </head>
@@ -643,6 +627,7 @@ color:#666;
   </div>
 </div>
 
+
   <!-- ===================== -->
 <!-- MODAL MES BOUTIQUES -->
 <!-- ===================== -->
@@ -675,18 +660,11 @@ color:#666;
 
     </div>
 
-    <!-- ACTIONS -->
-    <div class="shopsActions">
-      <button id="createShopBtn">➕ Créer boutique</button>
-      <button id="addProductBtn">📦 Ajouter produit</button>
-    </div>
-
     <!-- LISTE -->
     <div id="shopsList"></div>
 
   </div>
 </div>
-
 <script type="module">
 
 import { supabase } from './supabase.js';
@@ -842,7 +820,7 @@ favoritesModal.addEventListener("click", (e) => {
   }
 });
 
-  // =====================
+// =====================
 // MODAL BOUTIQUES
 // =====================
 
@@ -872,6 +850,7 @@ shopsModal.addEventListener("click",(e)=>{
     document.body.style.overflow = "auto";
   }
 });
+
 
 // =====================
 // DASHBOARD VENDEUR
@@ -911,6 +890,7 @@ async function loadSellerDashboard(){
     total.toLocaleString("fr-FR") + " FCFA";
 }
 
+
 // =====================
 // CHARGER BOUTIQUES
 // =====================
@@ -933,36 +913,34 @@ async function loadUserShops(){
 
     <div class="shopCard">
       <h4>${shop.name}</h4>
-      <p style="font-size:12px;color:#777;">
-        ${shop.description || ""}
-      </p>
 
-      <button onclick="openShop('${shop.id}')">
-        Gérer boutique
-      </button>
+      <p>${shop.description || ""}</p>
+
+      <div class="shopActions">
+        <button onclick="openShop('${shop.id}')">
+          📊 Gérer
+        </button>
+
+        <button onclick="viewProducts('${shop.id}')">
+          📦 Produits
+        </button>
+      </div>
     </div>
 
   `).join("");
 }
 
-// =====================
-// ACTIONS
-// =====================
-
-document.getElementById("createShopBtn").onclick = () => {
-  window.location.href="create-shop.html";
-};
-
-document.getElementById("addProductBtn").onclick = () => {
-  window.location.href="add-product.html";
-};
 
 // =====================
-// OUVRIR UNE BOUTIQUE
+// NAVIGATION
 // =====================
 
 window.openShop = function(id){
   window.location.href = "shop-dashboard.html?id="+id;
+};
+
+window.viewProducts = function(id){
+  window.location.href = "shop-products.html?shop_id="+id;
 };
 </script>
 
