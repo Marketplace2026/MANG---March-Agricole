@@ -1049,11 +1049,45 @@ async function loadMyShops() {
       shopFullModal.style.display = "block";
       await loadShopProducts(shop.id);
     };
+    div.querySelector(".deleteProductBtn").onclick = async () => {
+  if (!confirm(`⚠️ Supprimer le produit "${product.name}" ?`)) return;
 
-    div.querySelector(".deleteShopBtn").onclick = async () => {
-      if (!confirm(`⚠️ Supprimer la boutique "${shop.name}" et tous ses produits ?`)) return;
-      // supprimer boutique et produits ici (comme avant)
-    };
+  try {
+    // Supprimer le produit de la table
+    const { error: deleteError } = await supabase
+      .from("shop_products")
+      .delete()
+      .eq("id", product.id);
+
+    if (deleteError) throw deleteError;
+
+    // Supprimer l'image dans le storage si elle existe
+    if (product.image_url) {
+      const fileName = product.image_url.split("/").pop();
+      await supabase.storage.from("products").remove([fileName]);
+    }
+
+    // Notification
+    await supabase.from("notif_market").insert({
+      user_id: currentUser.id,
+      actor_id: currentUser.id,
+      type: "product",
+      title: "Produit supprimé",
+      message: `Le produit "${product.name}" a été supprimé de la boutique`,
+      link: `/shop?id=${shopId}`,
+      is_read: false
+    });
+
+    alert("✅ Produit supprimé avec succès");
+
+    // Recharger la liste de produits
+    await loadShopProducts(shopId);
+
+  } catch (err) {
+    console.error("Erreur suppression produit :", err);
+    alert("Erreur inattendue lors de la suppression du produit");
+  }
+};
 
     container.appendChild(div);
   });
