@@ -575,6 +575,62 @@ color:#666;
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
+  /* SCROLL HORIZONTAL BOUTIQUES */
+.horizontalScroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px;
+  scroll-behavior: smooth;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.horizontalScroll::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.shopCard {
+  min-width: 220px; /* largeur fixe pour chaque carte */
+  max-width: 220px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  flex-shrink: 0; /* important pour le scroll horizontal */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shopCard img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.shopActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.shopActions button {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+}
+
+.openShopBtn { background:#1B8F3A; color:white; }
+.deleteShopBtn { background:#e53935; color:white; }
 </style>
 
 </head>
@@ -735,9 +791,9 @@ color:#666;
       </div>
     </div>
 
-    <!-- LISTE BOUTIQUES -->
-    <div id="shopsList"></div>
-
+<!-- LISTE BOUTIQUES - SCROLL HORIZONTAL -->
+<div id="shopsList" class="horizontalScroll"></div>
+    
     <!-- MODAL BOUTIQUE DÉTAILLÉE -->
     <div id="shopFullModal" style="display:none;">
       <div class="shopFullHeader">
@@ -984,7 +1040,7 @@ async function loadSellerDashboard() {
 }
 
 // =====================
-// CHARGER LISTE BOUTIQUES
+// CHARGER LISTE BOUTIQUES (SCROLL HORIZONTAL)
 // =====================
 async function loadMyShops() {
   if (!currentUser) return;
@@ -996,7 +1052,7 @@ async function loadMyShops() {
     .order("created_at", { ascending: false });
 
   const container = document.getElementById("shopsList");
-  container.innerHTML = "";
+  container.innerHTML = ""; // reset
 
   if (error) {
     console.error("❌ Erreur chargement boutiques :", error);
@@ -1009,6 +1065,7 @@ async function loadMyShops() {
     return;
   }
 
+  // ✅ Ajouter chaque boutique en carte scroll horizontal
   shops.forEach((shop) => {
     const div = document.createElement("div");
     div.className = "shopCard";
@@ -1029,20 +1086,20 @@ async function loadMyShops() {
       </div>
     `;
 
-    // OUVRIR BOUTIQUE
+    // ===== OUVRIR BOUTIQUE
     div.querySelector(".openShopBtn").onclick = async () => {
       currentShop = shop;
       document.getElementById("shopProductsTitle").innerText = "Boutique : " + shop.name;
-      shopFullModal.style.display = "block";
+      document.getElementById("shopFullModal").style.display = "block";
       await loadShopProducts(shop.id);
     };
 
-    // SUPPRIMER BOUTIQUE
+    // ===== SUPPRIMER BOUTIQUE
     div.querySelector(".deleteShopBtn").onclick = async () => {
       if (!confirm(`⚠️ Supprimer la boutique "${shop.name}" et tous ses produits ?`)) return;
 
       try {
-        // Supprimer images produits
+        // 🔹 Supprimer images produits
         const { data: products } = await supabase
           .from("shop_products")
           .select("image_url")
@@ -1056,13 +1113,13 @@ async function loadMyShops() {
             await supabase.storage.from("products").remove(productFiles);
         }
 
-        // Supprimer image boutique
+        // 🔹 Supprimer image boutique
         if (shop.image_url) {
           const shopFile = shop.image_url.split("/").pop();
           await supabase.storage.from("shops").remove([shopFile]);
         }
 
-        // Supprimer boutique
+        // 🔹 Supprimer boutique
         const { error: deleteError } = await supabase
           .from("shops")
           .delete()
@@ -1070,7 +1127,7 @@ async function loadMyShops() {
 
         if (deleteError) throw deleteError;
 
-        // Notification
+        // 🔹 Notification suppression
         await supabase.from("notif_market").insert({
           user_id: currentUser.id,
           actor_id: currentUser.id,
@@ -1084,7 +1141,7 @@ async function loadMyShops() {
 
         alert("✅ Boutique supprimée avec succès");
         loadMyShops();
-        shopFullModal.style.display = "none";
+        document.getElementById("shopFullModal").style.display = "none";
 
       } catch (err) {
         console.error("Erreur suppression boutique :", err);
@@ -1095,6 +1152,7 @@ async function loadMyShops() {
     container.appendChild(div);
   });
 }
+      
 
 // =====================
 // CHARGER PRODUITS BOUTIQUE
