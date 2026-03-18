@@ -352,16 +352,14 @@ color:#666;
 
 </button>
 
-<button class="menu-btn" onclick="window.location.href='favoris.html'">
-
-<div class="menu-left">
-<span class="icon">❤️</span>
-<span>Mes favoris</span>
-</div>
-
-<span class="arrow">›</span>
-
-</button>
+ 
+  
+  <button  class="menu-left" id="favoritesBtn">
+    <div class="icon">❤️</div>
+    <span>Mes favoris</span>
+    <span class="arrow">›</span>
+    
+  </button>
 
 <button class="menu-btn" onclick="window.location.href='vente.html'">
 
@@ -402,6 +400,31 @@ color:#666;
 <span class="icon">🚪</span>
 <span>Déconnexion</span>
 </div>
+
+  
+ <!-- Modal Favoris -->
+<div id="favoritesModal">
+
+  <div id="favoritesPanel">
+
+    <div class="notifHeader">
+      <h3>❤️ Favoris</h3>
+      <button id="closeFavorites">×</button>
+    </div>
+
+    <div class="favoritesTabs">
+      <button id="btnFavorisBoutiques">Boutiques</button>
+      <button id="btnFavorisProduits">Produits</button>
+    </div>
+
+    <div id="favoritesShopsList"></div>
+    <div id="favoritesProductsList" style="display:none;"></div>
+
+  </div>
+
+</div>
+
+  
 
 </button>
 
@@ -542,6 +565,25 @@ badge.style.display="none";
 
 }
 
+// 🔹 RÉFÉRENCES
+const favoritesBtn = document.getElementById("favoritesBtn");
+const favoritesModal = document.getElementById("favoritesModal");
+const closeFavorites = document.getElementById("closeFavorites");
+const btnFavorisBoutiques = document.getElementById("btnFavorisBoutiques");
+const btnFavorisProduits = document.getElementById("btnFavorisProduits");
+const favoritesShopsList = document.getElementById("favoritesShopsList");
+const favoritesProductsList = document.getElementById("favoritesProductsList");
+
+// ===================== BOUTON FAVORIS =====================
+favoritesBtn.onclick = async () => {
+  favoritesModal.style.display = "flex";
+  await loadFavoriteNotifications();  // Charge toutes notifications
+  updateFavoritesBadge();
+};
+
+closeFavorites.onclick = () => {
+  favoritesModal.style.display = "none";
+};
 </script>
 
 </body>
