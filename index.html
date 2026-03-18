@@ -3920,11 +3920,12 @@ div.innerHTML = `
   ">
 
     <!-- IMAGE -->
-    <div style="position:relative;">
-      <img 
-        src="${p.image_url || 'https://via.placeholder.com/300'}" 
-        alt="${(p.name || 'Produit').replace(/"/g, '')}"
-        loading="lazy"
+    <div class="product-image-container">  
+    <img   
+      src="${p.image_url || 'https://via.placeholder.com/300'}"   
+      alt="${p.name || 'Produit'}"  
+      class="product-image zoomable-product"  
+      loading="lazy"  
         style="
           width:100%;
           height:140px;
