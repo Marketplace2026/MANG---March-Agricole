@@ -911,32 +911,214 @@ badge.style.display="none";
 }
 
 }
+
+  // =====================
+// RÉFÉRENCES FAVORIS
+// =====================
 const favoritesBtn = document.getElementById("favoritesBtn");
 const favoritesModal = document.getElementById("favoritesModal");
 const closeFavorites = document.getElementById("closeFavorites");
+const btnFavorisBoutiques = document.getElementById("btnFavorisBoutiques");
+const btnFavorisProduits = document.getElementById("btnFavorisProduits");
+const favoritesShopsList = document.getElementById("favoritesShopsList");
+const favoritesProductsList = document.getElementById("favoritesProductsList");
 
-// OUVRIR
+// =====================
+// OUVRIR MODAL FAVORIS
+// =====================
 favoritesBtn.onclick = async () => {
-  favoritesModal.classList.add("active");
-  document.body.style.overflow = "hidden";
-
-  await loadFavoriteNotifications();
-  updateFavoritesBadge();
+  favoritesModal.style.display = "flex";
+  favoritesShopsList.style.display = "block";
+  favoritesProductsList.style.display = "none";
+  await loadFavoriteShops();     // Par défaut on affiche les boutiques
+  updateFavoritesBadge();        // Met à jour le badge de notifications
 };
 
-// FERMER
+// =====================
+// FERMER MODAL FAVORIS
+// =====================
 closeFavorites.onclick = () => {
-  favoritesModal.classList.remove("active");
-  document.body.style.overflow = "auto";
+  favoritesModal.style.display = "none";
 };
 
-// CLIQUE EN DEHORS
-favoritesModal.addEventListener("click", (e) => {
-  if (e.target === favoritesModal) {
-    favoritesModal.classList.remove("active");
-    document.body.style.overflow = "auto";
+// =====================
+// ONGLET BOUTIQUES
+// =====================
+btnFavorisBoutiques.onclick = () => loadFavoriteShops();
+
+// =====================
+// ONGLET PRODUITS
+// =====================
+btnFavorisProduits.onclick = () => loadFavoriteProducts();
+
+// =====================
+// CHARGER BOUTIQUES FAVORIS
+// =====================
+async function loadFavoriteShops() {
+  favoritesShopsList.style.display = "block";
+  favoritesProductsList.style.display = "none";
+  favoritesShopsList.innerHTML = "<p>Chargement...</p>";
+
+  if (!currentUser || !currentUser.id) {
+    favoritesShopsList.innerHTML = "<p>Utilisateur non connecté.</p>";
+    return;
   }
-});
+
+  const { data: favs, error: favError } = await supabase
+    .from("favorite_shops")
+    .select("shop_id")
+    .eq("user_id", currentUser.id);
+
+  if (favError) {
+    console.error(favError);
+    favoritesShopsList.innerHTML = "<p>Erreur chargement favoris.</p>";
+    return;
+  }
+
+  if (!favs || favs.length === 0) {
+    favoritesShopsList.innerHTML = "<p>Aucune boutique suivie.</p>";
+    return;
+  }
+
+  const shopIds = favs.map(f => f.shop_id);
+
+  const { data: shops, error: shopError } = await supabase
+    .from("shops")
+    .select("*")
+    .in("id", shopIds);
+
+  if (shopError) {
+    console.error(shopError);
+    favoritesShopsList.innerHTML = "<p>Erreur chargement boutiques.</p>";
+    return;
+  }
+
+  favoritesShopsList.innerHTML = "";
+
+  shops.forEach(shop => {
+    const div = document.createElement("div");
+    div.className = "favoriteItem";
+    div.style.cssText = `
+      display:flex;
+      gap:10px;
+      padding:10px;
+      border-bottom:1px solid #eee;
+      cursor:pointer;
+      align-items:center;
+    `;
+    div.innerHTML = `
+      <img src="${shop.image_url || 'https://via.placeholder.com/80'}"
+           style="width:80px;height:60px;border-radius:8px;object-fit:cover;">
+      <div>
+        <strong>${shop.name}</strong>
+        <p style="font-size:14px;color:#666;">${shop.description || ""}</p>
+      </div>
+    `;
+
+    div.onclick = async () => {
+      favoritesModal.style.display = "none";
+      await openShop(shop); // Utilise ta fonction existante pour ouvrir la boutique
+    };
+
+    favoritesShopsList.appendChild(div);
+  });
+}
+
+// =====================
+// CHARGER PRODUITS FAVORIS
+// =====================
+async function loadFavoriteProducts() {
+  favoritesProductsList.style.display = "block";
+  favoritesShopsList.style.display = "none";
+  favoritesProductsList.innerHTML = "<p>Chargement...</p>";
+
+  if (!currentUser || !currentUser.id) {
+    favoritesProductsList.innerHTML = "<p>Utilisateur non connecté.</p>";
+    return;
+  }
+
+  // Récupérer les produits favoris
+  const { data: favData, error: favError } = await supabase
+    .from("favorite_products")
+    .select("product_id")
+    .eq("user_id", currentUser.id);
+
+  if (favError) {
+    console.error(favError);
+    favoritesProductsList.innerHTML = "<p>Erreur chargement produits.</p>";
+    return;
+  }
+
+  if (!favData || favData.length === 0) {
+    favoritesProductsList.innerHTML = "<p>Aucun produit suivi.</p>";
+    return;
+  }
+
+  const productIds = favData.map(f => f.product_id);
+
+  // Récupérer les infos des produits
+  const { data: products, error: prodError } = await supabase
+    .from("shop_products")
+    .select("*")
+    .in("id", productIds)
+    .order("created_at", { ascending: false });
+
+  if (prodError) {
+    console.error(prodError);
+    favoritesProductsList.innerHTML = "<p>Erreur chargement produits.</p>";
+    return;
+  }
+
+  if (!products || products.length === 0) {
+    favoritesProductsList.innerHTML = "<p>Aucun produit suivi.</p>";
+    return;
+  }
+
+  favoritesProductsList.innerHTML = "";
+
+  products.forEach(product => {
+    const div = document.createElement("div");
+    div.className = "favoriteItem";
+    div.style.cssText = `
+      display:flex;
+      gap:10px;
+      padding:10px;
+      border-bottom:1px solid #eee;
+      cursor:pointer;
+      align-items:center;
+    `;
+
+    div.innerHTML = `
+      <img src="${product.image_url || 'https://via.placeholder.com/80'}"
+           style="width:80px;height:60px;border-radius:8px;object-fit:cover;">
+      <div>
+        <strong>${product.name}</strong>
+        <p style="color:#2e8b57;font-weight:600;">${product.price || "-"} FCFA</p>
+      </div>
+    `;
+
+    div.onclick = async () => {
+      favoritesModal.style.display = "none";
+
+      // Récupérer la boutique complète du produit
+      const { data: shopData, error: shopError } = await supabase
+        .from("shops")
+        .select("*")
+        .eq("id", product.shop_id)
+        .single();
+
+      if (shopError || !shopData) {
+        console.error(shopError);
+        alert("Impossible de charger la boutique de ce produit.");
+        return;
+      }
+
+      await openShop(shopData); // Ouvrir la boutique du produit
+    };
+
+    favoritesProductsList.appendChild(div);
+  });
+      }
 // =====================
 // MES BOUTIQUES - SCRIPT
 // =====================
