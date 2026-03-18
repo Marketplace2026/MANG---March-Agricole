@@ -1004,7 +1004,9 @@ async function loadSellerDashboard() {
   document.getElementById("shopRevenue").innerText = total.toLocaleString("fr-FR") + " FCFA";
 }
 
+  // =====================
 // CHARGER LISTE BOUTIQUES
+// =====================
 async function loadMyShops() {
   if (!currentUser) return;
 
@@ -1017,81 +1019,103 @@ async function loadMyShops() {
   const container = document.getElementById("shopsList");
   container.innerHTML = "";
 
-  if (error) return container.innerHTML = "<p style='color:red;'>Erreur chargement boutiques</p>";
-  if (!shops || shops.length === 0) return container.innerHTML = "<p>Aucune boutique</p>";
+  if (error) {
+    console.error("❌ Erreur chargement boutiques :", error);
+    return container.innerHTML = "<p style='color:red;'>Erreur chargement boutiques</p>";
+  }
+
+  if (!shops || shops.length === 0) {
+    return container.innerHTML = "<p>Aucune boutique</p>";
+  }
 
   shops.forEach(shop => {
     const div = document.createElement("div");
     div.className = "shopCard";
 
+    // Badge premium
     let stars = "";
     if (shop.premium_level === "premium1") stars = "⭐";
     if (shop.premium_level === "premium2") stars = "⭐⭐";
     if (shop.premium_level === "premium3") stars = "⭐⭐⭐";
 
-    // Mini aperçu produits
-    const preview = shop.products_preview?.map(p => `<img src="${p}" style="width:40px;height:40px;border-radius:4px;margin-right:2px;">`).join("") || "";
-
     div.innerHTML = `
       ${shop.image_url ? `<img src="${shop.image_url}" alt="${shop.name}">` : ""}
       <h4>${shop.name} <span class="premium">${stars}</span></h4>
       <small>${shop.category || "Non catégorisé"}</small>
-      <div style="display:flex;margin-bottom:4px;">${preview}</div>
       <div class="shopActions">
         <button class="openShopBtn">📊 Gérer</button>
         <button class="deleteShopBtn">🗑 Supprimer</button>
       </div>
     `;
 
+    // OUVRIR BOUTIQUE
     div.querySelector(".openShopBtn").onclick = async () => {
       currentShop = shop;
       document.getElementById("shopProductsTitle").innerText = "Boutique : " + shop.name;
       shopFullModal.style.display = "block";
-      await loadShopProducts(shop.id);
+      await loadShopProducts(shop.id); // produits seront chargés ici
     };
-    div.querySelector(".deleteProductBtn").onclick = async () => {
-  if (!confirm(`⚠️ Supprimer le produit "${product.name}" ?`)) return;
 
-  try {
-    // Supprimer le produit de la table
-    const { error: deleteError } = await supabase
-      .from("shop_products")
-      .delete()
-      .eq("id", product.id);
+    // SUPPRIMER BOUTIQUE
+    div.querySelector(".deleteShopBtn").onclick = async () => {
+      if (!confirm(`⚠️ Supprimer la boutique "${shop.name}" et tous ses produits ?`)) return;
 
-    if (deleteError) throw deleteError;
+      try {
+        // Supprimer images produits
+        const { data: products } = await supabase
+          .from("shop_products")
+          .select("image_url")
+          .eq("shop_id", shop.id);
 
-    // Supprimer l'image dans le storage si elle existe
-    if (product.image_url) {
-      const fileName = product.image_url.split("/").pop();
-      await supabase.storage.from("products").remove([fileName]);
-    }
+        if (products?.length > 0) {
+          const productFiles = products
+            .filter(p => p.image_url)
+            .map(p => p.image_url.split("/").pop());
+          if (productFiles.length > 0) {
+            await supabase.storage.from("products").remove(productFiles);
+          }
+        }
 
-    // Notification
-    await supabase.from("notif_market").insert({
-      user_id: currentUser.id,
-      actor_id: currentUser.id,
-      type: "product",
-      title: "Produit supprimé",
-      message: `Le produit "${product.name}" a été supprimé de la boutique`,
-      link: `/shop?id=${shopId}`,
-      is_read: false
-    });
+        // Supprimer image boutique
+        if (shop.image_url) {
+          const shopFile = shop.image_url.split("/").pop();
+          await supabase.storage.from("shops").remove([shopFile]);
+        }
 
-    alert("✅ Produit supprimé avec succès");
+        // Supprimer boutique
+        const { error: deleteError } = await supabase
+          .from("shops")
+          .delete()
+          .eq("id", shop.id);
 
-    // Recharger la liste de produits
-    await loadShopProducts(shopId);
+        if (deleteError) throw deleteError;
 
-  } catch (err) {
-    console.error("Erreur suppression produit :", err);
-    alert("Erreur inattendue lors de la suppression du produit");
-  }
-};
+        // Notification
+        await supabase.from("notif_market").insert({
+          user_id: currentUser.id,
+          actor_id: currentUser.id,
+          type: "shop",
+          title: "🗑 Boutique supprimée",
+          message: `La boutique "${shop.name}" a été supprimée`,
+          target_id: shop.id,
+          link: "/shops",
+          is_read: false
+        });
+
+        alert("✅ Boutique supprimée avec succès");
+        await loadMyShops();
+        shopFullModal.style.display = "none";
+
+      } catch (err) {
+        console.error("Erreur suppression boutique :", err);
+        alert("Erreur inattendue lors de la suppression");
+      }
+    };
 
     container.appendChild(div);
   });
 }
+
 
 // CHARGER PRODUITS BOUTIQUE
 async function loadShopProducts(shopId) {
