@@ -488,6 +488,9 @@ shopCard:hover{
 }
 
 
+
+
+  
 /* ===================== */
 /* CONTAINER CHAT */
 /* ===================== */
@@ -498,7 +501,9 @@ shopCard:hover{
   right:-100%;
   width:100%;
   max-width:380px;
-  height:100vh;
+
+  height:calc(100vh - 80px); /* évite la navbar */
+  bottom:80px;
 
   background:#fff;
 
@@ -540,10 +545,14 @@ shopCard:hover{
   background:rgba(255,255,255,0.2);
   border:none;
   color:white;
+
   font-size:18px;
+
   width:34px;
   height:34px;
+
   border-radius:50%;
+
   cursor:pointer;
 
   display:flex;
@@ -561,7 +570,9 @@ shopCard:hover{
 
 .messages-list{
   flex:1;
+
   padding:12px;
+  padding-bottom:80px; /* espace pour input */
 
   overflow-y:auto;
 
@@ -594,6 +605,7 @@ shopCard:hover{
 /* RECU */
 .message.from{
   background:white;
+
   align-self:flex-start;
 
   border-bottom-left-radius:6px;
@@ -657,7 +669,9 @@ shopCard:hover{
 .message-actions button{
   background:white;
   border:none;
+
   border-radius:50%;
+
   width:28px;
   height:28px;
 
@@ -671,10 +685,13 @@ shopCard:hover{
 }
 
 /* ===================== */
-/* INPUT */
+/* INPUT (CORRIGÉ) */
 /* ===================== */
 
 .input-area{
+  position:sticky;
+  bottom:0;
+
   padding:10px;
 
   border-top:1px solid #eee;
@@ -684,6 +701,8 @@ shopCard:hover{
   display:flex;
   flex-direction:column;
   gap:8px;
+
+  z-index:10;
 }
 
 #chatInputContainer{
@@ -742,7 +761,6 @@ shopCard:hover{
   transition:0.2s;
 }
 
-/* styles */
 .btn-send{
   background:linear-gradient(135deg,#3b82f6,#2563eb);
 }
@@ -773,7 +791,9 @@ shopCard:hover{
 
   width:100%;
   max-width:380px;
-  height:100vh;
+
+  height:calc(100vh - 80px);
+  bottom:80px;
 
   background:#fff;
 
@@ -855,7 +875,9 @@ shopCard:hover{
 .discussion-item:hover{
   background:#eef2f7;
   transform:translateX(3px);
-}
+ }
+
+
 .delete-btn {
   background: #f3f4f6;
   border: none;
