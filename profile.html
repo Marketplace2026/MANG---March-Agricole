@@ -385,6 +385,131 @@ color:#666;
   from{ transform: translateX(100%); }
   to{ transform: translateX(0); }
 }
+  /* MODAL SHOPS */
+#shopsModal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+
+  display: none;
+  justify-content: flex-end;
+
+  z-index: 9999;
+}
+
+#shopsModal.active{
+  display: flex;
+}
+
+#shopsPanel{
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  background: white;
+
+  display: flex;
+  flex-direction: column;
+
+  animation: slideIn 0.3s ease;
+}
+
+/* HEADER */
+.shopsHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:15px;
+  border-bottom:1px solid #eee;
+
+  font-weight:600;
+}
+
+.shopsHeader button{
+  font-size:22px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+
+/* STATS */
+.shopsStats{
+  display:flex;
+  justify-content:space-around;
+  padding:12px;
+  background:#f9f9f9;
+}
+
+.shopStat{
+  text-align:center;
+}
+
+.shopStat h3{
+  color:#1B8F3A;
+  font-size:16px;
+}
+
+.shopStat p{
+  font-size:11px;
+  color:#777;
+}
+
+/* ACTIONS */
+.shopsActions{
+  display:flex;
+  gap:10px;
+  padding:12px;
+}
+
+.shopsActions button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+#createShopBtn{
+  background:#1B8F3A;
+  color:white;
+}
+
+#addProductBtn{
+  background:#eee;
+}
+
+/* LISTE */
+#shopsList{
+  flex:1;
+  overflow-y:auto;
+  padding:12px;
+  padding-bottom:120px;
+}
+
+/* CARD BOUTIQUE */
+.shopCard{
+  background:white;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
+
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.shopCard h4{
+  margin-bottom:5px;
+}
+
+.shopCard button{
+  margin-top:8px;
+  width:100%;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#f1f1f1;
+  cursor:pointer;
+}
 
 </style>
 
@@ -459,14 +584,14 @@ color:#666;
       </div>
       <span class="arrow">›</span>
     </button>
-
-    <button class="menu-btn" onclick="window.location.href='vente.html'">
-      <div class="menu-left">
-        <span class="icon">🏪</span>
-        <span>Mes boutiques</span>
-      </div>
-      <span class="arrow">›</span>
-    </button>
+    
+<button class="menu-btn" id="shopsBtn">
+  <div class="menu-left">
+    <span class="icon">🏪</span>
+    <span>Mes boutiques</span>
+  </div>
+  <span class="arrow">›</span>
+</button>
 
     <button class="menu-btn" onclick="goWallet()">
       <div class="menu-left">
@@ -518,6 +643,49 @@ color:#666;
   </div>
 </div>
 
+  <!-- ===================== -->
+<!-- MODAL MES BOUTIQUES -->
+<!-- ===================== -->
+<div id="shopsModal">
+  <div id="shopsPanel">
+
+    <!-- HEADER -->
+    <div class="shopsHeader">
+      <h3>🏪 Mes boutiques</h3>
+      <button id="closeShops">×</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="shopsStats">
+
+      <div class="shopStat">
+        <h3 id="shopRevenue">0 FCFA</h3>
+        <p>Revenus</p>
+      </div>
+
+      <div class="shopStat">
+        <h3 id="shopProducts">0</h3>
+        <p>Produits</p>
+      </div>
+
+      <div class="shopStat">
+        <h3 id="shopOrders">0</h3>
+        <p>Commandes</p>
+      </div>
+
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="shopsActions">
+      <button id="createShopBtn">➕ Créer boutique</button>
+      <button id="addProductBtn">📦 Ajouter produit</button>
+    </div>
+
+    <!-- LISTE -->
+    <div id="shopsList"></div>
+
+  </div>
+</div>
 
 <script type="module">
 
@@ -673,6 +841,129 @@ favoritesModal.addEventListener("click", (e) => {
     document.body.style.overflow = "auto";
   }
 });
+
+  // =====================
+// MODAL BOUTIQUES
+// =====================
+
+const shopsBtn = document.getElementById("shopsBtn");
+const shopsModal = document.getElementById("shopsModal");
+const closeShops = document.getElementById("closeShops");
+
+// OUVRIR
+shopsBtn.onclick = async () => {
+  shopsModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  await loadSellerDashboard();
+  await loadUserShops();
+};
+
+// FERMER
+closeShops.onclick = () => {
+  shopsModal.classList.remove("active");
+  document.body.style.overflow = "auto";
+};
+
+// CLICK OUTSIDE
+shopsModal.addEventListener("click",(e)=>{
+  if(e.target === shopsModal){
+    shopsModal.classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+});
+
+// =====================
+// DASHBOARD VENDEUR
+// =====================
+
+async function loadSellerDashboard(){
+
+  if(!currentUser) return;
+
+  // PRODUITS
+  const { count:products } = await supabase
+    .from("products")
+    .select("*",{count:"exact",head:true})
+    .eq("user_id",currentUser.id);
+
+  document.getElementById("shopProducts").innerText = products || 0;
+
+  // COMMANDES
+  const { count:orders } = await supabase
+    .from("orders")
+    .select("*",{count:"exact",head:true})
+    .eq("seller_id",currentUser.id);
+
+  document.getElementById("shopOrders").innerText = orders || 0;
+
+  // REVENUS
+  const { data } = await supabase
+    .from("orders")
+    .select("total_price")
+    .eq("seller_id",currentUser.id)
+    .eq("status","completed");
+
+  let total = 0;
+  data?.forEach(o => total += o.total_price || 0);
+
+  document.getElementById("shopRevenue").innerText =
+    total.toLocaleString("fr-FR") + " FCFA";
+}
+
+// =====================
+// CHARGER BOUTIQUES
+// =====================
+
+async function loadUserShops(){
+
+  const { data } = await supabase
+    .from("shops")
+    .select("*")
+    .eq("user_id",currentUser.id);
+
+  const container = document.getElementById("shopsList");
+
+  if(!data || data.length === 0){
+    container.innerHTML = "<p>Aucune boutique</p>";
+    return;
+  }
+
+  container.innerHTML = data.map(shop=>`
+
+    <div class="shopCard">
+      <h4>${shop.name}</h4>
+      <p style="font-size:12px;color:#777;">
+        ${shop.description || ""}
+      </p>
+
+      <button onclick="openShop('${shop.id}')">
+        Gérer boutique
+      </button>
+    </div>
+
+  `).join("");
+}
+
+// =====================
+// ACTIONS
+// =====================
+
+document.getElementById("createShopBtn").onclick = () => {
+  window.location.href="create-shop.html";
+};
+
+document.getElementById("addProductBtn").onclick = () => {
+  window.location.href="add-product.html";
+};
+
+// =====================
+// OUVRIR UNE BOUTIQUE
+// =====================
+
+window.openShop = function(id){
+  window.location.href = "shop-dashboard.html?id="+id;
+};
 </script>
 
 </body>
