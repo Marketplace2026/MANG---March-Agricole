@@ -6,309 +6,295 @@
 <title>MANG – Marché Agricole Nouvelle Génération</title>
 
 <style>
+
 /* =====================================================
-   VARIABLES
+   VARIABLES MODERNES
 ===================================================== */
 :root{
-  --green:#1f8a5b;
-  --green-dark:#166b45;
-  --bg:#f4faf6;
-  --dark:#102a23;
-  --gray:#5f6f68;
-  --radius:22px;
-  --shadow:0 20px 50px rgba(0,0,0,.15);
+  --green:#16a34a;
+  --green-dark:#065f46;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --text:#0f172a;
+  --gray:#64748b;
+  --border:#e2e8f0;
+
+  --radius:16px;
+  --radius-lg:24px;
+
+  --shadow-sm:0 4px 10px rgba(0,0,0,.05);
+  --shadow-md:0 10px 30px rgba(0,0,0,.08);
+  --shadow-lg:0 25px 60px rgba(0,0,0,.12);
+
+  --transition:.25s cubic-bezier(.4,0,.2,1);
 }
 
-/* =====================================================
-   RESET
-===================================================== */
+/* RESET */
 *{margin:0;padding:0;box-sizing:border-box}
 body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto;
   background:var(--bg);
-  color:var(--dark);
-  overflow-x:hidden;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
 }
 
 /* =====================================================
-   SPLASH SCREEN
-===================================================== */
-#splash{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(135deg,#e8fff2,#d7f2e5);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-  animation:fadeOut 1.2s ease forwards;
-  animation-delay:3.2s;
-}
-#splash img{width:300px;animation:logoPulse 1.8s infinite}
-#splash h1{
-  margin-top:15px;
-  font-size:2.2em;
-  font-weight:900;
-  color:var(--green-dark);
-  text-align:center;
-}
-@keyframes logoPulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.08)}
-  100%{transform:scale(1)}
-}
-@keyframes fadeOut{to{opacity:0;visibility:hidden}}
-
-/* =====================================================
-   HEADER
+   HEADER PREMIUM
 ===================================================== */
 header{
-  background: linear-gradient(135deg, #1B8F3A, #2ECC71);
-    url("assets/img/hero-people.jpg") center/cover no-repeat;
+  background: linear-gradient(135deg,#16a34a,#22c55e);
   color:#fff;
-  padding:10px 10px 10px;
+  padding:30px 20px 60px;
+  position:relative;
+  overflow:hidden;
 }
-.nav{
-  
-  margin:0px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+
+header::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.2), transparent 60%);
 }
-.nav img{height:230px;
-         width:100%;
-        }
+
+/* NAV */
+.nav img{
+  height:70px;
+  object-fit:contain;
+}
+
+/* HERO */
 .hero{
   max-width:900px;
   margin:auto;
   text-align:center;
 }
+
 .hero h2{
-  font-size:3rem;
+  font-size:2.8rem;
   font-weight:900;
-  margin-bottom:20px;
+  line-height:1.2;
+  margin-bottom:15px;
 }
+
 .hero p{
-  font-size:1.2em;
-  line-height:1.7;
-  margin-bottom:38px;
+  font-size:1.1rem;
+  opacity:.9;
+  margin-bottom:30px;
 }
-.hero-actions{
-  display:flex;
-  justify-content:center;
-  gap:18px;
-  flex-wrap:wrap;
-}
+
+/* BUTTONS */
 .hero-actions button{
-  padding:16px 48px;
+  padding:14px 32px;
   border-radius:999px;
   border:none;
-  font-weight:900;
-  font-size:1.05em;
+  font-weight:700;
+  font-size:.95rem;
   cursor:pointer;
-  box-shadow:var(--shadow);
+  transition:var(--transition);
 }
-#loginBtn{background:#fff;color:var(--green-dark)}
+
+#loginBtn{
+  background:#fff;
+  color:var(--green-dark);
+}
+
 #signupBtn{
-  background:linear-gradient(135deg,var(--green),var(--green-dark));
+  background:#0f172a;
   color:#fff;
 }
-.trust{
-  margin-top:45px;
-  display:flex;
-  justify-content:center;
-  gap:16px;
-  flex-wrap:wrap;
+
+.hero-actions button:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-md);
 }
+
+/* TRUST */
 .trust span{
   background:rgba(255,255,255,.15);
-  padding:12px 20px;
+  backdrop-filter:blur(10px);
+  padding:10px 16px;
   border-radius:999px;
-  font-weight:600;
+  font-size:.9rem;
 }
 
 /* =====================================================
    MAIN
 ===================================================== */
 main{
-  max-width:1200px;
-  margin:100px auto;
+  max-width:1100px;
+  margin:80px auto;
   padding:0 20px;
 }
-section{margin-bottom:120px}
+
 section h3{
-  text-align:center;
-  font-size:2.4em;
-  font-weight:900;
-  margin-bottom:18px;
+  font-size:2rem;
+  font-weight:800;
+  margin-bottom:10px;
 }
+
 .subtitle{
-  text-align:center;
-  max-width:820px;
-  margin:0 auto 70px;
   color:var(--gray);
-  font-size:1.1em;
-  line-height:1.8;
+  font-size:1rem;
 }
 
 /* FEATURES */
 .features{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:32px;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
 }
+
 .feature{
-  background:#fff;
-  padding:34px;
+  background:var(--card);
+  padding:25px;
   border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  transition:.3s;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-sm);
+  transition:var(--transition);
 }
-.feature:hover{transform:translateY(-10px)}
+
+.feature:hover{
+  transform:translateY(-6px);
+  box-shadow:var(--shadow-md);
+}
+
 .feature h4{
-  color:var(--green-dark);
-  margin-bottom:12px;
+  font-size:1.1rem;
+  margin-bottom:8px;
 }
-.feature p{color:var(--gray);line-height:1.7}
+
+.feature p{
+  font-size:.9rem;
+  color:var(--gray);
+}
 
 /* IMAGE SECTIONS */
 .image-section{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:50px;
+  gap:40px;
   align-items:center;
 }
+
 .image-section img{
   width:100%;
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
 }
-.image-section h4{font-size:2em;margin-bottom:14px}
-.image-section p{line-height:1.8;color:var(--gray)}
+
+.image-section h4{
+  font-size:1.6rem;
+  margin-bottom:10px;
+}
+
+.image-section p{
+  color:var(--gray);
+}
 
 /* =====================================================
-   SIDEBAR AUTH
+   SIDEBAR (ULTRA MODERNE)
 ===================================================== */
 .sidebar{
   position:fixed;
   top:0;
-  right:-420px;
-  width:380px;
-  max-width:100%;
+  right:-100%;
+  width:360px;
   height:100vh;
   background:#fff;
-  box-shadow:-10px 0 40px rgba(0,0,0,.2);
   padding:30px;
-  transition:.35s;
-  z-index:9998;
+  transition:var(--transition);
+  box-shadow:-10px 0 40px rgba(0,0,0,.1);
 }
-.sidebar.open{right:0}
-.close-btn{
-  background:none;
-  border:none;
-  font-size:1.4em;
-  cursor:pointer;
-  float:right;
+
+.sidebar.open{
+  right:0;
 }
+
 .sidebar h3{
-  margin:40px 0 20px;
-  font-size:1.6em;
-  color:var(--green-dark);
+  font-size:1.5rem;
+  margin-bottom:20px;
 }
+
+/* INPUT */
 .sidebar input{
   width:100%;
-  padding:14px;
-  margin-bottom:14px;
-  border-radius:12px;
-  border:1px solid #ccc;
-  font-size:1em;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-bottom:12px;
+  font-size:.9rem;
+  transition:var(--transition);
 }
-.password-wrapper{position:relative}
+
+.sidebar input:focus{
+  border-color:var(--green);
+  outline:none;
+}
+
+/* PASSWORD ICON */
 .toggle-pass{
-  position:absolute;
-  right:15px;
-  top:50%;
-  transform:translateY(-50%);
-  cursor:pointer;
+  right:10px;
+  font-size:.9rem;
 }
+
+/* BUTTON */
 .action-btn{
   width:100%;
-  padding:14px;
+  padding:13px;
   border:none;
   border-radius:999px;
-  font-weight:900;
+  font-weight:700;
   background:linear-gradient(135deg,var(--green),var(--green-dark));
   color:#fff;
   cursor:pointer;
-  margin-top:10px;
+  transition:var(--transition);
 }
+
+.action-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-md);
+}
+
+/* ERROR */
 .error{
-  color:red;
-  text-align:center;
-  margin-top:10px;
+  font-size:.85rem;
 }
 
-  .wallet-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 40px;
-  padding: 60px 10%;
-  background: linear-gradient(135deg, #0f3d3e, #082c2d);
-  color: white;
-  flex-wrap: wrap;
+/* =====================================================
+   WALLET SECTION
+===================================================== */
+.wallet-section{
+  background:#0f172a;
+  border-radius:var(--radius-lg);
+  padding:40px;
 }
 
-.wallet-image img {
-  max-width: 350px;
-  border-radius: 20px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+.wallet-btn{
+  background:var(--green);
+  border-radius:999px;
 }
 
-.wallet-content {
-  max-width: 500px;
+.wallet-btn:hover{
+  transform:scale(1.05);
 }
 
-.wallet-content h4 {
-  font-size: 28px;
-  margin-bottom: 20px;
-}
+/* =====================================================
+   MOBILE
+===================================================== */
+@media(max-width:768px){
 
-.wallet-content p {
-  margin-bottom: 20px;
-  line-height: 1.6;
-}
+  .hero h2{
+    font-size:2rem;
+  }
 
-.wallet-features {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 25px;
-}
+  .image-section{
+    grid-template-columns:1fr;
+  }
 
-.wallet-features li {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
+  .sidebar{
+    width:100%;
+  }
 
-.wallet-btn {
-  display: inline-block;
-  padding: 12px 25px;
-  background: #28a745;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.wallet-btn:hover {
-  background: #218838;
-}
-/* MOBILE */
-@media(max-width:900px){
-  .hero h2{font-size:2.2em}
-  .image-section{grid-template-columns:1fr}
 }
 </style>
 </head>
