@@ -1009,7 +1009,6 @@ shops.forEach(shop => {
     align-items: center;
   `;
 
-  // Hover effect
   div.onmouseenter = () => {
     div.style.transform = "translateY(-2px)";
     div.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)";
@@ -1030,17 +1029,26 @@ shops.forEach(shop => {
          ">
     <div style="display:flex; flex-direction:column; justify-content:space-between; flex:1;">
       <strong style="font-size:16px; color:#1B8F3A;">${shop.name}</strong>
-      <p style="
-        font-size:14px;
-        color:#666;
-        margin:4px 0 0 0;
-      ">${shop.description || ""}</p>
+      <p style="font-size:14px; color:#666; margin:4px 0 0 0;">${shop.description || ""}</p>
     </div>
   `;
 
   div.onclick = async () => {
+    // 1️⃣ Fermer le modal favoris
     favoritesModal.style.display = "none";
-    await openShop(shop); // ta fonction pour ouvrir la boutique
+
+    // 2️⃣ Ouvrir le modal Mes Boutiques
+    shopsModal.classList.add("active");
+    document.body.style.overflow = "hidden";
+
+    // 3️⃣ Charger le tableau de boutiques et afficher la boutique cible
+    await loadMyShops(); // recharge la liste pour être sûr que toutes sont à jour
+
+    // 4️⃣ Sélectionner et ouvrir directement la boutique
+    currentShop = shop;
+    document.getElementById("shopProductsTitle").innerText = "Boutique : " + shop.name;
+    shopFullModal.style.display = "block";
+    await loadShopProducts(shop.id);
   };
 
   favoritesShopsList.appendChild(div);
