@@ -385,12 +385,11 @@ color:#666;
   from{ transform: translateX(100%); }
   to{ transform: translateX(0); }
 }
-  /* MODAL SHOPS */
+/* MODAL SHOPS */
 #shopsModal{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
-
   display: none;
   justify-content: flex-end;
   z-index: 9999;
@@ -405,11 +404,10 @@ color:#666;
   max-width: 420px;
   height: 100%;
   background: white;
-
   display: flex;
   flex-direction: column;
-
   animation: slideIn 0.3s ease;
+  overflow-y: auto;
 }
 
 /* HEADER */
@@ -417,7 +415,6 @@ color:#666;
   display:flex;
   justify-content:space-between;
   align-items:center;
-
   padding:15px;
   border-bottom:1px solid #eee;
   font-weight:600;
@@ -452,21 +449,18 @@ color:#666;
   color:#777;
 }
 
-/* LISTE */
+/* LISTE BOUTIQUES */
 #shopsList{
   flex:1;
   overflow-y:auto;
   padding:12px;
-  padding-bottom:120px;
 }
 
-/* CARD BOUTIQUE */
 .shopCard{
   background:white;
   border-radius:12px;
   padding:12px;
   margin-bottom:10px;
-
   box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -474,26 +468,38 @@ color:#666;
   margin-bottom:5px;
 }
 
-.shopCard p{
-  font-size:12px;
-  color:#777;
-}
-
-/* ACTIONS DANS CARD */
-.shopActions{
+.shopCard .shopActions{
   display:flex;
   gap:8px;
-  margin-top:10px;
+  margin-top:8px;
 }
 
-.shopActions button{
+.shopCard .shopActions button{
   flex:1;
   padding:8px;
   border:none;
   border-radius:8px;
-  background:#f1f1f1;
   cursor:pointer;
-  font-size:12px;
+  background:#f1f1f1;
+}
+
+/* PRODUITS */
+#shopFullModal{
+  margin-top:15px;
+}
+
+.productCard{
+  background:#fff;
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:10px;
+  box-shadow:0 1px 5px rgba(0,0,0,0.05);
+}
+
+.productCard img{
+  max-width:100%;
+  border-radius:8px;
+  margin-bottom:6px;
 }
 </style>
 
@@ -626,9 +632,7 @@ color:#666;
 
   </div>
 </div>
-
-
-  <!-- ===================== -->
+<!-- ===================== -->
 <!-- MODAL MES BOUTIQUES -->
 <!-- ===================== -->
 <div id="shopsModal">
@@ -640,28 +644,30 @@ color:#666;
       <button id="closeShops">×</button>
     </div>
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD GLOBAL -->
     <div class="shopsStats">
-
       <div class="shopStat">
         <h3 id="shopRevenue">0 FCFA</h3>
         <p>Revenus</p>
       </div>
-
       <div class="shopStat">
         <h3 id="shopProducts">0</h3>
         <p>Produits</p>
       </div>
-
       <div class="shopStat">
         <h3 id="shopOrders">0</h3>
         <p>Commandes</p>
       </div>
-
     </div>
 
-    <!-- LISTE -->
+    <!-- LISTE BOUTIQUES -->
     <div id="shopsList"></div>
+
+    <!-- MODAL BOUTIQUE DÉTAILLÉE -->
+    <div id="shopFullModal" style="display:none;">
+      <h4 id="shopProductsTitle"></h4>
+      <div id="productsContainer"></div>
+    </div>
 
   </div>
 </div>
@@ -823,125 +829,251 @@ favoritesModal.addEventListener("click", (e) => {
 // =====================
 // MODAL BOUTIQUES
 // =====================
-
 const shopsBtn = document.getElementById("shopsBtn");
 const shopsModal = document.getElementById("shopsModal");
 const closeShops = document.getElementById("closeShops");
+const shopsList = document.getElementById("shopsList");
+const shopFullModal = document.getElementById("shopFullModal");
+const shopProductsTitle = document.getElementById("shopProductsTitle");
+const productsContainer = document.getElementById("productsContainer");
 
-// OUVRIR
+let currentShop = null;
+
+// OUVRIR MODAL
 shopsBtn.onclick = async () => {
   shopsModal.classList.add("active");
   document.body.style.overflow = "hidden";
-
   await loadSellerDashboard();
-  await loadUserShops();
+  await loadMyShops();
 };
 
-// FERMER
+// FERMER MODAL
 closeShops.onclick = () => {
   shopsModal.classList.remove("active");
   document.body.style.overflow = "auto";
+  shopFullModal.style.display = "none";
 };
 
-// CLICK OUTSIDE
+// CLIQUE EN DEHORS
 shopsModal.addEventListener("click",(e)=>{
   if(e.target === shopsModal){
     shopsModal.classList.remove("active");
     document.body.style.overflow = "auto";
+    shopFullModal.style.display = "none";
   }
 });
 
-
 // =====================
-// DASHBOARD VENDEUR
+// DASHBOARD GLOBAL
 // =====================
-
 async function loadSellerDashboard(){
-
   if(!currentUser) return;
 
-  // PRODUITS
-  const { count:products } = await supabase
-    .from("products")
-    .select("*",{count:"exact",head:true})
-    .eq("user_id",currentUser.id);
-
-  document.getElementById("shopProducts").innerText = products || 0;
-
   // COMMANDES
-  const { count:orders } = await supabase
+  const { count: orders } = await supabase
     .from("orders")
     .select("*",{count:"exact",head:true})
-    .eq("seller_id",currentUser.id);
+    .eq("seller_id", currentUser.id);
 
-  document.getElementById("shopOrders").innerText = orders || 0;
+  // BOUTIQUES
+  const { data: shops } = await supabase
+    .from("shops")
+    .select("id")
+    .eq("owner_id", currentUser.id);
+
+  const shopIds = shops?.map(s => s.id) || [];
+
+  // PRODUITS
+  let productCount = 0;
+  if(shopIds.length > 0){
+    const { count: products } = await supabase
+      .from("shop_products")
+      .select("*",{count:"exact",head:true})
+      .in("shop_id", shopIds);
+    productCount = products || 0;
+  }
 
   // REVENUS
-  const { data } = await supabase
+  const { data: completedOrders } = await supabase
     .from("orders")
     .select("total_price")
-    .eq("seller_id",currentUser.id)
+    .eq("seller_id", currentUser.id)
     .eq("status","completed");
 
-  let total = 0;
-  data?.forEach(o => total += o.total_price || 0);
+  let totalRevenue = 0;
+  completedOrders?.forEach(o => totalRevenue += o.total_price || 0);
 
-  document.getElementById("shopRevenue").innerText =
-    total.toLocaleString("fr-FR") + " FCFA";
+  document.getElementById("shopRevenue").innerText = totalRevenue.toLocaleString("fr-FR") + " FCFA";
+  document.getElementById("shopOrders").innerText = orders || 0;
+  document.getElementById("shopProducts").innerText = productCount;
 }
 
-
 // =====================
-// CHARGER BOUTIQUES
+// CHARGER MES BOUTIQUES
 // =====================
+async function loadMyShops(){
+  if(!currentUser) return;
 
-async function loadUserShops(){
-
-  const { data } = await supabase
+  const { data: shops, error } = await supabase
     .from("shops")
     .select("*")
-    .eq("user_id",currentUser.id);
+    .eq("owner_id", currentUser.id)
+    .order("created_at",{ascending:false});
 
-  const container = document.getElementById("shopsList");
+  shopsList.innerHTML = "";
 
-  if(!data || data.length === 0){
-    container.innerHTML = "<p>Aucune boutique</p>";
+  if(error){
+    console.error(error);
+    shopsList.innerHTML = "<p style='color:red;'>Erreur chargement boutiques</p>";
     return;
   }
 
-  container.innerHTML = data.map(shop=>`
+  if(!shops || shops.length === 0){
+    shopsList.innerHTML = "<p>Aucune boutique</p>";
+    return;
+  }
 
-    <div class="shopCard">
-      <h4>${shop.name}</h4>
+  shops.forEach(shop => {
+    const div = document.createElement("div");
+    div.className = "shopCard";
 
-      <p>${shop.description || ""}</p>
+    let stars = "";
+    if(shop.premium_level === "premium1") stars = "⭐";
+    if(shop.premium_level === "premium2") stars = "⭐⭐";
+    if(shop.premium_level === "premium3") stars = "⭐⭐⭐";
 
+    div.innerHTML = `
+      ${shop.image_url ? `<img src="${shop.image_url}" alt="${shop.name}">` : ""}
+      <h4>${shop.name} <span class="premium">${stars}</span></h4>
+      <small>${shop.category || "Non catégorisé"}</small>
       <div class="shopActions">
-        <button onclick="openShop('${shop.id}')">
-          📊 Gérer
-        </button>
-
-        <button onclick="viewProducts('${shop.id}')">
-          📦 Produits
-        </button>
+        <button class="openShopBtn">📊 Gérer</button>
+        <button class="viewProductsBtn">📦 Produits</button>
+        <button class="deleteShopBtn" style="background:#e53935;color:white;">Supprimer</button>
       </div>
-    </div>
+    `;
 
-  `).join("");
+    // OUVRIR BOUTIQUE
+    div.querySelector(".openShopBtn").onclick = () => openShop(shop);
+    // VOIR PRODUITS
+    div.querySelector(".viewProductsBtn").onclick = () => openShop(shop);
+
+    // SUPPRIMER BOUTIQUE
+    div.querySelector(".deleteShopBtn").onclick = async () => {
+      if(!confirm(`⚠️ Supprimer la boutique "${shop.name}" et tous ses produits ?`)) return;
+
+      try {
+        // Supprimer produits images
+        const { data: products } = await supabase
+          .from("shop_products")
+          .select("image_url")
+          .eq("shop_id", shop.id);
+
+        if(products?.length > 0){
+          const files = products
+            .filter(p=>p.image_url)
+            .map(p=>p.image_url.split("/").pop());
+          if(files.length>0) await supabase.storage.from("products").remove(files);
+        }
+
+        // Supprimer image boutique
+        if(shop.image_url){
+          const shopFile = shop.image_url.split("/").pop();
+          await supabase.storage.from("shops").remove([shopFile]);
+        }
+
+        // Supprimer boutique
+        const { error: deleteError } = await supabase
+          .from("shops")
+          .delete()
+          .eq("id", shop.id);
+
+        if(deleteError) throw deleteError;
+
+        alert(`✅ Boutique "${shop.name}" supprimée`);
+        await loadMyShops();
+
+      } catch(err){
+        console.error(err);
+        alert("Erreur suppression boutique");
+      }
+    };
+
+    shopsList.appendChild(div);
+  });
 }
 
+// =====================
+// OUVRIR BOUTIQUE
+// =====================
+async function openShop(shop){
+  if(!shop) return;
+  currentShop = shop;
+  shopFullModal.style.display = "block";
+  shopProductsTitle.textContent = "Boutique : " + shop.name;
+  await loadShopProducts(shop.id);
+}
 
 // =====================
-// NAVIGATION
+// CHARGER PRODUITS D’UNE BOUTIQUE
 // =====================
+async function loadShopProducts(shopId){
+  if(!shopId) return;
 
-window.openShop = function(id){
-  window.location.href = "shop-dashboard.html?id="+id;
-};
+  productsContainer.innerHTML = "";
 
-window.viewProducts = function(id){
-  window.location.href = "shop-products.html?shop_id="+id;
-};
+  const { data: products, error } = await supabase
+    .from("shop_products")
+    .select("*")
+    .eq("shop_id", shopId)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    console.error(error);
+    productsContainer.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
+    return;
+  }
+
+  if(!products || products.length === 0){
+    productsContainer.innerHTML = "<p>Aucun produit disponible</p>";
+    return;
+  }
+
+  products.forEach(product => {
+    const div = document.createElement("div");
+    div.className = "productCard";
+
+    div.innerHTML = `
+      ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}">` : ""}
+      <h4>${product.name}</h4>
+      <p>${product.description || ""}</p>
+      <p style="font-weight:600;color:#2e7d32;">${formatAvailability(product.availability)}</p>
+      <strong>${product.price} FCFA</strong>
+      <button class="deleteProductBtn" style="background:#e53935;color:white;margin-top:6px;">Supprimer</button>
+    `;
+
+    div.querySelector(".deleteProductBtn").onclick = async () => {
+      if(!confirm(`⚠️ Supprimer le produit "${product.name}" ?`)) return;
+
+      await supabase.from("shop_products")
+        .delete()
+        .eq("id", product.id);
+
+      await loadShopProducts(shopId);
+    };
+
+    productsContainer.appendChild(div);
+  });
+}
+
+// =====================
+// UTILITAIRE DISPONIBILITÉ
+// =====================
+function formatAvailability(val){
+  if(val === "now") return "Disponible maintenant";
+  if(val === "soon") return "Bientôt disponible";
+  return val || "Non défini";
+      }
 </script>
 
 </body>
