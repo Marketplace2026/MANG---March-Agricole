@@ -283,118 +283,41 @@ color:#666;
 
 }
 
-
- /* Overlay */
 #favoritesModal{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.5);
+
   display: none;
-  z-index: 1000;
+  justify-content: flex-end;
+
+  z-index: 9999;
 }
 
-/* panneau favoris */
+#favoritesModal.active{
+  display: flex;
+}
+
 #favoritesPanel{
-  position: fixed;
-
-  top: 0;
-  right: 0;
-
   width: 100%;
-  max-width: 500px;
-
-  height: calc(100vh - 80px);
-  bottom: 120px;
+  max-width: 420px;
+  height: 100%;
 
   background: white;
-  border-left: 4px solid #2e8b57;
 
   display: flex;
   flex-direction: column;
 
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
+  animation: slideIn 0.3s ease;
 
-  box-shadow: -3px 0 10px rgba(0,0,0,0.15);
+  box-shadow: -10px 0 40px rgba(0,0,0,0.2);
 }
 
-/* header identique notifications */
-.notifHeader{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  padding:14px;
-
-  border-bottom:1px solid #ddd;
-
-  font-weight:600;
-  font-size:16px;
-
-  background:#f9f9f9;
+@keyframes slideIn{
+  from{ transform: translateX(100%); }
+  to{ transform: translateX(0); }
 }
 
-/* bouton X */
-.notifHeader button{
-  font-size:22px;
-  background:none;
-  border:none;
-  cursor:pointer;
-}
-
-/* boutons onglets */
-.favoritesTabs{
-  display:flex;
-  gap:10px;
-
-  padding:12px;
-
-  border-bottom:1px solid #eee;
-}
-
-.favoritesTabs button{
-  border:none;
-  background:#f5f5f5;
-
-  padding:8px 12px;
-
-  border-radius:8px;
-
-  cursor:pointer;
-}
-
-/* liste favoris */
-#favoritesShopsList,
-#favoritesProductsList{
-  flex:1;
-  overflow-y:auto;
-
-  padding:10px;
-
-  padding-bottom:120px;
-}
-  
-.favorite-shop-btn {
-  margin-top: 8px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-}
-
-.favorite-shop-btn.active {
-  background: #ffe5e5;
-  border-color: red;
-}
-  /* Overlay sombre */
-#topShopsOverlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: none;
-  z-index: 1000;
- }
 </style>
 
 </head>
@@ -444,79 +367,71 @@ color:#666;
 
 </div>
 
-<!-- MENU -->
 
+    <!-- MENU -->
 <div class="card">
+  <div class="menu">
 
-<div class="menu">
+    <button id="btnMesCommandes" class="menu-btn">
+      <div class="menu-left">
+        <span class="icon">📦</span>
+        <span>Mes commandes</span>
+      </div>
+      <div>
+        <span id="order-badge" class="badge"></span>
+        <span class="arrow">›</span>
+      </div>
+    </button>
 
-<button id="btnMesCommandes" class="menu-btn">
+    <!-- FAVORIS -->
+    <button class="menu-btn" id="favoritesBtn">
+      <div class="menu-left">
+        <span class="icon">❤️</span>
+        <span>Mes favoris</span>
+      </div>
+      <span class="arrow">›</span>
+    </button>
 
-<div class="menu-left">
-<span class="icon">📦</span>
-<span>Mes commandes</span>
+    <button class="menu-btn" onclick="window.location.href='vente.html'">
+      <div class="menu-left">
+        <span class="icon">🏪</span>
+        <span>Mes boutiques</span>
+      </div>
+      <span class="arrow">›</span>
+    </button>
+
+    <button class="menu-btn" onclick="goWallet()">
+      <div class="menu-left">
+        <span class="icon">💳</span>
+        <span>Mon portefeuille</span>
+      </div>
+      <span class="arrow">›</span>
+    </button>
+
+    <button class="menu-btn" id="changePassBtn" onclick="goChangePassword()">
+      <div class="menu-left">
+        <span class="icon">🔒</span>
+        <span>Modifier mot de passe</span>
+      </div>
+      <span class="arrow">›</span>
+    </button>
+
+    <button class="menu-btn logout" onclick="logout()">
+      <div class="menu-left">
+        <span class="icon">🚪</span>
+        <span>Déconnexion</span>
+      </div>
+    </button>
+
+  </div>
+
+  <div class="message" id="msgBox"></div>
 </div>
 
-<div>
-<span id="order-badge" class="badge"></span>
-<span class="arrow">›</span>
-</div>
-
-</button>
-
- 
-  
-  <button  class="menu-left" id="favoritesBtn">
-    <div class="icon">❤️</div>
-    <span>Mes favoris</span>
-    <span class="arrow">›</span>
-    
-  </button>
-
-<button class="menu-btn" onclick="window.location.href='vente.html'">
-
-<div class="menu-left">
-<span class="icon">🏪</span>
-<span>Mes boutiques</span>
-</div>
-
-<span class="arrow">›</span>
-
-</button>
-
-<button class="menu-btn" onclick="goWallet()">
-
-<div class="menu-left">
-<span class="icon">💳</span>
-<span>Mon portefeuille</span>
-</div>
-
-<span class="arrow">›</span>
-
-</button>
-
-<button class="menu-btn" id="changePassBtn" onclick="goChangePassword()">
-
-<div class="menu-left">
-<span class="icon">🔒</span>
-<span>Modifier mot de passe</span>
-</div>
-
-<span class="arrow">›</span>
-
-</button>
-
-<button class="menu-btn logout" onclick="logout()">
-
-<div class="menu-left">
-<span class="icon">🚪</span>
-<span>Déconnexion</span>
-</div>
-
-  
- <!-- Modal Favoris -->
+<!-- ===================== -->
+<!-- MODAL FAVORIS -->
+<!-- ===================== -->
 <div id="favoritesModal">
-
   <div id="favoritesPanel">
 
     <div class="notifHeader">
@@ -533,20 +448,8 @@ color:#666;
     <div id="favoritesProductsList" style="display:none;"></div>
 
   </div>
-
 </div>
 
-  
-
-</button>
-
-</div>
-
-<div class="message" id="msgBox"></div>
-
-</div>
-
-</div>
 
 <script type="module">
 
@@ -676,26 +579,32 @@ badge.style.display="none";
 }
 
 }
-
-// 🔹 RÉFÉRENCES
 const favoritesBtn = document.getElementById("favoritesBtn");
 const favoritesModal = document.getElementById("favoritesModal");
 const closeFavorites = document.getElementById("closeFavorites");
-const btnFavorisBoutiques = document.getElementById("btnFavorisBoutiques");
-const btnFavorisProduits = document.getElementById("btnFavorisProduits");
-const favoritesShopsList = document.getElementById("favoritesShopsList");
-const favoritesProductsList = document.getElementById("favoritesProductsList");
 
-// ===================== BOUTON FAVORIS =====================
+// OUVRIR
 favoritesBtn.onclick = async () => {
-  favoritesModal.style.display = "flex";
-  await loadFavoriteNotifications();  // Charge toutes notifications
+  favoritesModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  await loadFavoriteNotifications();
   updateFavoritesBadge();
 };
 
+// FERMER
 closeFavorites.onclick = () => {
-  favoritesModal.style.display = "none";
+  favoritesModal.classList.remove("active");
+  document.body.style.overflow = "auto";
 };
+
+// CLIQUE EN DEHORS
+favoritesModal.addEventListener("click", (e) => {
+  if (e.target === favoritesModal) {
+    favoritesModal.classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+});
 </script>
 
 </body>
