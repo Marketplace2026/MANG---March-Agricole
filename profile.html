@@ -994,35 +994,58 @@ async function loadFavoriteShops() {
   }
 
   favoritesShopsList.innerHTML = "";
+shops.forEach(shop => {
+  const div = document.createElement("div");
+  div.className = "favoriteItem";
+  div.style.cssText = `
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #fdfdfd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    align-items: center;
+  `;
 
-  shops.forEach(shop => {
-    const div = document.createElement("div");
-    div.className = "favoriteItem";
-    div.style.cssText = `
-      display:flex;
-      gap:10px;
-      padding:10px;
-      border-bottom:1px solid #eee;
-      cursor:pointer;
-      align-items:center;
-    `;
-    div.innerHTML = `
-      <img src="${shop.image_url || 'https://via.placeholder.com/80'}"
-           style="width:80px;height:60px;border-radius:8px;object-fit:cover;">
-      <div>
-        <strong>${shop.name}</strong>
-        <p style="font-size:14px;color:#666;">${shop.description || ""}</p>
-      </div>
-    `;
+  // Hover effect
+  div.onmouseenter = () => {
+    div.style.transform = "translateY(-2px)";
+    div.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)";
+  };
+  div.onmouseleave = () => {
+    div.style.transform = "translateY(0)";
+    div.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
+  };
 
-    div.onclick = async () => {
-      favoritesModal.style.display = "none";
-      await openShop(shop); // Utilise ta fonction existante pour ouvrir la boutique
-    };
+  div.innerHTML = `
+    <img src="${shop.image_url || 'https://via.placeholder.com/80'}"
+         style="
+           width:80px;
+           height:60px;
+           border-radius:10px;
+           object-fit:cover;
+           flex-shrink:0;
+         ">
+    <div style="display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+      <strong style="font-size:16px; color:#1B8F3A;">${shop.name}</strong>
+      <p style="
+        font-size:14px;
+        color:#666;
+        margin:4px 0 0 0;
+      ">${shop.description || ""}</p>
+    </div>
+  `;
 
-    favoritesShopsList.appendChild(div);
-  });
-}
+  div.onclick = async () => {
+    favoritesModal.style.display = "none";
+    await openShop(shop); // ta fonction pour ouvrir la boutique
+  };
+
+  favoritesShopsList.appendChild(div);
+});
+
 
 // =====================
 // CHARGER PRODUITS FAVORIS
