@@ -5033,7 +5033,23 @@ async function toggleCommentLike(commentId, btn) {
 }
 
     
+// index.html
+window.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const shopId = params.get("shopId");
 
+  if (shopId) {
+    const { data: shop, error } = await supabase
+      .from("shops")
+      .select("*")
+      .eq("id", shopId)
+      .single();
+
+    if (shop) {
+      await openShop(shop); // ouvre le modal directement
+    }
+  }
+});
               
 async function loadShopStats(shopId) {
   if (!shopId) return;
