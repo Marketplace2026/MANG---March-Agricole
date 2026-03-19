@@ -1000,22 +1000,125 @@ function showTransactionDetail(tx) {
   if (!detail) return;
 
   detail.innerHTML = `
-    <h4>${getTitle(tx)}</h4>
-    <div style="font-size:22px;font-weight:700;color:${color}">
+  <div style="
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.1);
+    font-family:Arial;
+  ">
+
+    <!-- HEADER -->
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    ">
+      <h3 style="
+        margin:0;
+        font-size:16px;
+        color:#222;
+      ">
+        ${getTitle(tx)}
+      </h3>
+
+      <span style="
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:bold;
+        background:${
+          tx.status === "pending" ? "#fff3e0" :
+          tx.status === "failed" ? "#ffeaea" : "#e6f9f0"
+        };
+        color:${
+          tx.status === "pending" ? "#ff9800" :
+          tx.status === "failed" ? "#ff5252" : "#00c853"
+        };
+      ">
+        ${
+          tx.status === "pending" ? "⏳ En attente" :
+          tx.status === "failed" ? "❌ Échoué" : "✅ Validé"
+        }
+      </span>
+    </div>
+
+    <!-- MONTANT -->
+    <div style="
+      font-size:28px;
+      font-weight:800;
+      text-align:center;
+      margin:20px 0;
+      color:${color};
+    ">
       ${sign}${formatMoney(absAmount)} FCFA
     </div>
-    <hr>
-    <p><strong>Date :</strong><br>
-      ${new Date(tx.created_at).toLocaleString()}
-    </p>
-    <p><strong>Statut :</strong><br>
-      ${tx.status || "Validé"}
-    </p>
-    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
-    <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
-      Télécharger PDF
+
+    <!-- INFOS -->
+    <div>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:10px 0;
+        border-bottom:1px solid #eee;
+        font-size:14px;
+      ">
+        <span style="color:#777;">📅 Date</span>
+        <span style="font-weight:600;color:#222;text-align:right;">
+          ${new Date(tx.created_at).toLocaleString()}
+        </span>
+      </div>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:10px 0;
+        border-bottom:1px solid #eee;
+        font-size:14px;
+      ">
+        <span style="color:#777;">🧾 Type</span>
+        <span style="font-weight:600;color:#222;">
+          ${getTitle(tx)}
+        </span>
+      </div>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:10px 0;
+        border-bottom:1px solid #eee;
+        font-size:14px;
+      ">
+        <span style="color:#777;">📌 Détail</span>
+        <span style="font-weight:600;color:#222;text-align:right;max-width:60%;">
+          ${getUsage(tx)}
+        </span>
+      </div>
+
+    </div>
+
+    <!-- ACTION -->
+    <button id="downloadPdfBtn" style="
+      margin-top:20px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:linear-gradient(135deg,#00c853,#009624);
+      color:white;
+      font-weight:bold;
+      font-size:14px;
+      cursor:pointer;
+      transition:0.3s;
+    "
+    onmouseover="this.style.transform='scale(1.03)';this.style.boxShadow='0 6px 15px rgba(0,200,83,0.3)'"
+    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
+      📄 Télécharger le reçu
     </button>
-  `;
+
+  </div>
+`;
 
   document.getElementById("detailModal").style.display = "flex";
   document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
