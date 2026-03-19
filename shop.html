@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Boutique – MANG</title>
+<title>Boutique – MANG Marketplace</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -26,6 +26,16 @@ body{
   padding:15px;
 }
 
+/* ================= LOGO ================= */
+.logo{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.logo img{
+  height:55px;
+}
+
 /* ================= HEADER ================= */
 .shop-header{
   background:linear-gradient(135deg,#1B8F3A,#2ECC71);
@@ -33,7 +43,6 @@ body{
   border-radius:20px;
   padding:25px;
   box-shadow:0 10px 25px rgba(0,0,0,0.15);
-  position:relative;
 }
 
 .shop-header h2{
@@ -55,6 +64,7 @@ body{
   font-weight:600;
 }
 
+/* boutons */
 .copy-btn{
   background:white;
   color:#1B8F3A;
@@ -65,11 +75,27 @@ body{
   color:white;
 }
 
+/* ================= CTA PRINCIPAL ================= */
+.main-cta{
+  margin-top:15px;
+  background:#fff;
+  color:#1B8F3A;
+  padding:12px;
+  border-radius:12px;
+  font-weight:600;
+  text-align:center;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.main-cta:hover{
+  background:#e6f6ee;
+}
+
 /* ================= OWNER ================= */
 .owner{
   margin-top:10px;
   font-size:14px;
-  opacity:0.9;
 }
 
 /* ================= EXTRA ================= */
@@ -126,7 +152,6 @@ body{
   gap:20px;
 }
 
-/* product card */
 .product{
   background:white;
   border-radius:16px;
@@ -141,14 +166,12 @@ body{
   transform:translateY(-5px);
 }
 
-/* image */
 .product img{
   width:100%;
   height:160px;
   object-fit:cover;
 }
 
-/* content */
 .product-content{
   padding:12px;
   display:flex;
@@ -167,13 +190,11 @@ body{
   flex-grow:1;
 }
 
-/* price */
 .product strong{
   color:#1B8F3A;
   font-size:16px;
 }
 
-/* button */
 .buy-btn{
   margin-top:8px;
   padding:8px;
@@ -199,6 +220,11 @@ body{
 
 <div class="container">
 
+<!-- LOGO -->
+<div class="logo">
+  <img src="assets/img/logos.png" alt="MANG Logo">
+</div>
+
 <!-- HEADER -->
 <div class="shop-header">
   <h2 id="shopName">Boutique</h2>
@@ -206,6 +232,11 @@ body{
   <div class="shop-actions">
     <button class="copy-btn" id="copyLinkBtn">🔗 Copier</button>
     <button class="visit-btn" id="visitSiteBtn">🏠 Accueil</button>
+  </div>
+
+  <!-- CTA -->
+  <div class="main-cta" id="mainCTA">
+    🚀 Découvrir la plateforme MANG
   </div>
 
   <div class="owner" id="shopOwner"></div>
@@ -248,6 +279,11 @@ document.getElementById("visitSiteBtn").onclick = () => {
   location.href = "index.html";
 };
 
+/* ===== CTA REDIRECTION ===== */
+document.getElementById("mainCTA").onclick = () => {
+  window.location.href = "https://marketplace2026.github.io/MANG---March-Agricole/";
+};
+
 /* ===== LOAD SHOP ===== */
 async function loadShop(){
 
@@ -264,7 +300,6 @@ async function loadShop(){
 
   shopNameEl.innerText = shop.name;
 
-  /* OWNER */
   const { data: owner } = await supabase
     .from("profiles")
     .select("username")
@@ -273,7 +308,6 @@ async function loadShop(){
 
   shopOwnerEl.innerText = "👤 " + (owner?.username || "Inconnu");
 
-  /* EXTRA */
   let extraHTML = "";
 
   extraHTML += shop.livraison
@@ -291,7 +325,6 @@ async function loadShop(){
 
   shopExtrasEl.innerHTML = extraHTML;
 
-  /* PRODUCTS */
   const { data: products } = await supabase
     .from("shop_products")
     .select("*")
@@ -325,7 +358,6 @@ function renderProducts(products){
       </div>
     `;
 
-    /* CLICK PRODUCT */
     div.onclick = () => {
       alert("Produit: " + p.name);
     };
