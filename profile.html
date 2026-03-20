@@ -1140,24 +1140,90 @@ async function loadFavoriteProducts() {
   products.forEach(product => {
     const div = document.createElement("div");
     div.className = "favoriteItem";
-    div.style.cssText = `
-      display:flex;
-      gap:10px;
-      padding:10px;
-      border-bottom:1px solid #eee;
-      cursor:pointer;
-      align-items:center;
-      transition:0.2s;
-    `;
+div.style.cssText = `
+  display:flex;
+  gap:12px;
+  padding:12px;
+  border-radius:14px;
+  background:white;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  cursor:pointer;
+  align-items:center;
+  transition:all 0.25s ease;
+  margin-bottom:12px;
+`;
 
-    div.innerHTML = `
-      <img src="${product.image_url || 'https://via.placeholder.com/80'}"
-           style="width:80px;height:60px;border-radius:8px;object-fit:cover;">
-      <div>
-        <strong>${product.name}</strong>
-        <p style="color:#2e8b57;font-weight:600;">${product.price || "-"} FCFA</p>
-      </div>
-    `;
+div.innerHTML = `
+  <div style="
+    position:relative;
+    width:90px;
+    height:70px;
+    flex-shrink:0;
+  ">
+    <img src="${product.image_url || 'https://via.placeholder.com/100'}"
+      style="
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        border-radius:10px;
+      ">
+
+    <!-- Badge prix -->
+    <span style="
+      position:absolute;
+      bottom:5px;
+      right:5px;
+      background:#1B8F3A;
+      color:white;
+      font-size:11px;
+      padding:3px 7px;
+      border-radius:6px;
+      font-weight:600;
+    ">
+      ${product.price || "-"} FCFA
+    </span>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;">
+    
+    <strong style="
+      font-size:15px;
+      color:#222;
+    ">
+      ${product.name}
+    </strong>
+
+    <p style="
+      font-size:13px;
+      color:#666;
+      margin:4px 0;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+    ">
+      ${product.description || "Produit disponible"}
+    </p>
+
+    <span style="
+      font-size:12px;
+      color:#1B8F3A;
+      font-weight:600;
+    ">
+      Voir le produit →
+    </span>
+
+  </div>
+`;
+    div.onmouseenter = () => {
+  div.style.transform = "translateY(-4px)";
+  div.style.boxShadow = "0 8px 20px rgba(0,0,0,0.12)";
+};
+
+div.onmouseleave = () => {
+  div.style.transform = "translateY(0)";
+  div.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+};
 
     // Redirige vers index.html et ouvre le modal de la boutique du produit
     div.onclick = () => {
