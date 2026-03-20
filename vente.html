@@ -27,26 +27,32 @@
 <meta name="twitter:title" content="Online Shop – Sell Live">
 <meta name="twitter:description" content="Discover shops and products on Sell Live marketplace.">
 <style>
-
-
-/* ===== GLOBAL ===== */
-body{
+/* ===== RESET ===== */
+*{
   margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background:#f5f7fa;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Poppins',system-ui;
+  background:#f5f7fb;
+  color:#1f2937;
 }
 
 /* ===== HEADER ===== */
 .topbar{
   position:sticky;
   top:0;
-  background:#1B8F3A;
-  color:white;
-  padding:10px 15px;
   z-index:1000;
+  background:#ffffff;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
 }
 
 .topbar-content{
+  max-width:1200px;
+  margin:auto;
+  padding:12px 15px;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -56,51 +62,165 @@ body{
 .left-header{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:15px;
 }
 
+/* LOGO */
 .logo-box img{
-  height:40px;
+  height:45px;
+  border-radius:10px;
+}
+
+/* USER */
+.user-info{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:600;
+}
+
+.profile-circle{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  border:none;
+  background:#f3f4f6;
+  cursor:pointer;
+  font-size:16px;
+  transition:0.2s;
+}
+
+.profile-circle:hover{
+  background:#e5e7eb;
 }
 
 /* RIGHT */
 .right-header{
   display:flex;
-  gap:10px;
   align-items:center;
+  gap:10px;
 }
 
 /* COINS */
 .user-coins{
-  background:#FFD700;
-  padding:5px 10px;
-  border-radius:20px;
-  font-weight:bold;
-  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:linear-gradient(135deg,#FFD700,#FFA500);
+  padding:8px 12px;
+  border-radius:999px;
+  font-weight:700;
+  color:#fff;
+  box-shadow:0 5px 12px rgba(0,0,0,0.2);
 }
 
 /* BUTTONS */
-button{
+.btn-buy,
+.btn-premium{
+  padding:10px 16px;
   border:none;
-  border-radius:20px;
-  padding:8px 12px;
+  border-radius:999px;
+  font-weight:600;
   cursor:pointer;
+  transition:0.2s;
 }
 
 .btn-buy{
-  background:white;
-  color:#1B8F3A;
+  background:#16a34a;
+  color:white;
+}
+
+.btn-buy:hover{
+  background:#15803d;
 }
 
 .btn-premium{
-  background:gold;
+  background:linear-gradient(135deg,#FFD700,#ff9800);
+  color:white;
 }
 
-/* ===== GRID ===== */
+.btn-premium:hover{
+  transform:scale(1.05);
+}
+
+/* PREMIUM COUNTER */
+.premium-counter{
+  text-align:center;
+  padding:5px;
+  font-size:13px;
+  color:#f59e0b;
+}
+
+/* ===== MAIN ===== */
+.main-container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+/* TITLE */
+.section-title{
+  font-size:1.4rem;
+  margin:20px 0;
+  font-weight:700;
+}
+
+/* ===== BUTTON CREATE SHOP ===== */
+.addBtn{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  color:white;
+  border:none;
+  padding:12px 18px;
+  border-radius:999px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  transition:0.25s;
+}
+
+.addBtn:hover{
+  transform:translateY(-2px);
+}
+
+/* ===== GRID BOUTIQUES ===== */
 .shops-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:15px;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:20px;
+}
+
+/* ===== CARD BOUTIQUE ===== */
+.shopCard{
+  background:white;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 6px 20px rgba(0,0,0,0.08);
+  transition:0.3s;
+  cursor:pointer;
+}
+
+.shopCard:hover{
+  transform:translateY(-6px);
+  box-shadow:0 12px 30px rgba(0,0,0,0.15);
+}
+
+.shopCard img{
+  width:100%;
+  height:150px;
+  object-fit:cover;
+}
+
+.shopCard-content{
+  padding:12px;
+}
+
+.shopCard h4{
+  font-size:1rem;
+  margin-bottom:4px;
+}
+
+.shopCard small{
+  color:#6b7280;
 }
 
 /* ===== MODAL ===== */
@@ -111,71 +231,170 @@ button{
   display:none;
   justify-content:center;
   align-items:center;
+  z-index:2000;
 }
 
 .modal-box{
   background:white;
+  border-radius:20px;
   padding:20px;
-  border-radius:15px;
   width:90%;
   max-width:500px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+  animation:fadeIn 0.3s ease;
 }
 
 .modal-box.large{
   max-width:700px;
 }
 
-/* ===== INPUT ===== */
-input,textarea,select{
+@keyframes fadeIn{
+  from{transform:translateY(-20px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
+}
+
+.close-btn{
+  position:absolute;
+  right:20px;
+  top:15px;
+  font-size:24px;
+  cursor:pointer;
+}
+
+/* ===== FORM ===== */
+#createShopSection input,
+#createShopSection textarea,
+.cardForm input,
+.cardForm textarea,
+.cardForm select{
   width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  margin-top:8px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  margin-bottom:10px;
+  font-size:14px;
 }
 
-/* ===== BUTTON ADD ===== */
-.addBtn{
-  background:#1B8F3A;
-  color:white;
-  margin-top:10px;
+#createShopSection input:focus,
+.cardForm input:focus{
+  border-color:#16a34a;
+  box-shadow:0 0 0 2px rgba(22,163,74,0.2);
 }
 
-/* ===== PRODUCTS ===== */
+/* ===== PRODUCTS GRID ===== */
 .productsGrid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:10px;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:15px;
 }
 
-/* ===== CARD ===== */
+/* PRODUCT CARD */
 .productCard{
   background:white;
+  border-radius:16px;
   padding:10px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.08);
+  transition:0.25s;
+}
+
+.productCard:hover{
+  transform:translateY(-4px);
+}
+
+.productCard img{
+  width:100%;
+  height:130px;
+  object-fit:cover;
   border-radius:10px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.productCard h4{
+  font-size:14px;
+  margin:5px 0;
+}
+
+.productCard p{
+  font-size:12px;
+  color:#6b7280;
+}
+
+.productCard strong{
+  color:#16a34a;
+  font-size:15px;
+}
+
+/* ===== COINS MODAL ===== */
+.coins-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:15px 0;
+}
+
+.buyCoinsBtn{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#16a34a;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
 }
 
 /* ===== PREMIUM SIDEBAR ===== */
 .premium-sidebar{
   position:fixed;
-  right:-100%;
+  right:-350px;
   top:0;
-  width:300px;
+  width:320px;
   height:100%;
   background:white;
+  box-shadow:-10px 0 30px rgba(0,0,0,0.2);
+  padding:20px;
   transition:0.3s;
+  z-index:3000;
 }
 
 .premium-sidebar.active{
   right:0;
 }
 
-/* ===== PREMIUM CARD ===== */
 .premium-card{
-  padding:10px;
-  border-bottom:1px solid #eee;
+  background:#f9fafb;
+  padding:15px;
+  border-radius:12px;
+  margin-top:10px;
+  text-align:center;
 }
+
+.premium-card button{
+  margin-top:8px;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#f59e0b;
+  color:white;
+  cursor:pointer;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+
+  .topbar-content{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .right-header{
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .shops-grid{
+    grid-template-columns:1fr 1fr;
+  }
+  }
+ 
 </style>
 </head>
 <body>
