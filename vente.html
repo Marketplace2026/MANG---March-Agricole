@@ -27,555 +27,1619 @@
 <meta name="twitter:title" content="Online Shop – Sell Live">
 <meta name="twitter:description" content="Discover shops and products on Sell Live marketplace.">
 <style>
-/* ===== RESET ===== */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+/* ===== BODY ===== */
+  
+body{
+margin:0;
+  padding: 10px 10px 10px 10px;
+font-family:Arial, Helvetica, sans-serif;
+background:#f4f6f8;
 }
 
-body{
-  font-family:'Poppins',system-ui;
-  background:#f5f7fb;
-  color:#1f2937;
-}
 
 /* ===== HEADER ===== */
+
 .topbar{
-  position:sticky;
-  top:0;
-  z-index:1000;
-  background:#ffffff;
-  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+
+background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+
+padding:14px 12px;
+
+color:white;
+
+border-radius:0 0 20px 20px;
+
+box-shadow:0 6px 18px rgba(0,0,0,0.15);
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
 }
 
-.topbar-content{
-  max-width:1200px;
-  margin:auto;
-  padding:12px 15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  
+
+/* ===== LIGNE UTILISATEUR ===== */
+
+.header-user{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
 }
 
-/* LEFT */
-.left-header{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
 
-/* LOGO */
-.logo-box img{
-  height:45px;
-  border-radius:10px;
-}
+/* bloc utilisateur */
 
-/* USER */
 .user-info{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight:600;
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+font-weight:700;
+
+font-size:15px;
+
 }
+
+
+/* ===== BOUTON PROFIL ===== */
 
 .profile-circle{
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  border:none;
-  background:#f3f4f6;
-  cursor:pointer;
-  font-size:16px;
-  transition:0.2s;
+
+width:34px;
+
+height:34px;
+
+border-radius:50%;
+
+border:none;
+
+background:white;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:18px;
+
+cursor:pointer;
+
+box-shadow:0 3px 8px rgba(0,0,0,0.2);
+
+transition:0.2s;
+
 }
 
 .profile-circle:hover{
-  background:#e5e7eb;
+
+transform:scale(1.05);
+
 }
 
-/* RIGHT */
-.right-header{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
 
-/* COINS */
+/* ===== PIÈCES ===== */
+
 .user-coins{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  background:linear-gradient(135deg,#FFD700,#FFA500);
-  padding:8px 12px;
-  border-radius:999px;
-  font-weight:700;
-  color:#fff;
-  box-shadow:0 5px 12px rgba(0,0,0,0.2);
+
+background:rgba(255,255,255,0.2);
+
+padding:6px 12px;
+
+border-radius:20px;
+
+display:flex;
+
+align-items:center;
+
+gap:5px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:0.2s;
+
 }
 
-/* BUTTONS */
-.btn-buy,
-.btn-premium{
-  padding:10px 16px;
-  border:none;
-  border-radius:999px;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.2s;
+.user-coins:hover{
+
+background:rgba(255,255,255,0.35);
+
 }
+
+.coin-icon{
+
+font-size:16px;
+
+}
+
+
+/* ===== COMPTEUR PREMIUM ===== */
+
+.premium-counter{
+
+font-size:14px;
+
+font-weight:600;
+
+color:#ffe066;
+
+}
+
+
+/* ===== ACTIONS ===== */
+
+.top-actions{
+
+display:flex;
+
+gap:10px;
+
+}
+
+
+/* boutons */
+
+.top-actions button{
+
+flex:1;
+
+padding:10px;
+
+border:none;
+
+border-radius:25px;
+
+font-weight:700;
+
+font-size:14px;
+
+cursor:pointer;
+
+transition:0.2s;
+
+box-shadow:0 4px 10px rgba(0,0,0,0.15);
+
+}
+
+
+/* bouton acheter */
 
 .btn-buy{
-  background:#16a34a;
-  color:white;
+
+background:white;
+
+color:#1B8F3A;
+
 }
 
 .btn-buy:hover{
-  background:#15803d;
+
+background:#f1f1f1;
+
 }
 
+
+/* bouton premium */
+
 .btn-premium{
-  background:linear-gradient(135deg,#FFD700,#ff9800);
-  color:white;
+
+background:linear-gradient(135deg,#FFD700,#FFA500);
+
+color:white;
+
 }
 
 .btn-premium:hover{
-  transform:scale(1.05);
+
+transform:scale(1.03);
+
 }
 
-/* PREMIUM COUNTER */
-.premium-counter{
-  text-align:center;
-  padding:5px;
-  font-size:13px;
-  color:#f59e0b;
+
+/* ===== MODAL PIÈCES ===== */
+
+.coins-modal{
+
+display:none;
+
+position:fixed;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:100%;
+
+background:rgba(0,0,0,0.5);
+
+justify-content:center;
+
+align-items:center;
+
+z-index:999;
+
 }
 
-/* ===== MAIN ===== */
-.main-container{
-  max-width:1200px;
-  margin:auto;
-  padding:20px;
+
+/* boite modal */
+
+.coins-box{
+
+background:white;
+
+padding:20px;
+
+border-radius:14px;
+
+width:300px;
+
+max-width:90%;
+
+box-shadow:0 8px 25px rgba(0,0,0,0.25);
+
 }
 
-/* TITLE */
-.section-title{
-  font-size:1.4rem;
-  margin:20px 0;
-  font-weight:700;
+
+/* titre */
+
+.coins-box h3{
+
+margin-top:0;
+
+text-align:center;
+
+color:#1B8F3A;
+
 }
 
-/* ===== BUTTON CREATE SHOP ===== */
-.addBtn{
-  background:linear-gradient(135deg,#16a34a,#22c55e);
-  color:white;
-  border:none;
-  padding:12px 18px;
-  border-radius:999px;
-  font-weight:700;
-  cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,0.1);
-  transition:0.25s;
+
+/* boutons recharge */
+
+.coins-buttons{
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+margin-top:12px;
+
 }
 
-.addBtn:hover{
-  transform:translateY(-2px);
-}
 
-/* ===== GRID BOUTIQUES ===== */
-.shops-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:20px;
-}
-
-/* ===== CARD BOUTIQUE ===== */
-.shopCard{
-  background:white;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 6px 20px rgba(0,0,0,0.08);
-  transition:0.3s;
-  cursor:pointer;
-}
-
-.shopCard:hover{
-  transform:translateY(-6px);
-  box-shadow:0 12px 30px rgba(0,0,0,0.15);
-}
-
-.shopCard img{
-  width:100%;
-  height:150px;
-  object-fit:cover;
-}
-
-.shopCard-content{
-  padding:12px;
-}
-
-.shopCard h4{
-  font-size:1rem;
-  margin-bottom:4px;
-}
-
-.shopCard small{
-  color:#6b7280;
-}
-
-/* ===== MODAL ===== */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.5);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:2000;
-}
-
-.modal-box{
-  background:white;
-  border-radius:20px;
-  padding:20px;
-  width:90%;
-  max-width:500px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.2);
-  animation:fadeIn 0.3s ease;
-}
-
-.modal-box.large{
-  max-width:700px;
-}
-
-@keyframes fadeIn{
-  from{transform:translateY(-20px);opacity:0;}
-  to{transform:translateY(0);opacity:1;}
-}
-
-.close-btn{
-  position:absolute;
-  right:20px;
-  top:15px;
-  font-size:24px;
-  cursor:pointer;
-}
-
-/* ===== FORM ===== */
-#createShopSection input,
-#createShopSection textarea,
-.cardForm input,
-.cardForm textarea,
-.cardForm select{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #e5e7eb;
-  margin-bottom:10px;
-  font-size:14px;
-}
-
-#createShopSection input:focus,
-.cardForm input:focus{
-  border-color:#16a34a;
-  box-shadow:0 0 0 2px rgba(22,163,74,0.2);
-}
-
-/* ===== PRODUCTS GRID ===== */
-.productsGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-  gap:15px;
-}
-
-/* PRODUCT CARD */
-.productCard{
-  background:white;
-  border-radius:16px;
-  padding:10px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.08);
-  transition:0.25s;
-}
-
-.productCard:hover{
-  transform:translateY(-4px);
-}
-
-.productCard img{
-  width:100%;
-  height:130px;
-  object-fit:cover;
-  border-radius:10px;
-}
-
-.productCard h4{
-  font-size:14px;
-  margin:5px 0;
-}
-
-.productCard p{
-  font-size:12px;
-  color:#6b7280;
-}
-
-.productCard strong{
-  color:#16a34a;
-  font-size:15px;
-}
-
-/* ===== COINS MODAL ===== */
-.coins-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin:15px 0;
-}
+/* boutons achat */
 
 .buyCoinsBtn{
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:#16a34a;
-  color:white;
-  font-weight:600;
-  cursor:pointer;
+
+padding:10px;
+
+border:none;
+
+border-radius:8px;
+
+color:white;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:0.2s;
+
 }
 
-/* ===== PREMIUM SIDEBAR ===== */
-.premium-sidebar{
+
+/* couleurs */
+
+.buyCoinsBtn:nth-child(1){background:#4CAF50;}
+
+.buyCoinsBtn:nth-child(2){background:#2196F3;}
+
+.buyCoinsBtn:nth-child(3){background:#FF9800;}
+
+.buyCoinsBtn:nth-child(4){background:#9C27B0;}
+
+
+.buyCoinsBtn:hover{
+
+transform:scale(1.03);
+
+}
+
+
+/* bouton fermer */
+
+.close-coins{
+
+width:100%;
+
+padding:10px;
+
+margin-top:12px;
+
+background:#e53935;
+
+color:white;
+
+border:none;
+
+border-radius:8px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:0.2s;
+
+}
+
+.close-coins:hover{
+
+background:#c62828;
+
+    }
+
+#goToAchat { position: relative; /* pour le reflet */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 80px;
+  height: 40px;
+  padding: 0 18px;
+  background: #4caf50;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.2),
+    0 4px 12px rgba(0,0,0,0.2);
+  border: 2px solid #ffeb3b;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
+}
+#goToAchat:hover { background: #e67e22; }
+.logout { background: #c0392b; }
+.logout:hover { background: #e74c3c; }
+
+/* ===== BOUTIQUES ===== */
+.container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.container::-webkit-scrollbar {
+  height: 8px;
+}
+.container::-webkit-scrollbar-thumb {
+  background: #2e8b57;
+  border-radius: 10px;
+}
+
+/* Carte boutique */
+.shopCard {
+  background: #fff;
+  min-width: 220px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.shopCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.shopCard img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.shopCard h4 {
+  margin: 10px 0 5px;
+  font-size: 18px;
+}
+
+.shopCard small {
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.shopCard button {
+  margin: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2e8b57;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.shopCard button:hover { background: #27ae60; }
+
+/* ===== MODAL ===== */
+#shopFullModal {
+  position: fixed;
+  top: 0; left: -12px;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 30px 15px;
+}
+
+#shopFullModal .modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+#shopFullModal span#closeShopFullModal {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #333;
+}
+
+#shopFullModal input, #shopFullModal textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+
+#shopFullModal button.addBtn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2e8b57;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#shopFullModal button.addBtn:hover {
+  background: #27ae60;
+}
+
+/* ===== PRODUITS DANS BOUTIQUE ===== */
+#productsContainer {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+#productsContainer::-webkit-scrollbar {
+  height: 6px;
+}
+
+#productsContainer::-webkit-scrollbar-thumb {
+  background: #2e8b57;
+  border-radius: 10px;
+}
+
+.productCard {
+  background: #fff;
+  min-width: 180px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.productCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.productCard img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width:600px) {
+  .shopCard, .productCard { min-width: 150px; }
+  header.topbar span#userName { font-size: 14px; }
+}
+  #createShopBtn{background:#4caf50; width:200px; margin-top:20px; border-radius:20px; color:#fff; font-size: 15px; height:50px;}
+  
+  
+  .premium-sidebar{
   position:fixed;
-  right:-350px;
   top:0;
-  width:320px;
+  right:-400px;
+  width:330px;
   height:100%;
-  background:white;
-  box-shadow:-10px 0 30px rgba(0,0,0,0.2);
-  padding:20px;
+  background:#fff;
+  box-shadow:-5px 0 15px rgba(0,0,0,0.2);
   transition:0.3s;
-  z-index:3000;
+  padding:20px;
+  z-index:9999;
+  overflow-y:auto;
 }
 
 .premium-sidebar.active{
   right:0;
 }
 
+.close-btn{
+  font-size:25px;
+  cursor:pointer;
+  float:right;
+}
+
 .premium-card{
-  background:#f9fafb;
+  background:#f9f9f9;
   padding:15px;
-  border-radius:12px;
-  margin-top:10px;
+  border-radius:10px;
+  margin-bottom:15px;
   text-align:center;
 }
 
 .premium-card button{
-  margin-top:8px;
-  padding:8px;
+  background:#ff9800;
   border:none;
-  border-radius:8px;
-  background:#f59e0b;
-  color:white;
+  padding:8px 15px;
+  color:#fff;
+  border-radius:5px;
   cursor:pointer;
 }
 
+  /* ===== MODALE ===== */
+.categoryModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 10px;
+}
+
+.categoryModal.hidden {
+  display: none;
+}
+
+.categoryBox {
+  background: #fff;
+  width: 100%;
+  max-width: 400px;
+  max-height: 80vh;
+  border-radius: 16px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== RECHERCHE ===== */
+.categorySearch {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.categorySearch:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 5px rgba(46, 125, 50, 0.4);
+}
+
+/* ===== LISTE ===== */
+#categoryList {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* ===== GROUPE ===== */
+.categoryGroupTitle {
+  font-weight: bold;
+  margin: 10px 0 6px;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
+
+/* ===== CARTE DE SOUS-CATÉGORIE ===== */
+.categoryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+  background: #f9f9f9;
+  user-select: none;
+  border: 2px solid transparent;
+}
+
+.categoryItem:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.categoryItem.selected {
+  border-color: #2e7d32;
+  background: #e8f5e9;
+}
+
+/* CHECKBOX DEVANT LE TEXTE */
+.categoryItem input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #2e7d32;
+  flex-shrink: 0;
+  pointer-events: none; /* pour que le clic sur la carte suffise */
+}
+
+/* ICÔNE DEVANT LE TEXTE */
+.catIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* TEXTE DE LA CATÉGORIE */
+.categoryItem span.text {
+  flex: 1;
+  color: #333;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* ===== BOUTONS ===== */
+.categoryActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#closeCategoryBtn,
+#validateCategoryBtn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+}
+
+/* BOUTON FERMER */
+#closeCategoryBtn {
+  background: #e53935;
+  color: #fff;
+}
+
+#closeCategoryBtn:hover {
+  background: #d32f2f;
+}
+
+/* BOUTON VALIDER */
+#validateCategoryBtn {
+  background: #2e7d32;
+  color: #fff;
+}
+
+#validateCategoryBtn:hover {
+  background: #27632a;
+}
+
 /* ===== RESPONSIVE ===== */
-@media(max-width:600px){
-
-  .topbar-content{
-    flex-direction:column;
-    gap:10px;
+@media (max-width: 480px) {
+  .categoryBox {
+    padding: 12px;
   }
 
-  .right-header{
-    flex-wrap:wrap;
-    justify-content:center;
+  .categoryItem {
+    padding: 6px 8px;
+    font-size: 13px;
+    gap: 6px;
   }
 
-  .shops-grid{
-    grid-template-columns:1fr 1fr;
+  .categorySearch {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  #closeCategoryBtn,
+  #validateCategoryBtn {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+  
+/* ================== CREATE SHOP SECTION ================== */
+#createShopSection{
+  background:#ffffff;
+  max-width:520px;
+  margin:40px auto;
+  padding:28px;
+  border-radius:22px;
+  box-shadow:0 20px 40px rgba(0,0,0,.08);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+/* ===== TITRE ===== */
+#createShopSection h3{
+  margin:0 0 10px;
+  font-size:1.5rem;
+  color:#2e8b57;
+  text-align:center;
+}
+
+/* ===== INPUTS / TEXTAREA ===== */
+#createShopSection input,
+#createShopSection textarea{
+  width:100%;
+  padding:14px 16px;
+  border-radius:14px;
+  border:1px solid #e5e7eb;
+  font-size:.95rem;
+  outline:none;
+  transition:.2s;
+  background:#f9fafb;
+}
+
+#createShopSection textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+/* Focus */
+#createShopSection input:focus,
+#createShopSection textarea:focus{
+  border-color:#2e8b57;
+  background:#ffffff;
+  box-shadow:0 0 0 3px rgba(46,139,87,.12);
+}
+
+/* ===== CATEGORY INPUT ===== */
+#shopCategory{
+  cursor:pointer;
+  background:#f0fdf4;
+  border:1px dashed #2e8b57;
+  font-weight:600;
+  color:#166534;
+}
+
+/* ===== LOCATION ===== */
+#shopLocation{
+  background:#f9fafb;
+}
+
+/* ===== LIVRAISON CHECKBOX ===== */
+#createShopSection label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:600;
+  color:#374151;
+  background:#f0fdf4;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid #bbf7d0;
+  cursor:pointer;
+}
+
+#createShopSection input[type="checkbox"]{
+  width:18px;
+  height:18px;
+  accent-color:#2e8b57;
+}
+
+/* ===== WHATSAPP INPUT ===== */
+#whatsapp{
+  border:1px solid #25D366;
+  background:#f0fdf4;
+  font-weight:500;
+}
+
+/* ===== IMAGE INPUT ===== */
+#shopImage{
+  padding:10px;
+  background:#f9fafb;
+  border:1px dashed #d1d5db;
+  cursor:pointer;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+#submitShopBtn{
+  margin-top:10px;
+  padding:15px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(135deg,#2e8b57,#3cb371);
+  color:white;
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.25s;
+  box-shadow:0 10px 25px rgba(46,139,87,.35);
+}
+
+#submitShopBtn:hover{
+  transform:translateY(-2px);
+  opacity:.95;
+}
+
+#submitShopBtn:active{
+  transform:scale(.97);
+  }
+  /* ================== MOBILE ================== */
+@media(max-width:480px){
+  #createShopSection{
+    padding:20px;
   }
   }
- 
+
+  
+/* LOGO */
+.logo-box{
+  display:flex;
+  align-items:center;
+  gap:0px;
+}
+
+.logo-box img{
+  height:120px;
+  width:100%;
+ padding: 0px;
+}
+
+  /* ============================= */
+/* 🛒 SECTION PRODUITS BOUTIQUE */
+/* ============================= */
+
+#shopProductsSection {
+  background: #f9fbfa;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+/* ===== TITRE ===== */
+#shopProductsTitle {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  color: #1b5e20;
+  font-weight: 700;
+}
+
+/* ============================= */
+/* ➕ FORMULAIRE AJOUT PRODUIT */
+/* ============================= */
+
+.cardForm {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* INPUTS & SELECT */
+.cardForm input,
+.cardForm textarea,
+.cardForm select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e0e0e0;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.cardForm textarea {
+  resize: none;
+}
+
+/* FOCUS */
+.cardForm input:focus,
+.cardForm textarea:focus,
+.cardForm select:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.15);
+}
+
+/* FILE INPUT */
+.cardForm input[type="file"] {
+  padding: 8px;
+  background: #f5f5f5;
+}
+
+/* ============================= */
+/* ➕ BOUTON AJOUT PRODUIT */
+/* ============================= */
+
+.addBtn {
+  background: linear-gradient(135deg, #2e7d32, #43a047);
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.addBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.35);
+}
+
+.addBtn:active {
+  transform: scale(0.98);
+}
+
+/* ============================= */
+/* 📋 LISTE DES PRODUITS */
+/* ============================= */
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+/* ===== CARTE PRODUIT ===== */
+.productCard {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.productCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+}
+
+/* IMAGE PRODUIT */
+.productCard img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* NOM */
+.productCard h4 {
+  font-size: 1rem;
+  margin: 6px 0 2px;
+  color: #263238;
+}
+
+/* DESCRIPTION */
+.productCard p {
+  font-size: 0.85rem;
+  color: #616161;
+}
+
+/* PRIX */
+.productCard strong {
+  margin-top: 4px;
+  color: #1b5e20;
+  font-size: 1rem;
+}
+
+/* BOUTON SUPPRESSION */
+.deleteProductBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: opacity 0.2s ease;
+}
+
+.deleteProductBtn:hover {
+  opacity: 0.85;
+}
+
+/* ============================= */
+/* 📱 RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 480px) {
+  #shopProductsTitle {
+    font-size: 1.15rem;
+  }
+
+
+  /* ===== COMPTEUR DE PIÈCES STYLE PIÈCE ===== */
+.user-coins {
+  position: relative; /* pour le reflet */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 70px;
+  height: 40px;
+  padding: 0 18px;
+  background: linear-gradient(145deg, #ffd700, #ffb700);
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.2),
+    0 4px 12px rgba(0,0,0,0.2);
+  border: 2px solid #ffeb3b;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
+}
+
+/* Effet hover dynamique */
+.user-coins:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.25),
+    0 6px 18px rgba(0,0,0,0.25);
+  background: linear-gradient(145deg, #ffe34d, #ffc107);
+}
+
+/* Icône de pièce */
+.user-coins .coin-icon {
+  font-size: 22px;
+  display: inline-block;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  animation: bounceCoin 1.2s infinite alternate;
+}
+
+/* Animation légère de la pièce */
+@keyframes bounceCoin {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+/* Nombre de pièces */
+.user-coins .coin-text {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Petit reflet sur la pièce */
+.user-coins::before {
+  content: "";
+  position: absolute;
+  width: 60%;
+  height: 30%;
+  top: 5px;
+  left: 15%;
+  background: rgba(255,255,255,0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: rotate(-25deg);
+}
+
+/* Optionnel : effet “clic” sur pièce */
+.user-coins:active {
+  transform: scale(0.97);
+  box-shadow:
+    inset 0 -2px 0 rgba(0,0,0,0.2),
+    0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* ===== MODALE RECHARGE PIÈCES ===== */
+#coinsModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+#coinsModal > div {
+  background: #ffffff;
+  padding: 25px 20px;
+  border-radius: 20px;
+  width: 360px;
+  max-width: 95%;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  0% { transform: translateY(-30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+#coinsModal h3 {
+  margin-bottom: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+}
+
+#coinsModal p {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* ===== BOUTONS ACHAT ===== */
+.buyCoinsBtn {
+  display: inline-block;
+  padding: 12px 20px;
+  margin: 8px 6px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+  transition: all 0.2s ease;
+  min-width: 110px;
+}
+
+.buyCoinsBtn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+}
+
+.buyCoinsBtn:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Couleurs pro selon niveau */
+.buyCoinsBtn[data-coins="5"] { background: #43a047; }    /* vert */
+.buyCoinsBtn[data-coins="10"] { background: #1e88e5; }   /* bleu */
+.buyCoinsBtn[data-coins="20"] { background: #f57c00; }   /* orange */
+.buyCoinsBtn[data-coins="50"] { background: #8e24aa; }   /* violet */
+
+/* Bouton fermer modal */
+#closeCoinsModal {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#closeCoinsModal:hover {
+  background-color: #d32f2f;
+                               }
+  .productCard img {
+    height: 120px;
+  }
+#premiumMenuBtn {
+    position: relative; /* pour le reflet */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 80px;
+  height: 40px;
+  padding: 0 18px;
+  background:#ff9800;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.2),
+    0 4px 12px rgba(0,0,0,0.2);
+  border: 2px solid #ffeb3b;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
+}/* ===== GRID BOUTIQUES ===== */
+#myShopsContainer{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+/* ===== CARD ===== */
+.shopCard{
+background:#fff;
+border-radius:12px;
+padding:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.06);
+display:flex;
+flex-direction:column;
+gap:6px;
+transition:0.2s;
+}
+
+.shopCard:hover{
+transform:translateY(-2px);
+}
+
+/* IMAGE */
+.shopCard img{
+width:100%;
+height:100px;
+object-fit:cover;
+border-radius:10px;
+}
+
+/* TITRE */
+.shopCard h4{
+font-size:14px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:4px;
+}
+
+/* CATEGORIE */
+.shopCard small{
+font-size:12px;
+color:#777;
+}
+
+/* BOUTONS */
+.shopCard .btns{
+display:flex;
+flex-direction:column;
+gap:5px;
+margin-top:6px;
+}
+
+.shopCard button{
+border:none;
+padding:8px;
+border-radius:8px;
+font-size:12px;
+font-weight:600;
+cursor:pointer;
+}
+
+/* BOUTONS COULEURS */
+.openShopBtn{
+background:#16a34a;
+color:white;
+}
+
+.publicBtn{
+background:#0ea5e9;
+color:white;
+}
+
+.deleteShopBtn{
+background:#ef4444;
+color:white;
+}
+
+/* BADGE PREMIUM */
+.premium{
+color:gold;
+font-size:13px;
+margin-left:4px;
+  }
 </style>
 </head>
 <body>
-
-
 <!-- ===== HEADER ===== -->
+
 <header class="topbar">
 
-  <div class="topbar-content">
+  <!-- Ligne utilisateur -->
+  <div class="header-user">
 
-    <!-- LOGO + USER -->
-    <div class="left-header">
-      <div class="logo-box">
-        <img src="assets/img/logos.png" alt="MANG">
-      </div>
-
-      <div class="user-info">
-        <button id="profileBtn" class="profile-circle">👤</button>
-        <span id="userName">Connecté : NomUtilisateur</span>
-      </div>
+    <div class="user-info">
+      <button id="profileBtn" class="profile-circle">👤</button>
+      <span id="userName">Connecté : NomUtilisateur</span>
     </div>
 
-    <!-- ACTIONS RIGHT -->
-    <div class="right-header">
-
-      <!-- COINS -->
-      <div class="user-coins" id="userCoinsBtn">
-        <span>💰</span>
-        <span class="coin-text">0</span>
-      </div>
-
-      <button id="goToAchat" class="btn-buy">🛒 Acheter</button>
-      <button id="premiumMenuBtn" class="btn-premium">⭐ Premium</button>
-
+    <!-- Compteur pièces -->
+    <div class="user-coins" id="userCoinsBtn">
+      <span class="coin-icon">💰</span>
+      <span class="coin-text">0</span>
     </div>
 
   </div>
 
-  <!-- PREMIUM COUNTER -->
+  <!-- Compteur Premium -->
   <div id="premiumCounter" class="premium-counter"></div>
 
-</header>
+  <!-- Boutons actions -->
+  <div class="top-actions">
 
+    <button id="goToAchat" class="btn-buy">
+      🛒 Acheter
+    </button>
 
-<!-- ===== MODAL COINS ===== -->
-<div id="coinsModal" class="modal">
-  <div class="modal-box">
-
-    <h3>💰 Recharger des pièces</h3>
-    <p>5 pièces = 100 FCFA</p>
-
-    <div class="coins-grid">
-      <button class="buyCoinsBtn" data-coins="5" data-price="100">5 pièces</button>
-      <button class="buyCoinsBtn" data-coins="10" data-price="200">10 pièces</button>
-      <button class="buyCoinsBtn" data-coins="20" data-price="350">20 pièces</button>
-      <button class="buyCoinsBtn" data-coins="50" data-price="950">50 pièces</button>
-    </div>
-
-    <button id="closeCoinsModal" class="btn-danger">Fermer</button>
+    <button id="premiumMenuBtn" class="btn-premium">
+      ⭐ Premium
+    </button>
 
   </div>
+
+</header>
+<!-- Modal recharge pièces -->
+<div id="coinsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;">
+  <div style="background:#fff; padding:20px; border-radius:12px; width:300px; max-width:90%;">
+    <h3>Recharger des pièces</h3>
+    <p>5 pièces = 100 FCFA</p>
+
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+      <button class="buyCoinsBtn" data-coins="5" data-price="100" style="padding:8px; background:#4CAF50; color:#fff; border:none; border-radius:6px;">Acheter 5 pièces (100 FCFA)</button>
+      <button class="buyCoinsBtn" data-coins="10" data-price="200" style="padding:8px; background:#2196F3; color:#fff; border:none; border-radius:6px;">Acheter 10 pièces (200 FCFA)</button>
+      <button class="buyCoinsBtn" data-coins="20" data-price="350" style="padding:8px; background:#FF9800; color:#fff; border:none; border-radius:6px;">Acheter 20 pièces (350 FCFA)</button>
+      <button class="buyCoinsBtn" data-coins="50" data-price="950" style="padding:8px; background:#9C27B0; color:#fff; border:none; border-radius:6px;">Acheter 50 pièces (950 FCFA)</button>
+    </div>
+
+    <button id="closeCoinsModal" style="width:100%; padding:8px; margin-top:10px; background:#e53935; color:#fff; border:none; border-radius:6px;">Fermer</button>
+  </div>
 </div>
-
-
+</header>
 <!-- ===== SIDEBAR PREMIUM ===== -->
 <div id="premiumSidebar" class="premium-sidebar">
   <span id="closePremiumSidebar" class="close-btn">&times;</span>
 
   <h3>🚀 Devenir Premium</h3>
-  <p>Boostez votre boutique et augmentez vos ventes</p>
+  <p>Augmentez la visibilité de votre boutique et vos ventes !</p>
 
   <div class="premium-cards">
 
     <div class="premium-card" data-level="premium1" data-price="1000">
-      <h4>⭐ Premium 1</h4>
-      <p>20 produits • Visibilité boostée</p>
-      <button class="premiumBtn">1 000 FCFA</button>
+      <h4>Premium 1 ⭐</h4>
+      <p>Jusqu'à 20 produits<br>Boutique affichée plus haut</p>
+      <button class="premiumBtn">Payer 1 000 FCFA / mois</button>
     </div>
 
     <div class="premium-card" data-level="premium2" data-price="2000">
-      <h4>⭐⭐ Premium 2</h4>
-      <p>30 produits • Priorité</p>
-      <button class="premiumBtn">2 000 FCFA</button>
+      <h4>Premium 2 ⭐⭐</h4>
+      <p>Jusqu'à 30 produits<br>Boutique prioritaire</p>
+      <button class="premiumBtn">Payer 2 000 FCFA / mois</button>
     </div>
 
     <div class="premium-card" data-level="premium3" data-price="3000">
-      <h4>⭐⭐⭐ Premium 3</h4>
-      <p>Illimité • Toujours en haut</p>
-      <button class="premiumBtn">3 000 FCFA</button>
+      <h4>Premium 3 ⭐⭐⭐</h4>
+      <p>Nombre illimité de produits<br>Boutique toujours en haut</p>
+      <button class="premiumBtn">Payer 3 000 FCFA / mois</button>
     </div>
 
   </div>
 </div>
+  <button id="createShopBtn" class="addBtn">🏪 Prendre une boutique</button>
+  
+<!-- ===== MES BOUTIQUES ===== -->
+<h3>Mes boutiques</h3>
+<div class="container" id="myShops"></div>
 
 
-<!-- ===== MAIN ===== -->
-<div class="main-container">
+<!-- ===== MODAL BOUTIQUE + PRODUITS ===== -->
+<div id="shopFullModal">
+  <div class="modal-content">
+    <span id="closeShopFullModal">&times;</span>
 
-  <button id="createShopBtn" class="addBtn">🏪 Créer une boutique</button>
+    <!-- ===== CRÉER UNE BOUTIQUE ===== -->
+<div id="createShopSection">
+  <h3>Créer une boutique</h3>
 
-  <h3 class="section-title">Mes boutiques</h3>
-  <div class="shops-grid" id="myShops"></div>
+  <input
+    id="shopName"
+    placeholder="Nom de la boutique"
+    required
+  >
 
-</div>
+  <textarea
+    id="shopDesc"
+    placeholder="Description"
+  ></textarea>
 
+ <!-- Champ catégorie -->
+<input
+  id="shopCategory"
+  placeholder="Choisir une catégorie"
+  readonly
+/>
 
-<!-- ===== MODAL SHOP ===== -->
-<div id="shopFullModal" class="modal">
-  <div class="modal-box large">
+<!-- MODALE CATÉGORIES -->
+<div id="categoryModal" class="categoryModal hidden">
+  <div class="categoryBox">
+    
+    <input
+      type="text"
+      id="categorySearch"
+      placeholder="🔍 Rechercher une sous-catégorie..."
+      class="categorySearch"
+    />
 
-    <span id="closeShopFullModal" class="close-btn">&times;</span>
+    <div id="categoryList"></div>
 
-    <!-- CREATE SHOP -->
-    <div id="createShopSection">
-
-      <h3>Créer une boutique</h3>
-
-      <input id="shopName" placeholder="Nom de la boutique">
-      <textarea id="shopDesc" placeholder="Description"></textarea>
-
-      <input id="shopCategory" placeholder="Choisir une catégorie" readonly>
-
-      <!-- CATEGORY MODAL -->
-      <div id="categoryModal" class="categoryModal hidden">
-        <div class="categoryBox">
-          <input id="categorySearch" placeholder="🔍 Rechercher..." class="categorySearch">
-          <div id="categoryList"></div>
-          <div class="categoryActions">
-            <button id="validateCategoryBtn">Valider</button>
-            <button id="closeCategoryBtn">Fermer</button>
-          </div>
-        </div>
-      </div>
-
-      <input id="shopLocation" placeholder="Lieu">
-
-      <label>
-        <input type="checkbox" id="livraison">
-        🚚 Livraison disponible
-      </label>
-
-      <input type="tel" id="whatsapp" placeholder="WhatsApp">
-
-      <input type="hidden" id="latitude">
-      <input type="hidden" id="longitude">
-
-      <input type="file" id="shopImage">
-
-      <button id="submitShopBtn" class="addBtn">Créer la boutique</button>
-
-    </div>
-
-
-    <!-- PRODUCTS -->
-    <div id="shopProductsSection">
-
-      <h3 id="shopProductsTitle">Produits</h3>
-
-      <div id="addProductForm" class="cardForm">
-
-        <input id="productName" placeholder="Nom produit">
-        <textarea id="productDesc" placeholder="Description"></textarea>
-        <input id="productPrice" type="number" placeholder="Prix">
-
-        <select id="productAvailability">
-          <option value="now">Disponible</option>
-          <option value="1_week">1 semaine</option>
-          <option value="1_month">1 mois</option>
-        </select>
-
-        <input type="file" id="productImage">
-
-        <button id="submitProductBtn" class="addBtn">Ajouter produit</button>
-
-      </div>
-
-      <div id="productsContainer" class="productsGrid"></div>
-
+    <div class="categoryActions">
+      <button type="button" id="validateCategoryBtn">Valider</button>
+      
+      <button type="button" id="closeCategoryBtn">Fermer</button>
     </div>
 
   </div>
+</div>
+  <input
+    id="shopLocation"
+    placeholder="Lieu"
+  >
+
+ <!-- Livraison -->
+<label style="display:block;margin-top:10px;">
+  <input type="checkbox" id="livraison">
+  🚚 Livraison disponible
+</label>
+
+<!-- WhatsApp -->
+<input
+  type="tel"
+  id="whatsapp"
+  placeholder="Numéro WhatsApp (ex: +229XXXXXXXX)"
+  style="width:100%;margin-top:10px;"
+>
+  
+  <input type="hidden" id="latitude">
+<input type="hidden" id="longitude">
+
+  <input
+    type="file"
+    id="shopImage"
+    accept="image/*"
+  >
+
+  <button
+    id="submitShopBtn"
+    class="addBtn"
+  >
+    Créer la boutique
+  </button>
+</div>
+
+    <!-- ============================= -->
+<!-- 🛒 PRODUITS DE LA BOUTIQUE -->
+<!-- ============================= -->
+<div id="shopProductsSection" style="display:none; margin-top:20px;">
+
+  <h3 id="shopProductsTitle">Produits de la boutique</h3>
+
+  <!-- ➕ FORMULAIRE AJOUT PRODUIT -->
+  <div id="addProductForm" class="cardForm">
+
+    <input
+      type="text"
+      id="productName"
+      placeholder="Nom du produit"
+      required
+    >
+
+    <textarea
+      id="productDesc"
+      placeholder="Description du produit"
+      rows="3"
+    ></textarea>
+
+    <input
+      type="number"
+      id="productPrice"
+      placeholder="Prix en FCFA"
+      min="0"
+      required
+    >
+
+    <!-- 📦 DISPONIBILITÉ -->
+    <select id="productAvailability">
+      <option value="now">✅ Disponible maintenant</option>
+      <option value="1_week">⏳ Dans 1 semaine</option>
+      <option value="2_weeks">⏳ Dans 2 semaines</option>
+      <option value="1_month">📅 Dans 1 mois</option>
+      <option value="2_months">📅 Dans 2 mois</option>
+      <option value="3_months">📅 Dans 3 mois</option>
+      <option value="6_months">📅 Dans 6 mois</option>
+      <option value="1_year">📆 Dans 1 an</option>
+    </select>
+
+    <!-- 🖼️ IMAGE PRODUIT -->
+    <input
+      type="file"
+      id="productImage"
+      accept="image/*"
+    >
+
+    <button
+      id="submitProductBtn"
+      class="addBtn"
+      type="button"
+    >
+      ➕ Ajouter le produit
+    </button>
+
+  </div>
+
+  <!-- 📋 LISTE DES PRODUITS -->
+  <div id="productsContainer" class="productsGrid"></div>
+
 </div>
 <script type="module">
 import { supabase } from './supabase.js';
