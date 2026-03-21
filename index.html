@@ -3404,96 +3404,173 @@ document.addEventListener("DOMContentLoaded", () => initNotifications());
     // 5️⃣ Affichage cartes
     topShops.forEach((shop, index) => {
       const div = document.createElement("div");
-      div.style.cssText = `
-        position:relative;
-        display:flex;
-        gap:30px;
-        padding:10px;
-        margin-bottom:10px;
-        background:#fff;
-        border-radius:12px;
-        box-shadow:0 4px 10px rgba(0,0,0,0.08);
-        cursor:pointer;
-        align-items:center;
-      `;
+      
+div.style.cssText = `
+  position:relative;
+  display:flex;
+  gap:14px;
+  padding:12px;
+  margin-bottom:12px;
+  background:#ffffff;
+  border-radius:16px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+  cursor:pointer;
+  align-items:center;
+  transition:all 0.25s ease;
+`;
 
-      div.innerHTML = `
-        <div style="
-          position:absolute;
-          top:-8px;
-          left:-3px;
-          width:28px;
-          height:28px;
-          border-radius:50%;
-          background:#e74c3c;
-          color:white;
-          font-weight:700;
+div.onmouseover = () => {
+  div.style.transform = "translateY(-2px)";
+  div.style.boxShadow = "0 10px 25px rgba(0,0,0,0.12)";
+};
+
+div.onmouseleave = () => {
+  div.style.transform = "translateY(0)";
+  div.style.boxShadow = "0 6px 18px rgba(0,0,0,0.06)";
+};
+
+div.innerHTML = `
+  
+  <!-- RANK BADGE -->
+  <div style="
+    position:absolute;
+    top:-10px;
+    left:-10px;
+    background:linear-gradient(135deg,#ff6b6b,#e74c3c);
+    color:white;
+    font-weight:700;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  ">
+    #${index + 1}
+  </div>
+
+  <!-- IMAGE -->
+  <div style="position:relative;">
+    <img 
+      src="${shop.image_url || 'https://via.placeholder.com/80'}"
+      style="
+        width:75px;
+        height:75px;
+        border-radius:12px;
+        object-fit:cover;
+        box-shadow:0 3px 8px rgba(0,0,0,0.1);
+      "
+    >
+
+    <!-- PREMIUM BADGE -->
+    ${shop.premium_level ? `
+      <div style="
+        position:absolute;
+        bottom:-5px;
+        right:-5px;
+        background:gold;
+        color:#333;
+        font-size:12px;
+        padding:2px 6px;
+        border-radius:10px;
+        font-weight:700;
+      ">
+        ⭐
+      </div>
+    ` : ""}
+  </div>
+
+  <!-- INFOS -->
+  <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+
+    <strong style="
+      font-size:15px;
+      color:#222;
+      display:flex;
+      align-items:center;
+      gap:5px;
+    ">
+      ${shop.name}
+    </strong>
+
+    <!-- PREMIUM -->
+    <span style="
+      font-size:12px;
+      color:#f39c12;
+      font-weight:600;
+    ">
+      ${getPremiumStars(shop.premium_level)}
+    </span>
+
+    <!-- FOLLOWERS -->
+    <span style="
+      font-size:12px;
+      color:#777;
+      font-weight:500;
+    ">
+      ❤️ ${
+        shop.favCount >= 1000 
+          ? (shop.favCount / 1000).toFixed(1) + "k" 
+          : shop.favCount
+      } abonnés
+    </span>
+
+    <!-- ACTIONS -->
+    <div style="
+      display:flex;
+      gap:8px;
+      margin-top:6px;
+    ">
+
+      <!-- FOLLOW -->
+      <button 
+        class="favoriteShopBtn"
+        data-shop-id="${shop.id}"
+        style="
+          flex:1;
+          padding:6px 10px;
+          border-radius:20px;
+          border:1px solid #e5e7eb;
+          background:#f9fafb;
+          cursor:pointer;
+          font-size:12px;
           display:flex;
           align-items:center;
           justify-content:center;
-          font-size:14px;
-        ">
-          ${index + 1}
-        </div>
+          gap:5px;
+          transition:0.2s;
+        "
+        onmouseover="this.style.background='#f1f5f9'"
+        onmouseleave="this.style.background='#f9fafb'"
+      >
+        <span class="favIcon">🤍</span>
+        <span class="favText">Suivre</span>
+      </button>
 
-        <img 
-          src="${shop.image_url || 'https://via.placeholder.com/80'}"
-          style="width:70px;height:70px;border-radius:10px;object-fit:cover;"
-        >
+      <!-- OPEN -->
+      <button
+        class="openShopBtn"
+        style="
+          flex:1;
+          padding:6px 10px;
+          border:none;
+          border-radius:20px;
+          background:linear-gradient(135deg,#2e8b57,#27ae60);
+          color:white;
+          font-size:12px;
+          font-weight:600;
+          cursor:pointer;
+          transition:0.2s;
+          box-shadow:0 3px 8px rgba(46,139,87,0.3);
+        "
+        onmouseover="this.style.transform='scale(1.05)'"
+        onmouseleave="this.style.transform='scale(1)'"
+      >
+        Ouvrir
+      </button>
 
-        <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
-          <strong style="font-size:15px;">${shop.name}</strong>
+    </div>
 
-          <span style="font-size:13px;color:#f1c40f;font-weight:600;">
-            Statut : ${getPremiumStars(shop.premium_level)}
-          </span>
-
-          <span style="font-size:13px;color:#e74c3c;font-weight:600;">
-            ❤️ ${shop.favCount >= 1000 
-              ? (shop.favCount / 1000).toFixed(1) + "k" 
-              : shop.favCount
-            } abonnés
-          </span>
-
-          <div style="display:flex;gap:6px;margin-top:4px;">
-            <button 
-              class="favoriteShopBtn"
-              data-shop-id="${shop.id}"
-              style="
-                padding:4px 8px;
-                border-radius:16px;
-                border:1px solid #ddd;
-                background:white;
-                cursor:pointer;
-                font-size:13px;
-                display:flex;
-                align-items:center;
-                gap:5px;
-              "
-            >
-              <span class="favIcon">🤍</span>
-              <span class="favText">Suivre</span>
-              <span class="favCount">0</span>
-            </button>
-
-            <button
-              class="openShopBtn"
-              style="
-                padding:4px 8px;
-                border:none;
-                border-radius:8px;
-                background:#2e8b57;
-                color:white;
-                font-size:13px;
-                cursor:pointer;
-              "
-            >
-              Ouvrir
-            </button>
-          </div>
-        </div>
-      `;
-
+  </div>
+`;
       // Boutons
       div.querySelector(".favoriteShopBtn").onclick = (e) => {
         e.stopPropagation();
