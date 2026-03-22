@@ -4172,14 +4172,16 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
 });
 
 /* ================= CREATION COMMANDE ================= */
-document.getElementById("createOrderBtn").addEventListener("click", async () => {
+const createBtn = document.getElementById("createOrderBtn");
 
-  // 🔒 ANTI DOUBLE CLIC
-  if (isProcessing || !currentProduct) return;
-  isProcessing = true;
+// 🔥 IMPORTANT : on remplace addEventListener par onclick (anti doublon)
+createBtn.onclick = async () => {
 
-  const createBtn = document.getElementById("createOrderBtn");
+  // 🔒 BLOCAGE IMMÉDIAT (ULTRA IMPORTANT)
+  if (createBtn.disabled || isProcessing || !currentProduct) return;
+
   createBtn.disabled = true;
+  isProcessing = true;
 
   try {
 
@@ -4251,7 +4253,7 @@ document.getElementById("createOrderBtn").addEventListener("click", async () => 
     isProcessing = false;
     createBtn.disabled = false;
   }
-});
+};
 
 // ================= CHARGER PRODUITS =================
 let query = supabase
