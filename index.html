@@ -1,4 +1,4 @@
-
+ 
  
  <!DOCTYPE html>
 <html lang="en">
@@ -39,103 +39,375 @@
         content="Marketplace agricole innovante pour producteurs et acheteurs.">
   <meta name="twitter:image" content="https://marketplace2026.github.io/MANG---March-Agricole/assets/img/logo.png">
 
+ <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
   <!-- Favicon -->
   <link rel="icon" href="assets/img/logo.png" type="image/png">
 
+ <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
 
 <style>
-/* ===== GLOBAL ===== */
-body {
-  margin: 0;
-  padding: 10px 15px 15px 15px;
+
+ /* ===== BODY ===== */
+body{
+  margin:0;
+  padding: 10px 10px 10px 10px;
   font-family: Arial, sans-serif;
+
   background: linear-gradient(
-  180deg,
-  #f3f8f4 0%,
-  #ffffff 100%
-);
-  overflow-x: hidden;
+    180deg,
+    #f3f8f4 0%,
+    #ffffff 100%
+  );
+
+  overflow-x:hidden;
+
+  /* espace pour header + search bar */
+  padding-top:130px;
 }
 
-/* ===== HEADER ===== */
-header.topbar {
-  background:
-    linear-gradient(rgba(16,42,35,.85),rgba(16,42,35,.92));
-  color: white;
-  padding: 15px 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+
+/* ===== HEADER FIXE ===== */
+header.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+
+  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+
+  padding:6px 10px;
+
+  border-radius:0px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+
+  display:flex;
+  flex-direction:column;
+
+  gap:4px;
+
+  z-index:1000;
+
+  margin:0;
 }
 
-header.topbar span#userEmail {
-  font-weight: bold;
-  display: block;
+
+/* ===== SEARCH BAR FIXE ===== */
+.search-bar{
+  position:fixed;
+
+  top:78px; /* position exacte sous le header */
+
+  left:0;
+  width:100%;
+
+ border-radius:0 0 20px 20px;
+
+  display:flex;
+  justify-content:center;
+
+  padding:5px 0;
+
+  background:white;
+ 
+
+  z-index:999;
 }
 
-header.topbar .top-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+
+/* ===== INPUT RECHERCHE ===== */
+#searchInput{
+  width:85%;
+
+  padding:8px 12px;
+
+  border-radius:40px;
+  border:2px solid #e2e8f0;
+
+  font-size:16px;
+
+  outline:none;
+  background:white;
+
+  box-shadow:0 6px 15px rgba(0,0,0,0.08);
+
+  transition:all 0.25s ease;
 }
 
-header.topbar .top-actions button {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-weight: 600;
+
+/* ===== FOCUS ===== */
+#searchInput:focus{
+  border-color:#1B8F3A;
+
+  box-shadow:
+  0 8px 20px rgba(0,0,0,0.12),
+  0 0 0 3px rgba(46,204,113,0.25);
+
+  transform:scale(1.01);
 }
-#userEmail{font-size:14px; margin-bottom: 8px;background:rgba(255,255,255,0.2);padding:10px 10px;border-radius:20px; height:25px;}
-/* SEARCH BAR */
-.search-bar{max-width:950px;margin:10px auto 20px;}
-#searchInput{width:80%;padding:14px 18px;border-radius:30px;border:1px solid #cbd5e1;font-size:15px;outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
-#searchInput:focus{border-color:#2e8b57;box-shadow:0 4px 18px rgba(46,139,87,0.3);}
+
+
+/* ===== PLACEHOLDER ===== */
+#searchInput::placeholder{
+  color:#94a3b8;
+  font-size:15px;
+}
+
+/* ===== LIGNE LOGO + SLOGAN ===== */
+
+.logo-row{
+
+width:100%;
+
+display:flex;
+
+align-items:center;
+
+gap:6px;
+
+}
+
+/* ===== LOGO ===== */
+
+.logo-box{
+
+height:55px;
+
+display:flex;
+
+align-items:center;
+
+flex-shrink:0;
+}
+ 
+
+ 
+.logo-box img{
+
+height:auto;
+
+width:50px;
+
+display:block;
+ margin-left:-20px;
+ margin-right: 0px;
+
+
+}
+ 
+
+/* ===== SLOGAN ===== */
+
+.slogan-container{
+
+flex:1;
+
+overflow:hidden;
+margin-left:2px;
+}
+
+/* texte défilant */
+
+.slogan-track{
+
+display:inline-block;
+
+white-space:nowrap;
+
+font-size:20px;
+
+font-weight:700;
+
+color:white;
+
+padding-left:100%;
+
+ margin-left:-5px;
+
+animation:sloganScroll 18s linear infinite;
+
+}
+
+/* animation */
+
+@keyframes sloganScroll{
+
+0%{
+transform:translateX(0);
+}
+
+100%{
+transform:translateX(-100%);
+}
+
+}
+
+/* ===== PETITE LIGNE LUMINEUSE ===== */
+
+header.topbar::after{
+
+content:"";
+
+display:block;
+
+height:3px;
+
+width:100%;
+
+margin-top:6px;
+
+background:linear-gradient(90deg,#ffffff,#ffe066,#ffffff);
+
+opacity:0.7;
+
+
+}
 
 /* ===== BOUTIQUES : 2 PAR LIGNE + SCROLL VERTICAL ===== */
 .shops-container{
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 boutiques par ligne */
-  gap: 15px;
-  padding: 10px 15px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;              /* espace seulement entre les cartes */
+  padding: 0;             /* plus d’espace sur les côtés */
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
 
-  max-height: calc(100vh - 220px); /* scroll vertical */
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* ❌ on enlève max-height et overflow interne */
+  /* max-height: calc(100vh - 220px); */
+  /* overflow-y: auto; */
+  /* overflow-x: hidden; */
 }
 
-/* Scrollbar vertical */
-.shops-container::-webkit-scrollbar{
-  width: 8px;
+/* Scrollbar globale pour la page entière */
+body::-webkit-scrollbar{
+  width: 6px;
 }
-.shops-container::-webkit-scrollbar-thumb{
+body::-webkit-scrollbar-thumb{
   background: #2e8b57;
   border-radius: 4px;
 }
 
-/* Carte boutique */
-.shopCard{
+/* ===== Carte boutique corrigée ===== */
+.shopCard {
   width: 100%;
-  height:auto;
-  min-height: 280px;
+  height: auto;              /* Hauteur dépend du contenu */
   border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 5px;
-  margin-right:20px;
+  padding: 2px;              /* Padding réduit pour moins d’espace */
   background: white;
-  text-align: center;
+  text-align: left;          /* Texte aligné à gauche */
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  box-sizing: border-box;
+  margin-top: 1px;
+
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
 }
 
-.shopCard:hover{
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+
+shopCard:hover{
+  transform:translateY(-6px);
+  box-shadow:0 12px 25px rgba(0,0,0,0.18);
+}
+ .zoomable-image{
+  transition:transform 0.4s ease;
+}
+
+.shopCard:hover .zoomable-image{
+  transform:scale(1.08);
+}
+ /* ===== CONTENEUR BOUTONS HORIZONTAUX ===== */
+.topButtons {
+  display: flex;
+  gap: 8px;                  /* espace entre les boutons */
+  overflow-x: auto;           /* scroll horizontal si trop large */
+  padding: 4px 8px;           /* petits espaces haut/bas et côtés */
+  margin: 0;                  
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;    /* tu peux mettre un fond si voulu */
+ 
+}
+
+/* cacher la scrollbar horizontal pour un rendu propre */
+.topButtons::-webkit-scrollbar {
+  height: 6px;
+}
+.topButtons::-webkit-scrollbar-thumb {
+  background: #2e8b57;        /* couleur du scroll */
+  border-radius: 3px;
+}
+
+/* ===== BOUTONS ===== */
+.topBtn {
+  flex-shrink: 0;
+  padding: 3px 10px;          /* petits paddings haut/bas pour réduire espace */
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: #28a745;        /* couleur unique pour tous */
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+/* effet au survol */
+.topBtn:hover {
+  background: #1b8f3a;
+  transform: translateY(-2px);
+}
+
+/* optionnel : sur mobile rendre scroll rapide plus fluide */
+.topButtons {
+  -webkit-overflow-scrolling: touch;
+}
+
+ .fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+ /* Image cliquable */
+.zoomable-product{
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Overlay plein écran */
+.image-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Image en plein écran */
+.image-overlay img{
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 10px;
+}
+
+.fullscreen-overlay img {
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 10px;
 }
 
 .shopCard img{
@@ -215,7 +487,19 @@ header.topbar .top-actions button {
   opacity:.9;
 }
 /* CHAT ET MESSAGERIE (inchangés) */
-.chat-container{position:fixed;top:0;right:-380px;width:360px;height:100%;background:white;border-left:4px solid #2e8b57;transition:0.3s;z-index:1001;display:flex;flex-direction:column;}
+.chat-container{
+position:fixed;
+top:0;
+right:-380px;
+width:360px;
+height:calc(100% - 80px);
+background:white;
+border-left:4px solid #2e8b57;
+transition:0.3s;
+z-index:1001;
+display:flex;
+flex-direction:column;
+}
 .chat-container.open{right:0;}
 .chat-header{background:#2e8b57;color:white;padding:15px;display:flex;justify-content:space-between;align-items:center;}
 .chat-header button{background:none;border:none;color:white;font-size:20px;cursor:pointer;}
@@ -328,7 +612,7 @@ header.topbar .top-actions button {
 #commentsList {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
 }
 
 .commentInputWrapper {
@@ -344,6 +628,7 @@ header.topbar .top-actions button {
   border-radius: 20px;
   border: 1px solid #ccc;
   font-size: 13px;
+ margin-bottom: 30px;
 }
 
 #sendCommentBtn {
@@ -354,60 +639,193 @@ header.topbar .top-actions button {
   background: #4caf50;
   color: white;
   cursor: pointer;
+ margin-bottom: 30px;
 }
-  
-#notifOverlay {
+
+/* Overlay sombre */
+#notifOverlay{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 1000;
 }
 
-#notifPanel {
-  width: 95%;
-  max-width: 420px;
+/* panneau notification */
+#notifPanel{
+  position: fixed;
+
+  top: 0;
+  right: 0;
+
+  width: 100%;
+  max-width: 500px;
+
+  height: calc(100vh - 80px); /* espace pour boutons */
+  bottom: 120px; /* vraie marge en bas */
+
   background: white;
-  border-radius: 12px;
-  max-height: 80vh;
-  overflow-y: auto;
+  border-left: 4px solid #2e8b57;
+
+  display: flex;
+  flex-direction: column;
+
+  z-index: 1001;
+
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+
+  box-shadow: -3px 0 10px rgba(0,0,0,0.15);
 }
 
-.notifHeader {
+/* header */
+.notifHeader{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:12px;
+
+  padding:14px;
+
   border-bottom:1px solid #ddd;
+
+  font-weight:600;
+  font-size:16px;
+
+  background:#f9f9f9;
 }
 
-.notifHeader button {
-  font-size:20px;
+/* bouton fermer */
+.notifHeader button{
+  font-size:22px;
   background:none;
   border:none;
   cursor:pointer;
 }
-  .notif-btn {
+
+/* liste notifications */
+#notifList{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  padding-bottom:120px; /* espace pour la barre du bas */
+}
+
+/* bouton notification */
+.notif-btn{
   position: relative;
   background: none;
   border: none;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-#notifCount {
+/* compteur rouge */
+#notifCount{
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -6px;
+  right: -6px;
+
   background: red;
   color: white;
+
   font-size: 10px;
-  padding: 2px 5px;
+  padding: 2px 6px;
+
   border-radius: 50%;
+
   display: none;
 }
+
+ /* Overlay */
+#favoritesModal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 1000;
+}
+
+/* panneau favoris */
+#favoritesPanel{
+  position: fixed;
+
+  top: 0;
+  right: 0;
+
+  width: 100%;
+  max-width: 500px;
+
+  height: calc(100vh - 80px);
+  bottom: 120px;
+
+  background: white;
+  border-left: 4px solid #2e8b57;
+
+  display: flex;
+  flex-direction: column;
+
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+
+  box-shadow: -3px 0 10px rgba(0,0,0,0.15);
+}
+
+/* header identique notifications */
+.notifHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:14px;
+
+  border-bottom:1px solid #ddd;
+
+  font-weight:600;
+  font-size:16px;
+
+  background:#f9f9f9;
+}
+
+/* bouton X */
+.notifHeader button{
+  font-size:22px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+
+/* boutons onglets */
+.favoritesTabs{
+  display:flex;
+  gap:10px;
+
+  padding:12px;
+
+  border-bottom:1px solid #eee;
+}
+
+.favoritesTabs button{
+  border:none;
+  background:#f5f5f5;
+
+  padding:8px 12px;
+
+  border-radius:8px;
+
+  cursor:pointer;
+}
+
+/* liste favoris */
+#favoritesShopsList,
+#favoritesProductsList{
+  flex:1;
+  overflow-y:auto;
+
+  padding:10px;
+
+  padding-bottom:120px;
+}
+  
 .favorite-shop-btn {
   margin-top: 8px;
   padding: 6px 10px;
@@ -422,80 +840,80 @@ header.topbar .top-actions button {
   border-color: red;
 }
   /* Overlay sombre */
-#topShopsOverlay {
+#topShopsOverlay{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+  display: none;
+  z-index: 1000;
 }
 
-/* Panneau */
-#topShopsPanel {
-  background: #fff;
-  width: 90%;
-  max-width: 420px;
-  max-height: 80vh;
-  border-radius: 16px;
-  padding: 14px;
+/* panneau */
+#topShopsPanel{
+  position: fixed;
+
+  top: 0;
+  right: 0;
+
+  width: 100%;
+  max-width: 500px;
+
+  height: calc(100vh - 80px);
+  bottom: 120px;
+
+  background: white;
+  border-left: 4px solid #2e8b57;
+
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+
+  box-shadow: -3px 0 10px rgba(0,0,0,0.15);
 }
 
-/* Header */
-.topShopsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+/* header identique notifications */
+.topShopsHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:14px;
+
+  border-bottom:1px solid #ddd;
+
+  font-weight:600;
+  font-size:16px;
+
+  background:#f9f9f9;
 }
 
-.topShopsHeader h3 {
-  margin: 0;
-  font-size: 18px;
+/* titre */
+.topShopsHeader h3{
+  margin:0;
+  font-size:16px;
 }
 
-#closeTopShops {
-  background: none;
-  border: none;
-  font-size: 26px;
-  cursor: pointer;
+/* bouton fermer */
+#closeTopShops{
+  font-size:22px;
+  background:none;
+  border:none;
+  cursor:pointer;
 }
 
-/* Scroll contenu */
-#topShopsContainer {
-  overflow-y: auto;
-  padding-right: 4px;
-}
-/* ===== BARRE FILTRE ===== */
-.filterBar {
-  display: flex;
-  gap: 10px;
-  margin: 15px 0;
+/* liste scroll */
+#topShopsContainer{
+  flex:1;
+
+  overflow-y:auto;
+
+  padding:10px;
+
+  padding-bottom:120px; /* espace barre bas */
 }
 
-.filterBtn {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: none;
-  background: #2e7d32;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-.filterBtn.secondary {
-  background: #607d8b;
-}
-
-.filterBtn:hover {
-  opacity: 0.9;
-}
 
 /* ===== MODALE ===== */
 .categoryModal {
@@ -507,6 +925,7 @@ header.topbar .top-actions button {
   justify-content: center;
   z-index: 9999;
   padding: 10px;
+ margin-bottom:80px;
 }
 
 .categoryModal.hidden {
@@ -527,7 +946,7 @@ header.topbar .top-actions button {
 
 /* ===== RECHERCHE ===== */
 .categorySearch {
-  width: 100%;
+  width: 90%;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid #ccc;
@@ -539,6 +958,7 @@ header.topbar .top-actions button {
 #categoryList {
   flex: 1;
   overflow-y: auto;
+ 
 }
 
 /* ===== GROUPE ===== */
@@ -588,58 +1008,7 @@ header.topbar .top-actions button {
   font-weight: bold;
   cursor: pointer;
 }
-/* CONTENEUR BOUTONS HORIZONTAUX */
-.topButtons {
-  display: flex;
-  gap: 10px;               /* espace entre les boutons */
-  padding: 10px;
-  overflow-x: auto;         /* scroll horizontal si trop large */
-  -webkit-overflow-scrolling: touch; /* scroll smooth sur mobile */
-  scrollbar-width: thin;    /* Firefox */
-}
-#nearbyShopsBtn{
-  flex: 0 0 auto;          /* empêche les boutons de s’étirer */
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
-  background-color: #2e8b57;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-  white-space: nowrap;      /* empêche le texte de passer à la ligne */
-}
-  
-/* Scrollbar personnalisée */
-.topButtons::-webkit-scrollbar {
-  height: 6px;
-}
-.topButtons::-webkit-scrollbar-thumb {
-  background-color: rgba(0,0,0,0.2);
-  border-radius: 3px;
-}
 
-/* BOUTONS */
-.topBtn {
-  flex: 0 0 auto;          /* empêche les boutons de s’étirer */
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
-  background-color: #2e8b57;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-  white-space: nowrap;      /* empêche le texte de passer à la ligne */
-}
-
-.topBtn.secondary {
-  background-color:  #2e7d32;
-}
-
-.topBtn:hover {
-  filter: brightness(0.9);
-}
  /* ===== LIVRAISON BADGE ===== */
 .livraison-badge{
   display:inline-block;
@@ -734,7 +1103,7 @@ header.topbar .top-actions button {
 }
 
 .logo-box img{
-  height:120px;
+  height:160px;
   width:100%;
  padding: 0px;
 }
@@ -756,15 +1125,197 @@ header.topbar .top-actions button {
   margin-top: 6px;
   font-size: 0.95rem;
    }
-.user-header-bar{
-  display:flex;
-  align-items:center;   /* 🔥 centre verticalement */
-  gap:10px;
+
+ .premium-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  animation: floatBadge 3s ease-in-out infinite;
+  transition: transform 0.3s ease;
 }
 
-.profile-circle{
-  width:50px;
-  height:50px;
+/* Effet léger flottant */
+@keyframes floatBadge {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Hover effet */
+.premium-badge:hover {
+  transform: scale(1.1);
+}
+
+/* Premium 1 - Bronze */
+.bronze {
+  background: linear-gradient(45deg, #cd7f32, #a97142);
+  animation: floatBadge 3s ease-in-out infinite, glowBronze 2s infinite alternate;
+}
+
+@keyframes glowBronze {
+  from { box-shadow: 0 0 5px #cd7f32; }
+  to { box-shadow: 0 0 15px #cd7f32; }
+}
+
+/* Premium 2 - Silver */
+.silver {
+  background: linear-gradient(45deg, #bdc3c7, #95a5a6);
+  animation: floatBadge 3s ease-in-out infinite, glowSilver 1.5s infinite alternate;
+}
+
+@keyframes glowSilver {
+  from { box-shadow: 0 0 6px #bdc3c7; }
+  to { box-shadow: 0 0 20px #ffffff; }
+}
+
+/* Premium 3 - Gold */
+.gold {
+  background: linear-gradient(45deg, #f1c40f, #f39c12);
+  overflow: hidden;
+  animation: floatBadge 3s ease-in-out infinite, glowGold 1s infinite alternate;
+}
+
+@keyframes glowGold {
+  from { box-shadow: 0 0 10px #f1c40f; }
+  to { box-shadow: 0 0 25px #ffd700; }
+}
+
+/* Effet brillant Premium 3 */
+.gold::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255,255,255,0.4);
+  transform: skewX(-25deg);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% { left: -75%; }
+  100% { left: 125%; }
+}
+
+
+ .shop-products-scroll {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .productCard {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 180px;
+    text-align: center;
+    background: #fff;
+  }
+
+  .productCard img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .productDesc {
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+  }
+
+  .productAvailability, .productPrice {
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+  }
+
+  .favoriteProductBtn, .orderBtn {
+    margin-top: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .orderBtn {
+    background-color: #28a745;
+    color: white;
+  }
+
+ 
+  /* MODALES */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 300px;
+    max-width: 90%;
+    position: relative;
+  }
+
+  .modal-content .close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    font-size: 1.2rem;
+  }
+
+  .modal-content input, .modal-content textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+  }
+
+  .modal-content button {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .modal-content button:hover {
+    opacity: 0.9;
+  }
+ 
+.user-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-circle {
+  
+ width:60px;
+  height:60px;
   border-radius:50%;
   background:white;
   display:flex;
@@ -775,14 +1326,551 @@ header.topbar .top-actions button {
       margin-bottom: 8px;
   flex-shrink:0; /* empêche déformation */
 }
+ 
 
-#userEmail{
-  background:rgba(255,255,255,0.15);
-  padding:12px 18px;
-  border-radius:30px;
-  display:flex;
-  align-items:center; /* centre le texte */
-  font-weight:600;
+/* Cadre jaune principal */
+.email-box {
+  flex: 1;
+  background: #5f6f65; /* adapte à ta couleur */
+  border: 3px solid #ffd700;
+  border-radius: 999px;
+  padding: 14px 18px;
+  overflow: hidden;
+}
+
+/* Email */
+.email-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Étoiles Premium */
+.premium-stars {
+  margin-top: 3px;
+  color: gold;
+  font-size: 15px;
+}
+
+ /* ===================== */
+/* BARRE DE NAVIGATION */
+/* ===================== */
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+
+height:75px;
+background:white;
+
+display:grid;
+grid-template-columns:repeat(5,1fr);
+align-items:center;
+
+box-shadow:0 -4px 15px rgba(0,0,0,0.15);
+
+z-index:9999;
+
+border-top-left-radius:20px;
+border-top-right-radius:20px;
+}
+
+
+/* ===================== */
+/* BOUTONS NAV */
+/* ===================== */
+
+.nav-item{
+background:none;
+border:none;
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+
+font-size:12px;
+color:#333;
+
+position:relative;
+
+cursor:pointer;
+
+transition:all 0.25s ease;
+}
+
+.nav-item:active{
+transform:scale(0.9);
+}
+
+.nav-item:hover{
+color:#2e8b57;
+transform:translateY(-3px);
+}
+
+
+/* ===================== */
+/* ICÔNES */
+/* ===================== */
+
+.icon{
+font-size:22px;
+transition:all 0.25s ease;
+}
+
+.nav-item:hover .icon{
+transform:scale(1.2);
+}
+
+
+/* TEXTE */
+
+.nav-item span{
+font-size:11px;
+}
+
+
+/* ===================== */
+/* BOUTON ACTIF */
+/* ===================== */
+
+.nav-item.active{
+color:#2e8b57;
+font-weight:600;
+}
+
+.nav-item.active .icon{
+color:#2e8b57;
+transform:scale(1.15);
+}
+
+
+/* ===================== */
+/* BADGE NOTIFICATION */
+/* ===================== */
+
+.badge{
+position:absolute;
+
+top:-2px;
+right:-2px;
+
+background:#ff3b30;
+color:white;
+
+font-size:8px;
+font-weight:600;
+
+min-width:12px;
+height:12px;
+
+padding:1px 3px;
+
+border-radius:999px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+line-height:1;
+
+border:1.5px solid white;
+}
+
+
+/* ===================== */
+/* BOUTON VENDRE */
+/* ===================== */
+
+.sell-btn{
+
+grid-column:3;
+
+width:55px;
+height:55px;
+
+background:linear-gradient(135deg,#1B8F3A,#2ECC71) !important;
+color:white;
+
+border:none;
+border-radius:50%;
+
+font-size:30px;
+
+margin:auto;
+margin-top:5px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+ box-shadow:0 4px 15px rgba(0,0,0,0.25);
+
+transition:all 0.3s ease;
+
+animation:sellPulse 2s infinite;
+
+cursor:pointer;
+}
+
+.sell-btn:active{
+transform:scale(0.9);
+}
+
+
+/* ===================== */
+/* ANIMATION BOUTON */
+/* ===================== */
+
+@keyframes sellPulse{
+
+0%{
+transform:scale(1);
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
+}
+
+50%{
+transform:scale(1.08);
+box-shadow:0 15px 35px rgba(0,0,0,0.35);
+}
+
+100%{
+transform:scale(1);
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
+}
+
+}
+
+
+/* ===================== */
+/* ESPACE POUR LE SCROLL */
+/* ===================== */
+
+body{
+padding-bottom:90px;
+}
+/* OVERLAY */
+.shop-modal-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+display:none;
+justify-content:center;
+align-items:flex-end; /* style mobile (slide bas) */
+z-index:1500;
+}
+
+/* MODAL */
+.shop-modal{
+background:#fff;
+width:100%;
+max-width:420px;
+height:90vh;
+border-radius:20px 20px 0 0;
+overflow:hidden;
+position:relative;
+animation:slideUp 0.3s ease;
+display:flex;
+flex-direction:column;
+}
+
+/* SCROLL */
+.shop-modal{
+overflow-y:auto;
+}
+
+/* CLOSE (FIX PROBLEM HERE) */
+.close-btn{
+position:absolute;
+top:12px;
+right:15px;
+z-index:10; /* 🔥 IMPORTANT */
+background:rgba(0,0,0,0.5);
+color:#fff;
+width:32px;
+height:32px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+cursor:pointer;
+}
+
+/* COVER */
+.shop-cover{
+width:100%;
+height:160px;
+object-fit:cover;
+}
+
+/* HEADER */
+.shop-header{
+display:flex;
+align-items:center;
+gap:12px;
+padding:12px;
+margin-top:-35px;
+}
+
+/* AVATAR */
+.shop-avatar{
+width:65px;
+height:65px;
+border-radius:50%;
+border:3px solid #fff;
+object-fit:cover;
+background:#ddd;
+}
+
+/* META */
+.shop-meta{
+display:flex;
+flex-direction:column;
+}
+
+.shop-name{
+font-size:17px;
+font-weight:700;
+color:#111;
+}
+
+.shop-location{
+font-size:12px;
+color:#777;
+}
+
+/* BODY */
+.shop-body{
+padding:14px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+/* CATEGORY */
+.shop-category{
+font-size:13px;
+color:#666;
+}
+
+/* DESC */
+.shop-desc{
+font-size:13px;
+color:#444;
+line-height:1.4;
+}
+
+/* BADGE */
+.livraison-badge{
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:600;
+width:fit-content;
+}
+
+.livraison-oui{
+background:#dcfce7;
+color:#16a34a;
+}
+
+.livraison-non{
+background:#fee2e2;
+color:#dc2626;
+}
+
+/* WHATSAPP */
+.whatsapp-btn{
+background:#25D366;
+color:white;
+padding:12px;
+border-radius:12px;
+text-align:center;
+font-weight:600;
+cursor:pointer;
+}
+
+/* CONTACT BTN */
+#contactShopBtn{
+background:#111;
+color:white;
+padding:12px;
+border:none;
+border-radius:12px;
+font-weight:600;
+cursor:pointer;
+}
+
+/* PRODUITS SCROLL */
+#shopProductsScroll{
+display:flex;
+gap:10px;
+overflow-x:auto;
+padding-bottom:5px;
+}
+
+#shopProductsScroll::-webkit-scrollbar{
+display:none;
+}
+
+/* CARD PRODUIT */
+.product-card{
+min-width:120px;
+background:#fff;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+padding:6px;
+}
+
+.product-card img{
+width:100%;
+height:90px;
+object-fit:cover;
+border-radius:8px;
+}
+
+.product-card p{
+font-size:12px;
+margin-top:4px;
+}
+
+/* LIKE BTN */
+#likeShopBtn{
+padding:6px 10px;
+font-size:12px;
+border:none;
+border-radius:8px;
+background:#e0f7fa;
+color:#007bff;
+cursor:pointer;
+}
+
+/* COMMENTS */
+.comments-section{
+background:#f1f2f6;
+padding:10px;
+border-radius:10px;
+}
+
+#commentsList{
+max-height:200px;
+overflow-y:auto;
+}
+
+/* INPUT COMMENT */
+.commentInputWrapper{
+display:flex;
+gap:6px;
+}
+
+.commentInputWrapper input{
+flex:1;
+padding:8px;
+border-radius:8px;
+border:1px solid #ddd;
+}
+
+.commentInputWrapper button{
+background:#111;
+color:#fff;
+border:none;
+padding:8px 12px;
+border-radius:8px;
+}
+
+/* COPY LINK */
+#copyLinkBtn{
+margin-top:10px;
+padding:10px;
+background:#17a2b8;
+color:#fff;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+/* ANIMATION */
+@keyframes slideUp{
+from{transform:translateY(100%);}
+to{transform:translateY(0);}
+}
+/* espace supplémentaire après la dernière carte */
+
+#shopsList::after{
+content:"";
+display:block;
+height:100px;
+ }
+.shopDesc{
+  font-size:15px;
+  min-height:40px;
+  line-height:1.5;
+  font-weight:500;
+  letter-spacing:0.3px;
+  color:#2e7d32;
+
+  overflow:hidden;
+  white-space:nowrap;
+  position:relative;
+}
+
+/* effet fade sur les bords */
+.shopDesc::before,
+.shopDesc::after{
+  content:"";
+  position:absolute;
+  top:0;
+  width:25px;
+  height:100%;
+  z-index:2;
+  pointer-events:none;
+}
+
+.shopDesc::before{
+  left:0;
+  background:linear-gradient(to right, white, transparent);
+}
+
+.shopDesc::after{
+  right:0;
+  background:linear-gradient(to left, white, transparent);
+}
+
+/* texte animé */
+.scrollText{
+  display:inline-block;
+  animation: scrollLoop 15s linear infinite;
+}
+
+/* animation */
+@keyframes scrollLoop{
+
+  0%{
+    transform:translateX(0);
+  }
+
+  80%{
+    transform:translateX(-100%);
+  }
+
+  /* petite pause */
+
+  90%{
+    transform:translateX(-100%);
+  }
+
+  100%{
+    transform:translateX(0);
+  }
+
 }
 </style>
 
@@ -801,40 +1889,32 @@ header.topbar .top-actions button {
 </head>
 <body>
 
-<header class="topbar">
+ <header class="topbar">
 
-   <!-- LOGO -->
+  <div class="logo-row">
+
+    <!-- Logo -->
     <div class="logo-box">
-      <img src="assets/img/logos.png" alt="MANG - Marché Agricole Nouvelle Génération">
-      
+      <img src="assets/img/logos.png" alt="MANG">
     </div>
- 
-<div class="user-header-bar">
+
+    <!-- Slogan -->
+    <div class="slogan-container">
+      <div class="slogan-track">
+        🌍 MANG – La nouvelle génération du marché agricole en Afrique • 🌽 Achetez • Vendez • Connectez producteurs et acheteurs • 🚜 La marketplace agricole moderne
+      </div>
+    </div>
+
+  </div>
+
+  <div class="search-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Rechercher une boutique...">
+  </div>
   
-  <div class="profile-circle" onclick="goProfile()">👤</div>
 
+ </header>
 
-  <span id="userEmail"></span>
-
-</div>
-  <div class="top-actions">
-    <button id="messageBtn">
-      💬 Messagerie
-      <span id="messageBadge"
-        style="
-          background:red;
-          color:white;
-          border-radius:50%;
-          padding:2px 6px;
-          font-size:12px;
-          margin-left:6px;
-          display:none;
-        ">0</span>
-    </button>
-     <button id="notifBtn" class="notif-btn">
-  🔔 <span id="notifCount">0</span>
-</button>
-
+<!-- PANEL NOTIFICATIONS -->
 <div id="notifOverlay" style="display:none;">
   <div id="notifPanel">
     <div class="notifHeader">
@@ -844,60 +1924,29 @@ header.topbar .top-actions button {
     <div id="notifList"></div>
   </div>
 </div>
-<!-- Bouton Favoris avec badge -->
-<button id="favoritesBtn" style="position:relative;">
-  ❤️ Favoris
-  <span id="favoritesBadge" style="
-    display:none;
-    position:absolute;
-    top:-5px;
-    right:-5px;
-    background:red;
-    color:white;
-    font-size:12px;
-    padding:2px 6px;
-    border-radius:50%;
-  ">0</span>
-</button>
 
-<!-- Modal Favoris -->
-<div id="favoritesModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; justify-content:center; align-items:center;">
-  <div style="background:#fff; width:90%; max-width:500px; max-height:80vh; overflow-y:auto; border-radius:12px; padding:16px;">
-    <h3>❤️ Favoris</h3>
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
+ <!-- Modal Favoris -->
+<div id="favoritesModal">
+
+  <div id="favoritesPanel">
+
+    <div class="notifHeader">
+      <h3>❤️ Favoris</h3>
+      <button id="closeFavorites">×</button>
+    </div>
+
+    <div class="favoritesTabs">
       <button id="btnFavorisBoutiques">Boutiques</button>
       <button id="btnFavorisProduits">Produits</button>
-      
     </div>
 
     <div id="favoritesShopsList"></div>
     <div id="favoritesProductsList" style="display:none;"></div>
-    <div id="favoritesList" style="display:none;"></div> <!-- notifications -->
 
-    <button id="closeFavorites" style="margin-top:12px;width:100%;">Fermer</button>
   </div>
+
 </div>
-    
-  
-  
-    <button id="sellBtn">Vendre</button>
-  </div>
-</header>
-  
-  <!-- CONTENEUR BOUTONS HORIZONTAUX -->
-<div class="topButtons">
- <button id="resetFilterBtn" class="topBtn secondary">🔄 Toutes les boutiques</button>
- 
-  <button id="topShopsBtn" class="topBtn">🔥 Top boutiques</button>
-  <button id="filterCategoryBtn" class="topBtn">📂 Catégories</button>
-   <button id="livraisonFilterBtn">🚚 Livraison</button>
-  
-  
-  <button id="nearbyShopsBtn">
-  📍 Boutiques proches
-</button>
-</div>
-  
+
 
 <!-- MODALE CATÉGORIES -->
 <div id="categoryModal" class="categoryModal hidden">
@@ -935,115 +1984,148 @@ header.topbar .top-actions button {
     <div id="topShopsContainer"></div>
   </div>
 </div>
-<div class="search-bar">
-  <input type="text" id="searchInput" placeholder="🔍 Rechercher une boutique...">
-</div>
+ 
+
+ 
+ <!-- CONTENEUR BOUTONS HORIZONTAUX -->
+<div class="topButtons">
+  <button id="resetFilterBtn" class="topBtn">🔄 Tous</button>
+  <button id="topShopsBtn" class="topBtn">🔥 Top boutiques</button>
+  <button id="filterCategoryBtn" class="topBtn">📂 Catégories</button>
+  <button id="livraisonFilterBtn" class="topBtn">🚚 Livraison</button>
+  <button id="nearbyShopsBtn" class="topBtn">📍 Boutiques proches</button>
+</div> 
  
   <!-- LISTE DES BOUTIQUES -->
 <div class="shops-container" id="shopsList">
   <!-- Les boutiques seront injectées ici par JS -->
   
 </div>
- 
 <!-- MODAL VUE BOUTIQUE -->
-  <div id="shopViewModal">
-  <div id="shopViewContent">
-    <span id="closeShopView">✕</span>
-    <h2 id="shopViewName"></h2>
-    <p id="shopViewDesc"></p>
-    <p><strong>Catégorie:</strong> <span id="shopViewCategory"></span></p>
-    <p><strong>Lieu:</strong> <span id="shopViewLocation"></span></p>
-      <!-- ===== BADGE LIVRAISON ===== -->
-  <div id="shopViewLivraison" style="margin-top:10px;"></div>
+<div id="shopViewModal" class="shop-modal-overlay">
 
-   <!-- ===== NUMERO WHATSAPP (BANDE VERTE) ===== -->
-  <div id="shopViewWhatsapp" style="margin-top:10px;"></div>
-   
-   <button id="contactShopBtn">💬 Discuter avec la boutique </button>
-  
-    <p><strong>Produits disponibles</strong></p>
-    <div id="shopProductsScroll"></div>
-   
-    
+  <div id="shopViewContent" class="shop-modal">
 
-    <!-- Likes et commentaires -->
-    <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+    <span id="closeShopView" class="close-btn">✕</span>
 
-      <!-- Bouton Like principal -->
-      <button id="likeShopBtn" style="
-          padding:4px 8px;
-          font-size:12px;
-          cursor:pointer;
-          border:none;
-          border-radius:6px;
-          background:#e0f7fa;
-          color:#007bff;
-          font-weight:500;
-          display:flex;
-          align-items:center;
-          gap:4px;
-          transition:0.2s;"
-          onmouseover="this.style.background='#b2ebf2'" 
-          onmouseout="this.style.background='#e0f7fa'">
-        👍 J'aime
-      </button>
+    <!-- IMAGE COVER -->
+    <div id="shopViewCover"></div>
 
-      <!-- Compteur / point cliquable -->
-      <div id="likeCountContainer" style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-        <span id="likeCount" style="font-size:12px; color:#555;">0</span>
-        <span style="
-          display:inline-block;
-          width:10px;
-          height:10px;
-          background:#007bff;
-          border-radius:50%;
-          transition:0.2s;"
-          onmouseover="this.style.background='#005bbb'"
-          onmouseout="this.style.background='#007bff'">
-        </span>
+    <!-- HEADER -->
+    <div class="shop-header">
+      <div id="shopViewAvatar"></div>
+
+      <div class="shop-meta">
+        <div id="shopViewName"></div>
+        <div id="shopViewLocation"></div>
       </div>
     </div>
 
-    <!-- Liste des utilisateurs likant la boutique -->
-    <div id="shopLikesList" style="
-        position:absolute;
-        display:none;
-        background:#fff;
-        border:1px solid #ddd;
+    <!-- BODY -->
+    <div class="shop-body">
+
+      <div id="shopViewCategory"></div>
+
+      <div class="divider"></div>
+
+      <div id="shopViewDesc"></div>
+
+      <div id="shopViewLivraison"></div>
+
+      <div id="shopViewWhatsapp"></div>
+
+      <!-- CONTACT -->
+      <button id="contactShopBtn">💬 Discuter avec la boutique</button>
+
+      <!-- PRODUITS -->
+      <p><strong>Produits disponibles</strong></p>
+      <div id="shopProductsScroll"></div>
+
+      <!-- LIKES -->
+      <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+
+        <button id="likeShopBtn" style="
+            padding:4px 8px;
+            font-size:12px;
+            cursor:pointer;
+            border:none;
+            border-radius:6px;
+            background:#e0f7fa;
+            color:#007bff;
+            font-weight:500;
+            display:flex;
+            align-items:center;
+            gap:4px;
+            transition:0.2s;"
+            onmouseover="this.style.background='#b2ebf2'" 
+            onmouseout="this.style.background='#e0f7fa'">
+          👍 J'aime
+        </button>
+
+        <div id="likeCountContainer" style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+          <span id="likeCount" style="font-size:12px; color:#555;">0</span>
+          <span style="
+            display:inline-block;
+            width:10px;
+            height:10px;
+            background:#007bff;
+            border-radius:50%;
+            transition:0.2s;"
+            onmouseover="this.style.background='#005bbb'"
+            onmouseout="this.style.background='#007bff'">
+          </span>
+        </div>
+
+      </div>
+
+      <!-- LISTE LIKES -->
+      <div id="shopLikesList" style="
+          position:absolute;
+          display:none;
+          background:#fff;
+          border:1px solid #ddd;
+          border-radius:6px;
+          box-shadow:0 2px 8px rgba(0,0,0,0.1);
+          padding:8px;
+          max-height:200px;
+          overflow-y:auto;
+          font-size:12px;
+          z-index:999;">
+      </div>
+
+      <!-- COMMENTAIRES -->
+      <div class="comments-section" style="background:#f1f2f6; padding:10px; border-radius:8px;">
+
+        <h4>Commentaires</h4>
+
+        <div id="commentsList" style="height:400px; overflow-y:auto; margin-bottom:5px;"></div>
+
+        <div class="commentInputWrapper">
+          <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
+          <button id="sendCommentBtn">➤</button>
+        </div>
+
+      </div>
+
+      <!-- COPY LINK -->
+      <button id="copyLinkBtn" style="
+        margin-top:12px;
+        padding:8px 12px;
+        background:#17a2b8;
+        color:#fff;
+        border:none;
         border-radius:6px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.1);
-        padding:8px;
-        max-height:200px;
-        overflow-y:auto;
-        font-size:12px;
-        z-index:999;">
-    </div>
+        cursor:pointer;
+        height:30px;
+        width:80%;">
+        Copier le lien
+      </button>
 
-    <div class="comments-section" style="background:#f1f2f6; padding:10px; border-radius:8px;">
-      <h4>Commentaires</h4>
-      <div id="commentsList" style="height:400px; overflow-y:auto; margin-bottom:5px;"></div>
-    <div class="commentInputWrapper">
-  <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
-  <button id="sendCommentBtn">➤</button>
-</div>
+    </div> <!-- FIN shop-body -->
 
-    <!-- ✅ Copier lien boutique (MAINTENANT DANS LE MODAL) -->
-    <button id="copyLinkBtn" style="
-      margin-top:12px;
-      padding:8px 12px;
-      background:#17a2b8;
-      color:#fff;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-      height:30px;
-      width:80%;">
-      Copier le lien
-    </button>
+  </div> <!-- FIN shop-modal -->
 
-  </div>
-</div>
-</div>
+</div> <!-- FIN overlay -->
 <!-- Chat et Messagerie restent inchangés -->
 <div class="chat-container" id="chatContainer">
   <div class="chat-header">
@@ -1117,9 +2199,66 @@ header.topbar .top-actions button {
   <div id="mediaContent" style="max-width:90%; max-height:90%;"></div>
   <span id="closeMediaModal" style="position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; font-weight:bold;">✕</span>
 </div>
+<!-- CONTENEUR PRODUITS -->
+<div id="shopProductsScroll" class="shop-products-scroll"></div>
 
+<!-- ===========================
+MODALE COMMANDE
+=========================== -->
+<div id="orderModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeOrderModal()">&times;</span>
+    <h3>Renseignez vos informations de livraison</h3>
+    
+    <label>Adresse de livraison *</label>
+    <input id="orderAddress" type="text" placeholder="Adresse complète">
+
+    <label>Téléphone *</label>
+    <input id="orderPhone" type="text" placeholder="Numéro de téléphone">
+
+    <label>Note (optionnelle)</label>
+    <textarea id="orderNote" placeholder="Ex: Heure de livraison souhaitée"></textarea>
+
+   <label>Quantité *</label>
+<input id="orderQuantity" type="number" min="1" value="1" placeholder="Quantité">
+
+    <button id="createOrderBtn">Créer la commande</button>
+  </div>
+</div>
  
+
+ <div class="bottom-nav" id="bottomNav">
+
+  <button class="nav-item active">
+<div class="icon">🏠</div>
+<span>Accueil</span>
+  </button>
+
+  <button class="nav-item" id="messageBtn">
+    <div class="icon">💬</div>
+    <span>Messages</span>
+    <span id="messageBadge" class="badge">0</span>
+  </button>
+
+  <!-- Bouton central -->
+  <button class="sell-btn" id="sellBtn">
+    ➕
+  </button>
+
+
+  <button class="nav-item" id="notifBtn">
+    <div class="icon">🔔</div>
+    <span>Notif</span>
+    <span id="notifCount" class="badge">0</span>
+  </button>
   
+  <button class="nav-item" id="favoritesBtn">
+    <div class="icon">❤️</div>
+    <span>Favoris</span>
+  </button>
+
+
+ </div>
 <script type="module">
 import { supabase } from './supabase.js';
 
@@ -1187,7 +2326,13 @@ async function loadCurrentUser() {
     badge = '';
   }
 
-  emailElement.textContent = currentUser.email + badge;
+  emailElement.textContent = currentUser.email;
+
+const starsElement = document.getElementById("premiumStars");
+
+if (starsElement) {
+  starsElement.textContent = badge;
+}
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -1308,7 +2453,30 @@ tabVente.onclick = async () => {
   discussionsList.innerHTML = ""; // vider la liste avant de recharger
   if (currentUser) await loadDiscussionsVente();
 };
-  
+
+
+ function updateBottomSpace(){
+
+  const bottomNav = document.getElementById("bottomNav");
+
+  if(!bottomNav) return;
+
+  const height = bottomNav.offsetHeight;
+
+  document.documentElement.style.setProperty(
+    "--bottom-space",
+    height + "px"
+  );
+
+}
+
+
+window.addEventListener("load", updateBottomSpace);
+window.addEventListener("resize", updateBottomSpace);
+
+
+
+ 
   const nearbyShopsBtn = document.getElementById("nearbyShopsBtn");
 const maxDistance = 15; // km maximum à afficher
 
@@ -1386,6 +2554,19 @@ async function loadNearbyShops() {
 nearbyShopsBtn.onclick = loadNearbyShops;
   
 console.log("✅ JS ACHAT – FILTRE CATÉGORIES INITIALISÉ");
+
+
+ function closeAllModals(){
+
+const notif = document.getElementById("notifOverlay");
+const fav = document.getElementById("favoritesModal");
+const top = document.getElementById("topShopsOverlay");
+
+if(notif) notif.style.display = "none";
+if(fav) fav.style.display = "none";
+if(top) top.style.display = "none";
+
+ }
 
 /* ==============================
    CATÉGORIES
@@ -1879,9 +3060,13 @@ document.addEventListener("DOMContentLoaded", () => initNotifications());
   console.log("✅ Top boutiques JS attaché");
 
   topBtn.onclick = async () => {
-    overlay.style.display = "flex";
-    container.innerHTML = "<p>Chargement des top boutiques...</p>";
 
+  closeAllModals();   // ← ajoute seulement cette ligne
+
+  overlay.style.display = "flex";
+
+  container.innerHTML = "<p>Chargement des top boutiques...</p>";
+   
     // 1️⃣ Récupérer boutiques
     const { data: shops, error: shopErr } = await supabase
       .from("shops")
@@ -2085,10 +3270,33 @@ document.querySelectorAll("#livraisonOptions div").forEach(option => {
   };
 });
   
+document.addEventListener("click", function(e) {
+
+  if (
+    e.target.classList.contains("zoomable-image") ||
+    e.target.classList.contains("zoomable-product")
+  ) {
+
+    // créer overlay
+    const overlay = document.createElement("div");
+    overlay.className = "fullscreen-overlay";
+
+    const img = document.createElement("img");
+    img.src = e.target.src;
+
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+
+    // fermer au clic
+    overlay.onclick = () => {
+      overlay.remove();
+    };
+  }
+
+});
  
 // ====== CHARGER BOUTIQUES (PRO + STATUS PREMIUM) ======
 async function loadShops() {
-  
 
   try {
     let query = supabase
@@ -2117,30 +3325,33 @@ async function loadShops() {
     if (!shops || shops.length === 0) {
       shopsList.innerHTML = "<p>Aucune boutique trouvée</p>";
       return;
-     }
+    }
+
     // 🔹 Récupérer les profils des propriétaires
     const ownerIds = shops.map(s => s.owner_id);
+
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, username, premium_level')
       .in('id', ownerIds);
 
-    // 🔹 Associer chaque boutique à son profil et définir étoiles + statut
+    // 🔹 Associer boutique + profil
     shops.forEach(shop => {
-      const profile = profiles.find(p => p.id === shop.owner_id);
+      const profile = profiles?.find(p => p.id === shop.owner_id);
+
       shop.ownerUsername = profile?.username || "Utilisateur";
       shop.premium_level = profile?.premium_level || 'free';
 
-      // Définir score pour tri
-      switch(shop.premium_level){
+      // 🔹 Score premium (pour tri)
+      switch (shop.premium_level) {
         case 'premium3': shop.premiumScore = 3; break;
         case 'premium2': shop.premiumScore = 2; break;
         case 'premium1': shop.premiumScore = 1; break;
         default: shop.premiumScore = 0;
       }
 
-      // Définir étoiles
-      switch(shop.premium_level){
+      // 🔹 Étoiles affichées
+      switch (shop.premium_level) {
         case 'premium3': shop.stars = '⭐⭐⭐'; break;
         case 'premium2': shop.stars = '⭐⭐'; break;
         case 'premium1': shop.stars = '⭐'; break;
@@ -2148,112 +3359,170 @@ async function loadShops() {
       }
     });
 
-    // 🔹 Trier par score premium décroissant
-    shops.sort((a,b) => b.premiumScore - a.premiumScore);
+    // 🔹 Trier par premium décroissant
+    shops.sort((a, b) => b.premiumScore - a.premiumScore);
 
     // 🔹 Affichage cartes
     shopsList.innerHTML = "";
+
     shops.forEach(shop => {
+
       const div = document.createElement("div");
       div.className = "shopCard";
-      
-      div.dataset.category = shop.category || ""; // 🔹 IMPORTANT pour le filtre
+
+      div.dataset.category = shop.category || "";
       div.dataset.description = shop.description || "";
 
-      div.innerHTML = `
-        <div style="position:relative;">
-          <img src="${shop.image_url || 'https://via.placeholder.com/300x160'}" alt="${shop.name}" style="width:100%;height:160px;object-fit:cover;">
-          ${shop.premium_level !== 'free' ? `<span style="position:absolute;top:10px;right:10px;background:#f1c40f;color:#fff;padding:5px 10px;border-radius:20px;font-weight:600;font-size:12px;">Premium</span>` : ""}
-        </div>
-        <div style="padding:12px; display:flex; flex-direction:column; gap:4px;">
-          <h3 style="margin:0;font-size:18px;font-weight:700;color:#2c3e50;">${shop.name}</h3>
-          <span style="color:#555;font-size:15px;">Propriétaire : ${shop.ownerUsername}</span>
-          <span style="color:#f1c40f;font-weight:600;font-size:15px;">Statut : ${shop.stars}</span>
-          <p style="color:#777;font-size:15px;min-height:40px;line-height:1.3;">${shop.description || ""}</p>
-       <div style="
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-">
+      // 🔥 BADGE PREMIUM DYNAMIQUE
+      let premiumBadge = "";
 
+      if (shop.premium_level === "premium3") {
+        premiumBadge = `<span class="premium-badge gold">🥇 Premium 3</span>`;
+      } 
+      else if (shop.premium_level === "premium2") {
+        premiumBadge = `<span class="premium-badge silver">🥈 Premium 2</span>`;
+      } 
+      else if (shop.premium_level === "premium1") {
+        premiumBadge = `<span class="premium-badge bronze">🥉 Premium 1</span>`;
+      }
+div.innerHTML = `
+<div style="position:relative;width:100%;height:150px;overflow:hidden;border-radius:12px 12px 0 0;">
+  
+  <img 
+    src="${shop.image_url || 'https://via.placeholder.com/300x160'}" 
+    alt="${shop.name}" 
+    class="zoomable-image"
+    style="width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;">
+
+  <!-- Badge premium -->
+  <div style="
+      position:absolute;
+      top:8px;
+      left:8px;
+      z-index:2;
+  ">
+    ${premiumBadge}
+  </div>
+
+  <!-- Bouton suivre -->
   <button class="favoriteShopBtn"
     data-shop-id="${shop.id}"
     style="
-          padding:4px 8px;
-          font-size:12px;
-          cursor:pointer;
-          border:none;
-          border-radius:6px;
-          background:#e0f7fa;
-          color:#007bff;
-          font-weight:500;
-          display:flex;
-          align-items:center;
-          gap:4px;
-          transition:0.2s;"
-          onmouseover="this.style.background='#b2ebf2'" 
-          onmouseout="this.style.background='#e0f7fa'">
-        
-    
-    
-    <span class="favIcon">🤍</span>
-    <span class="favText">Suivre</span>
-    <span class="favCount">0</span>
-  </button>
-
-  <button class="openShopBtn"
-    style="
-      padding:8px;
+      position:absolute;
+      top:8px;
+      right:8px;
+      padding:3px 7px;
+      border-radius:20px;
       border:none;
-      border-radius:10px;
-      background:green;
-      color:white;
-      font-weight:600;
+      background:white;
+      box-shadow:0 3px 8px rgba(0,0,0,0.25);
       cursor:pointer;
-      transition:0.2s;
-      width:100%;
-    ">
-    Ouvrir la boutique
+      display:flex;
+      align-items:center;
+      gap:3px;
+      font-size:13px;
+      font-weight:600;
+      z-index:2;
+    "
+  >
+
+    <span class="favIcon">🤍</span>
+    <span class="favText" style="display:none;">Suivre</span>
+    <span class="favCount" style="color:#1B8F3A;font-weight:700;">
+      ${shop.followers_count || 0}
+    </span>
+
   </button>
 
 </div>
-      
-      </div>
-      `;
 
-      const favBtn = div.querySelector(".favoriteShopBtn");
 
-favBtn.onclick = () => toggleFavoriteShop(shop.id, favBtn);
+<div style="padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
 
-// Initialiser l’état (déjà suivi ou non)
-initFavoriteShop(shop.id, favBtn);
-      
-      // Bouton hover
-      const btn = div.querySelector(".openShopBtn");
-      btn.onmouseover = () => btn.style.background = "#27ae60";
-      btn.onmouseout = () => btn.style.background = "#2e8b57";
+  <h3 style="
+    margin:0;
+    font-size:16px;
+    font-weight:700;
+    color:#2c3e50;
+    line-height:1.2;
+  ">
+    ${shop.name}
+  </h3>
 
-      // Carte hover lift
-      div.onmouseover = () => div.style.transform = "translateY(-4px)";
-      div.onmouseout = () => div.style.transform = "translateY(0)";
-      div.style.transition = "0.25s";
-      div.style.boxShadow = "0 6px 18px rgba(0,0,0,0.12)";
-      div.style.borderRadius = "12px";
-      div.style.background = "#fff";
-      div.style.overflow = "hidden";
+  <div style="font-size:14px;line-height:1.2;">
+    <span style="color:#555;">👤</span>
+    <span style="font-weight:600;color:#1B8F3A;">
+      ${shop.ownerUsername}
+    </span>
+  </div>
 
-      // Click ouvrir boutique
-      div.querySelector(".openShopBtn").onclick = () => openShop(shop);
+  <div class="shopDesc" style="font-size:13px;">
+    <span class="scrollText">
+      ${shop.description ? shop.description : ""}
+    </span>
+  </div>
 
-      shopsList.appendChild(div);
-    });
+</div>
+`;
 
+
+  // 🔹 Clic sur la carte pour ouvrir la boutique
+  div.onclick = (e) => {
+
+  // si clic sur bouton suivre
+  if (e.target.closest(".favoriteShopBtn")) return;
+
+  // si clic sur image zoomable
+  if (e.target.closest(".zoomable-image")) return;
+
+  openShop(shop);
+};
+
+  // 🔹 Initialiser favoris
+  const favBtn = div.querySelector(".favoriteShopBtn");
+  favBtn.onclick = () => toggleFavoriteShop(shop.id, favBtn);
+  initFavoriteShop(shop.id, favBtn);
+
+  // 🔹 Hover lift
+  div.onmouseover = () => div.style.transform = "translateY(-4px)";
+  div.onmouseout = () => div.style.transform = "translateY(0)";
+  div.style.transition = "0.25s";
+  div.style.boxShadow = "0 6px 18px rgba(0,0,0,0.12)";
+  div.style.borderRadius = "12px";
+  div.style.background = "#fff";
+  div.style.overflow = "hidden";
+
+  shopsList.appendChild(div);
+});
+// 🔹 Ajuster vitesse défilement selon longueur texte
+setTimeout(() => {
+
+  document.querySelectorAll(".scrollText").forEach(el => {
+
+    const length = el.textContent.length;
+
+    const duration = Math.max(18, length * 0.6);
+
+    el.style.animationDuration = duration + "s";
+
+  });
+
+}, 100);
+   
   } catch(err) {
     console.error("Erreur inattendue loadShops:", err);
     shopsList.innerHTML = "<p style='color:red;'>Erreur inattendue lors du chargement</p>";
   }
 }
-  
+  document.querySelectorAll(".scrollText").forEach(el => {
+
+  const length = el.textContent.length;
+
+  const duration = Math.max(12, length * 0.35);
+
+  el.style.animationDuration = duration + "s";
+
+});
   // 🔹 Formater le compteur
 function formatCount(count) {
   if (!count) return "0";
@@ -2440,29 +3709,59 @@ async function openShop(shop) {
   try {
     if (!shop) return;
     currentShop = shop;
+// ================= AFFICHAGE MODAL =================
+modal.style.display = "flex";
 
-    // ================= AFFICHAGE MODAL =================
-    modal.style.display = "flex";
-    shopViewName.textContent = shop.name || "Nom boutique";
-    shopViewDesc.textContent = shop.description || "-";
-    shopViewCategory.textContent = shop.category || "-";
-    shopViewLocation.textContent = shop.location || "-";
+// IMAGE COVER (haut)
+const coverDiv = document.getElementById("shopViewCover");
+if (coverDiv) {
+  coverDiv.innerHTML = shop.image_url
+    ? `<img src="${shop.image_url}" class="shop-cover">`
+    : `<div class="shop-cover"></div>`;
+}
 
-    // ================= LIVRAISON BADGE =================
-    const livraisonDiv = document.getElementById("shopViewLivraison");
-    if (shop.livraison === true) {
-      livraisonDiv.innerHTML = `
-        <span class="livraison-badge livraison-oui">
-          🚚 Livraison disponible
-        </span>
-      `;
-    } else {
-      livraisonDiv.innerHTML = `
-        <span class="livraison-badge livraison-non">
-          📦 Livraison non disponible
-        </span>
-      `;
-    }
+// AVATAR (petit rond)
+const avatarDiv = document.getElementById("shopViewAvatar");
+if (avatarDiv) {
+  avatarDiv.innerHTML = `
+    <img src="${shop.image_url || ''}" class="shop-avatar">
+  `;
+}
+
+// NOM
+shopViewName.innerHTML = `
+  <div class="shop-name">${shop.name || "Nom boutique"}</div>
+`;
+
+// DESCRIPTION
+shopViewDesc.innerHTML = `
+  <div class="shop-desc">
+    ${shop.description || "Aucune description"}
+  </div>
+`;
+
+// CATEGORIE
+shopViewCategory.innerHTML = `
+  <div class="shop-category">
+    🏷 ${shop.category || "Non catégorisé"}
+  </div>
+`;
+
+// LOCALISATION
+shopViewLocation.innerHTML = `
+  <div class="shop-location">
+    📍 ${shop.location || "Non défini"}
+  </div>
+`;
+
+
+// ================= LIVRAISON BADGE =================
+const livraisonDiv = document.getElementById("shopViewLivraison");
+
+livraisonDiv.innerHTML = shop.livraison === true
+  ? `<span class="livraison-badge livraison-oui">🚚 Livraison disponible</span>`
+  : `<span class="livraison-badge livraison-non">📦 Livraison non disponible</span>`;
+
 
     // ================= WHATSAPP NUMERO (BANDE VERTE) =================
     const whatsappDiv = document.getElementById("shopViewWhatsapp");
@@ -2490,75 +3789,179 @@ function formatAvailability(value) {
   return map[value] || "⏳ Indisponible";
 }
 
-   
-    // ================= CHARGER PRODUITS =================
-    let query = supabase
-      .from('shop_products')
-      .select('*')
-      .eq('shop_id', shop.id)
-      .order('created_at', { ascending: false });
+let currentProduct = null;
+let isProcessing = false;
 
-    // 🔹 Si ouverture depuis favoris
-    if (shop.fromFavorites && currentUser) {
-      const { data: favData, error: favError } = await supabase
-        .from('favorite_products')
-        .select('product_id')
-        .eq('user_id', currentUser.id);
+/* ================= MODALES ================= */
+function openOrderModal() {
+  document.getElementById("orderModal").style.display = "flex";
+}
 
-      if (!favError && favData && favData.length > 0) {
-        const favIds = favData.map(f => f.product_id);
-        query = query.in('id', favIds);
-      } else {
-        shopProductsScroll.innerHTML =
-          "<p>Aucun produit suivi dans cette boutique.</p>";
-        return;
-      }
-    }
+function closeOrderModal() {
+  document.getElementById("orderModal").style.display = "none";
+}
 
-    const { data: products, error: prodError } = await query;
-
-    shopProductsScroll.innerHTML = "";
-
-    if (prodError) {
-      shopProductsScroll.innerHTML =
-        "<p style='color:red;'>Erreur chargement produits</p>";
-    } else if (!products || products.length === 0) {
-      shopProductsScroll.innerHTML =
-        "<p>Aucun produit disponible</p>";
-    } else {
-      products.forEach(p => {
-  const div = document.createElement("div");
-  div.className = "productCard";
-
-  div.innerHTML = `
-    <img src="${p.image_url || 'https://via.placeholder.com/150'}"
-         alt="${p.name || 'Produit'}">
-
-    <h5>${p.name || 'Produit'}</h5>
-
-    <!-- 📝 DESCRIPTION -->
-    ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
-
-    <!-- 📦 DISPONIBILITÉ -->
-    <p class="productAvailability">
-      ${formatAvailability(p.availability)}
-    </p>
-
-    <!-- 💰 PRIX -->
-    <p class="productPrice">
-      <strong>${p.price || '-'} FCFA</strong>
-    </p>
-
-    <!-- ❤️ FAVORIS -->
-    <button class="favoriteProductBtn" data-id="${p.id}">
-      🤍
-    </button>
-  `;
-
-  shopProductsScroll.appendChild(div);
+// Fermer le modal si clic en dehors
+window.addEventListener("click", e => {
+  if (e.target.id === "orderModal") closeOrderModal();
 });
 
-      // 🔹 Initialiser favoris produits
+/* ================= BOUTON COMMANDER ================= */
+document.getElementById("shopProductsScroll").addEventListener("click", e => {
+  const btn = e.target.closest(".orderBtn");
+  if (!btn) return;
+
+  const productId = btn.dataset.productId?.trim();
+  if (!productId) return alert("Produit invalide");
+
+  currentProduct = { productId };
+  openOrderModal();
+});
+
+/* ================= CREATION COMMANDE ================= */
+document.getElementById("createOrderBtn").addEventListener("click", async () => {
+
+  // 🔒 ANTI DOUBLE CLIC
+  if (isProcessing || !currentProduct) return;
+  isProcessing = true;
+
+  const createBtn = document.getElementById("createOrderBtn");
+  createBtn.disabled = true;
+
+  try {
+
+    const address = document.getElementById("orderAddress").value.trim();
+    const phone = document.getElementById("orderPhone").value.trim();
+    const note = document.getElementById("orderNote").value.trim();
+    const quantity = parseFloat(document.getElementById("orderQuantity").value);
+
+    if (!address || !phone) {
+      alert("Adresse et téléphone requis");
+      return;
+    }
+
+    if (!quantity || quantity <= 0) {
+      alert("Quantité invalide");
+      return;
+    }
+
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
+    const buyerId = session.user.id;
+
+    // 🔒 Vérification anti-doublon
+    const { data: existingOrders, error: checkError } = await supabase
+      .from("orders")
+      .select("id")
+      .eq("buyer_id", buyerId)
+      .eq("product_id", currentProduct.productId)
+      .eq("status", "pending");
+
+    if (checkError) throw checkError;
+
+    if (existingOrders.length > 0) {
+      alert("⚠️ Vous avez déjà une commande en attente pour ce produit.");
+      return;
+    }
+
+    // RPC création commande
+    const { data, error } = await supabase.rpc("create_order_with_escrow", {
+      p_buyer_id: buyerId,
+      p_product_id: currentProduct.productId,
+      p_quantity: quantity,
+      p_delivery_address: address,
+      p_delivery_phone: phone,
+      p_note: note || null
+    });
+
+    if (error) {
+      if (error.message.includes("Solde insuffisant")) {
+        alert("❌ Solde insuffisant pour effectuer cette commande !");
+      } else if (error.message.includes("Wallet introuvable")) {
+        alert("❌ Wallet introuvable !");
+      } else {
+        throw error;
+      }
+      return;
+    }
+
+    closeOrderModal();
+    alert("✅ Commande créée avec succès ! L'argent est bloqué en escrow.");
+
+    if (typeof loadOrders === "function") loadOrders();
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message || "Erreur lors de la création de la commande");
+  } finally {
+    // 🔓 Toujours réactiver
+    isProcessing = false;
+    createBtn.disabled = false;
+  }
+});
+
+// ================= CHARGER PRODUITS =================
+let query = supabase
+  .from('shop_products')
+  .select('*')
+  .eq('shop_id', shop.id)
+  .order('created_at', { ascending: false });
+
+// 🔹 Si ouverture depuis favoris
+if (shop.fromFavorites && currentUser) {
+  const { data: favData, error: favError } = await supabase
+    .from('favorite_products')
+    .select('product_id')
+    .eq('user_id', currentUser.id);
+
+  if (!favError && favData && favData.length > 0) {
+    const favIds = favData.map(f => f.product_id);
+    query = query.in('id', favIds);
+  } else {
+    shopProductsScroll.innerHTML = "<p>Aucun produit suivi dans cette boutique.</p>";
+    return;
+  }
+}
+
+const { data: products, error: prodError } = await query;
+
+shopProductsScroll.innerHTML = "";
+
+if (prodError) {
+  shopProductsScroll.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
+} else if (!products || products.length === 0) {
+  shopProductsScroll.innerHTML = "<p>Aucun produit disponible</p>";
+} else {
+  products.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "productCard";
+
+    div.innerHTML = `
+  <img 
+    src="${p.image_url || 'https://via.placeholder.com/150'}" 
+    alt="${p.name || 'Produit'}"
+    class="zoomable-product">
+      <h5>${p.name || 'Produit'}</h5>
+      ${p.description ? `<p class="productDesc">${p.description}</p>` : ""}
+      <p class="productAvailability">${formatAvailability(p.availability)}</p>
+      <p class="productPrice"><strong>${p.price || '-'} FCFA</strong></p>
+      <button class="favoriteProductBtn" data-id="${p.id}">🤍</button>
+
+      <!-- Commander -->
+      <button class="orderBtn"
+              data-seller-id="${p.owner_id || ''}"
+              data-product-id="${p.id || ''}"
+              data-amount="${p.price || 0}">
+        Commander
+      </button>
+    `;
+
+    shopProductsScroll.appendChild(div);
+  });
+
+ 
+
+// 🔹 Initialiser favoris produits
       document.querySelectorAll(".favoriteProductBtn").forEach(btn => {
         const productId = btn.dataset.id;
 
@@ -2580,7 +3983,8 @@ function formatAvailability(value) {
     shopProductsScroll.innerHTML =
       "<p style='color:red;'>Erreur chargement boutique</p>";
   }
- }
+}
+
 
 // ===================== FONCTIONS FAVORIS PRODUITS =====================
 async function toggleFavoriteProduct(productId, btn, productOwnerId) {
