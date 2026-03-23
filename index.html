@@ -4165,19 +4165,20 @@ document.getElementById("shopProductsScroll").addEventListener("click", e => {
   if (!btn) return;
 
   const productId = btn.dataset.productId?.trim();
+  const productName = btn.dataset.productName || "Produit MANG";
+
   if (!productId) return alert("Produit invalide");
 
-  currentProduct = { productId };
+  currentProduct = { productId, name: productName };
   openOrderModal();
 });
 
 /* ================= CREATION COMMANDE ================= */
 const createBtn = document.getElementById("createOrderBtn");
 
-// 🔥 IMPORTANT : on remplace addEventListener par onclick (anti doublon)
+// 🔥 Anti double exécution garanti
 createBtn.onclick = async () => {
 
-  // 🔒 BLOCAGE IMMÉDIAT (ULTRA IMPORTANT)
   if (createBtn.disabled || isProcessing || !currentProduct) return;
 
   createBtn.disabled = true;
@@ -4202,9 +4203,10 @@ createBtn.onclick = async () => {
 
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
+
     const buyerId = session.user.id;
 
-    // 🔒 Vérification anti-doublon
+    // 🔒 Anti doublon DB
     const { data: existingOrders, error: checkError } = await supabase
       .from("orders")
       .select("id")
@@ -4219,9 +4221,10 @@ createBtn.onclick = async () => {
       return;
     }
 
-    // RPC création commande
-    const { data, error } = await supabase.rpc("create_order_with_escrow", {
+    // 🔥 RPC (IMPORTANT : il manque seller_id chez toi !)
+    const { error } = await supabase.rpc("create_order_with_escrow", {
       p_buyer_id: buyerId,
+      p_seller_id: null, // ⚠️ mets le vrai seller_id si dispo
       p_product_id: currentProduct.productId,
       p_quantity: quantity,
       p_delivery_address: address,
@@ -4231,9 +4234,7 @@ createBtn.onclick = async () => {
 
     if (error) {
       if (error.message.includes("Solde insuffisant")) {
-        alert("❌ Solde insuffisant pour effectuer cette commande !");
-      } else if (error.message.includes("Wallet introuvable")) {
-        alert("❌ Wallet introuvable !");
+        alert("❌ Solde insuffisant !");
       } else {
         throw error;
       }
@@ -4241,56 +4242,55 @@ createBtn.onclick = async () => {
     }
 
     closeOrderModal();
- alert("✅ Commande créée avec succès ! L'argent est bloqué en escrow.");
+    alert("✅ Commande créée avec succès !");
 
-// 📩 ENVOI EMAIL
-await sendOrderEmail({
-  email: session.user.email,
-  productName: currentProduct?.name || "Produit MANG",
-  amount: quantity
-});   
+    // 📩 EMAIL (SÉCURISÉ)
+    await sendOrderEmail({
+      email: session.user.email,
+      productName: currentProduct.name,
+      amount: quantity
+    });
 
     if (typeof loadOrders === "function") loadOrders();
 
   } catch (err) {
     console.error(err);
-    alert(err.message || "Erreur lors de la création de la commande");
+    alert(err.message || "Erreur lors de la commande");
   } finally {
-    // 🔓 Toujours réactiver
     isProcessing = false;
     createBtn.disabled = false;
   }
 };
-// 📩 ENVOI EMAIL PRO APRÈS COMMANDE
+
+/* ================= EMAIL ================= */
 async function sendOrderEmail({ email, productName, amount }) {
   try {
     const response = await fetch("https://czbqmzclcxitxxfydadl.supabase.co/functions/v1/send-order-email", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6YnFtemNsY3hpdHh4ZnlkYWRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwOTU1MTMsImV4cCI6MjA4MjY3MTUxM30.UyImvThNMpdg9Fooqo7Hy1flaAbPKeKkpuSaYLUc--E",
-    "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6YnFtemNsY3hpdHh4ZnlkYWRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwOTU1MTMsImV4cCI6MjA4MjY3MTUxM30.UyImvThNMpdg9Fooqo7Hy1flaAbPKeKkpuSaYLUc--E"
-  },
-  body: JSON.stringify({
-    email,
-    productName,
-    amount
-  })
-});
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "TON_ANON_KEY",
+        "Authorization": "Bearer TON_ANON_KEY"
+      },
+      body: JSON.stringify({
+        email: email || "",
+        productName: productName || "Produit",
+        amount: amount || 0
+      })
+    });
 
     const result = await response.json();
 
     if (!response.ok) {
-      console.error("❌ Erreur envoi email:", result);
+      console.error("❌ Email error:", result);
     } else {
-      console.log("✅ Email envoyé avec succès");
+      console.log("✅ Email envoyé");
     }
 
   } catch (err) {
     console.error("❌ Erreur réseau email:", err);
   }
-}
-
+ }
    
 // ================= CHARGER PRODUITS =================
 let query = supabase
