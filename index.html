@@ -4142,108 +4142,110 @@ function formatAvailability(value) {
   return map[value] || "⏳ Indisponible";
 }
 
+
+
 let currentProduct = null;
 let isProcessing = false;
 
 /* ================= MODALES ================= */
 function openOrderModal() {
-  document.getElementById("orderModal").style.display = "flex";
+document.getElementById("orderModal").style.display = "flex";
 }
 
 function closeOrderModal() {
-  document.getElementById("orderModal").style.display = "none";
+document.getElementById("orderModal").style.display = "none";
 }
 
 // Fermer le modal si clic en dehors
 window.addEventListener("click", e => {
-  if (e.target.id === "orderModal") closeOrderModal();
+if (e.target.id === "orderModal") closeOrderModal();
 });
 
 /* ================= BOUTON COMMANDER ================= */
 document.getElementById("shopProductsScroll").addEventListener("click", e => {
-  const btn = e.target.closest(".orderBtn");
-  if (!btn) return;
+const btn = e.target.closest(".orderBtn");
+if (!btn) return;
 
-  const productId = btn.dataset.productId?.trim();
-  const productName = btn.dataset.productName || "Produit MANG";
+const productId = btn.dataset.productId?.trim();
+if (!productId) return alert("Produit invalide");
 
-  if (!productId) return alert("Produit invalide");
-
-  currentProduct = { productId, name: productName };
-  openOrderModal();
+currentProduct = { productId };
+openOrderModal();
 });
 
 /* ================= CREATION COMMANDE ================= */
 const createBtn = document.getElementById("createOrderBtn");
 
-// 🔥 Anti double exécution garanti
+// 🔥 IMPORTANT : on remplace addEventListener par onclick (anti doublon)
 createBtn.onclick = async () => {
 
-  if (createBtn.disabled || isProcessing || !currentProduct) return;
+// 🔒 BLOCAGE IMMÉDIAT (ULTRA IMPORTANT)
+if (createBtn.disabled || isProcessing || !currentProduct) return;
 
-  createBtn.disabled = true;
-  isProcessing = true;
+createBtn.disabled = true;
+isProcessing = true;
 
-  try {
+try {
 
-    const address = document.getElementById("orderAddress").value.trim();
-    const phone = document.getElementById("orderPhone").value.trim();
-    const note = document.getElementById("orderNote").value.trim();
-    const quantity = parseFloat(document.getElementById("orderQuantity").value);
+const address = document.getElementById("orderAddress").value.trim();
+const phone = document.getElementById("orderPhone").value.trim();
+const note = document.getElementById("orderNote").value.trim();
+const quantity = parseFloat(document.getElementById("orderQuantity").value);
 
-    if (!address || !phone) {
-      alert("Adresse et téléphone requis");
-      return;
-    }
+if (!address || !phone) {
+alert("Adresse et téléphone requis");
+return;
+}
 
-    if (!quantity || quantity <= 0) {
-      alert("Quantité invalide");
-      return;
-    }
+if (!quantity || quantity <= 0) {
+alert("Quantité invalide");
+return;
+}
 
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
+const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+if (sessionError || !session?.user) throw new Error("Utilisateur non connecté");
+const buyerId = session.user.id;
 
-    const buyerId = session.user.id;
+// 🔒 Vérification anti-doublon
+const { data: existingOrders, error: checkError } = await supabase
+.from("orders")
+.select("id")
+.eq("buyer_id", buyerId)
+.eq("product_id", currentProduct.productId)
+.eq("status", "pending");
 
-    // 🔒 Anti doublon DB
-    const { data: existingOrders, error: checkError } = await supabase
-      .from("orders")
-      .select("id")
-      .eq("buyer_id", buyerId)
-      .eq("product_id", currentProduct.productId)
-      .eq("status", "pending");
+if (checkError) throw checkError;
 
-    if (checkError) throw checkError;
+if (existingOrders.length > 0) {
+alert("⚠️ Vous avez déjà une commande en attente pour ce produit.");
+return;
+}
 
-    if (existingOrders.length > 0) {
-      alert("⚠️ Vous avez déjà une commande en attente pour ce produit.");
-      return;
-    }
+// RPC création commande
+const { data, error } = await supabase.rpc("create_order_with_escrow", {
+p_buyer_id: buyerId,
+p_product_id: currentProduct.productId,
+p_quantity: quantity,
+p_delivery_address: address,
+p_delivery_phone: phone,
+p_note: note || null
+});
 
-    // 🔥 RPC (IMPORTANT : il manque seller_id chez toi !)
-    const { error } = await supabase.rpc("create_order_with_escrow", {
-      p_buyer_id: buyerId,
-      p_seller_id: null, // ⚠️ mets le vrai seller_id si dispo
-      p_product_id: currentProduct.productId,
-      p_quantity: quantity,
-      p_delivery_address: address,
-      p_delivery_phone: phone,
-      p_note: note || null
-    });
+if (error) {
+if (error.message.includes("Solde insuffisant")) {
+alert("❌ Solde insuffisant pour effectuer cette commande !");
+} else if (error.message.includes("Wallet introuvable")) {
+alert("❌ Wallet introuvable !");
+} else {
+throw error;
+}
+return;
+}
 
-    if (error) {
-      if (error.message.includes("Solde insuffisant")) {
-        alert("❌ Solde insuffisant !");
-      } else {
-        throw error;
-      }
-      return;
-    }
+closeOrderModal();
 
-    closeOrderModal();
-    alert("✅ Commande créée avec succès !");
-
+alert("✅ Commande créée avec succès.");
+ 
     // 📩 EMAIL (SÉCURISÉ)
     await sendOrderEmail({
       email: session.user.email,
