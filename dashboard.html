@@ -178,11 +178,12 @@ input{
   font-weight:600;
 }
   .wallet-box {
-  background: #0f3d2e;
-  padding: 20px;
-  border-radius: 12px;
-  color: white;
-  width: 320px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:25px;
+  margin-bottom:25px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.3);
 }
 
 #walletNumber {
@@ -192,16 +193,421 @@ input{
   margin-bottom: 10px;
 }
   
+  .modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.send-btn {
+  padding: 12px 18px;
+  background: #1e8e3e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-bottom:25px;
+}
+
+.receiver-info {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: green;
+}
+
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #1e8e3e;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 10px auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+  #openTransferModal{
+    margin-bottom:25px;
+  }
+  /* ======================
+BOUTONS ACTIONS
+===================== */
+.actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.actions button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actions .deposit { background: #1f4d3a; }
+.actions .deposit:hover { background: #16663d; }
+
+.actions .withdraw { background: #dc2626; }
+.actions .withdraw:hover { background: #b71c1c; }
+
+/* ======================
+MODALES
+===================== */
+.modal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.modal-content button {
+  background: #1f4d3a;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+  
+  /* ===== Operator selector ===== */
+.operator-select {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+.operator-select label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.operator-select img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+}
+.operator-select input[type="radio"] {
+  display: none;
+}
+.operator-select input[type="radio"]:checked + img {
+  border: 2px solid #1f4d3a;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.modal-content button:hover {
+  background: #16663d;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 20px;
+  color: #777;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-content .close:hover {
+  color: #000;
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #0b3d2e;
+}
+  
+.back{
+  padding:20px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .modal-content input,
+  .modal-content button {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  
+  .modal-content {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.send-btn {
+  padding: 12px 18px;
+  background: #1e8e3e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-bottom:25px;
+}
+
+.receiver-info {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: green;
+}
+
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #1e8e3e;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 10px auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+  #openTransferModal{
+    margin-bottom:25px;
+  }
+  /* ======================
+BOUTONS ACTIONS
+===================== */
+.actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.actions button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actions .deposit { background: #1f4d3a; }
+.actions .deposit:hover { background: #16663d; }
+
+.actions .withdraw { background: #dc2626; }
+.actions .withdraw:hover { background: #b71c1c; }
+
+/* ======================
+MODALES
+===================== */
+.modal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.modal-content button {
+  background: #1f4d3a;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+  
+  /* ===== Operator selector ===== */
+.operator-select {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+.operator-select label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.operator-select img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+}
+.operator-select input[type="radio"] {
+  display: none;
+}
+.operator-select input[type="radio"]:checked + img {
+  border: 2px solid #1f4d3a;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.modal-content button:hover {
+  background: #16663d;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 20px;
+  color: #777;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-content .close:hover {
+  color: #000;
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #0b3d2e;
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .modal-content input,
+  .modal-content button {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+  }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
+  <div class="back" onclick="window.location.href='profile.html'">⬅ Retour</div>
+
+<!-- ================= TOPBAR ================= -->
 <div class="topbar">
   <div class="profile">
     <div class="profile-circle">👤</div>
@@ -210,120 +616,559 @@ input{
       <small id="userEmail"></small>
     </div>
   </div>
-  <div class="back" onclick="window.location.href='profile.html'">⬅ Retour</div>
-
+  
 </div>
 
-<div class="container">
+<!-- ================= WALLET CONTAINER ================= -->
+<div id="walletContainer" style="display:none;">
 
   <div class="card">
     <div class="balance-title">Solde disponible</div>
-    <div class="balance"><span id="balance">0</span> FCFA</div>
+    <div class="balance"><span id="balance">0</span></div>
 
-    <div class="actions">
-      <button class="deposit" onclick="openDeposit()">Recharger</button>
-      <button class="withdraw" onclick="openWithdraw()">Retirer</button>
+  
+<div class="actions">
+  <button class="deposit" onclick="openDeposit()">Recharger</button>
+  <button class="withdraw" onclick="openWithdraw()">Retirer</button>
+</div>
+  </div>
+<!-- ========================= -->
+<!-- MODAL RECHARGER -->
+<!-- ========================= -->
+<div id="depositModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeDeposit()">&times;</span>
+    <h3>Recharger mon portefeuille</h3>
+
+    <label>Opérateur.</label>
+    <div class="operator-select">
+      <label><input type="radio" name="depositOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="depositOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="depositOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
     </div>
+
+    <input id="depositPhone" type="text" placeholder="Numéro Mobile Money">
+    <input id="depositAmount" type="number" placeholder="Montant à recharger">
+    <button id="depositBtn" onclick="submitDeposit()">Recharger</button>
+    <span id="depositLoader" style="display:none;">⏳ Traitement...</span>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL RETRAIT -->
+<!-- ========================= -->
+<div id="withdrawModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeWithdraw()">&times;</span>
+    <h3>Retirer de mon portefeuille</h3>
+
+    <label>Opérateur</label>
+    <div class="operator-select">
+      <label><input type="radio" name="withdrawOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="withdrawOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="withdrawOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
+    </div>
+
+    <input id="withdrawPhone" type="text" placeholder="Numéro Mobile Money">
+    <input id="withdrawAmount" type="number" placeholder="Montant à retirer">
+    <button id="withdrawBtn" onclick="submitWithdraw()">Retirer</button>
+    <span id="withdrawLoader" style="display:none;">⏳ Traitement...</span>
+  </div>
+</div>
+    
+  <div class="wallet-box">
+    <h3>Mon numéro de portefeuille</h3>
+    <div id="walletNumber">Chargement...</div>
+    <button onclick="copyWalletNumber()">Copier</button>
   </div>
 
-<div class="wallet-box">
-  <h3>Mon numéro de portefeuille</h3>
-  <div id="walletNumber">Chargement...</div>
+  <button id="openTransferModal" class="send-btn">
+    💸 Envoyer de l'argent
+  </button>
 
-  <button onclick="copyWalletNumber()">Copier</button>
 
-  <h3>Solde</h3>
-  <div id="walletBalance">0 FCFA</div>
+  <!-- ================= TRANSFER MODAL ================= -->
+<div class="modal" id="transferModal">
+  <div class="modal-content">
+    <h3>Envoyer de l'argent</h3>
+
+    <input type="text" id="receiverNumber" placeholder="Numéro portefeuille">
+
+    <div id="receiverInfo" style="margin:8px 0; font-size:13px;"></div>
+
+    <input type="number" id="transferAmount" placeholder="Montant">
+
+    <input type="password" id="transferPin" maxlength="4" placeholder="Votre PIN">
+
+    <div id="transferLoader" style="display:none; margin:10px;">
+      Traitement...
+    </div>
+
+    <button onclick="confirmTransfer()">Envoyer</button>
+    <button onclick="closeTransferModal()" style="margin-top:8px; background:#ccc; color:#000;">
+      Annuler
+    </button>
+  </div>
 </div>
   
-
   <div class="card">
-    <h3>Historique</h3>
-    <div style="margin:15px 0;display:flex;gap:10px;flex-wrap:wrap">
+  <h3>Historique</h3>
+     <div style="margin:15px 0;display:flex;gap:10px;flex-wrap:wrap">
   <select id="filterType" onchange="loadTransactions()" style="padding:8px;border-radius:8px;">
+    
     <option value="">Toutes</option>
     <option value="deposit">Rechargement</option>
     <option value="withdraw">Retrait</option>
-    <option value="purchase">Achat</option>
-    <option value="premium">Premium</option>
     <option value="transfer">Transfert</option>
+    <option value="purchase">Achat</option>
   </select>
+     </div>
+  <canvas id="walletChart" height="120"></canvas>
+
+  <div id="transactions"></div>
 </div>
 
-<canvas id="walletChart" height="120"></canvas>
-    <div id="transactions"></div>
-  </div>
-
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="paymentModal">
-  <div class="modal-content">
-    <h3 id="modalTitle"></h3>
-
-    <input type="number" id="amountInput" placeholder="Montant (FCFA)">
-    <input type="text" id="phoneInput" placeholder="Numéro Mobile Money">
-
-    <div class="operator">
-      <div onclick="selectOperator(this,'MTN')">🟡 MTN</div>
-      <div onclick="selectOperator(this,'MOOV')">🔵 Moov</div>
-      <div onclick="selectOperator(this,'CELTIS')">🟢 Celtis</div>
-    </div>
-
-    <button onclick="submitTransaction()">Confirmer</button>
-  </div>
-</div>
-<!-- MODAL DETAIL TRANSACTION -->
 <div class="modal" id="detailModal">
   <div class="modal-content">
-    <h3>Détails de la transaction</h3>
     <div id="transactionDetails"></div>
     <button onclick="closeDetail()">Fermer</button>
   </div>
 </div>
+</div>
 
+<!-- MODAL POUR CRÉER LE PIN -->
+<div id="createPinModal" style="display:none; 
+                                position:fixed; 
+                                top:0; left:0; 
+                                width:100%; height:100%; 
+                                background:rgba(0,0,0,0.7);  /* fond un peu plus sombre */
+                                justify-content:center; 
+                                align-items:center; 
+                                z-index:9999;">
+  <div style="background:#ffffff; color:#000000; padding:20px; border-radius:10px; width:300px; text-align:center; box-shadow:0 0 15px rgba(0,0,0,0.3);">
+    <h3 style="color:#333333;">Créer un PIN pour votre portefeuille</h3>
+    <input type="password" id="newPin" placeholder="4 chiffres" maxlength="4" 
+           style="width:100%; padding:8px; margin:10px 0; border:1px solid #ccc; border-radius:5px; color:#000;">
+    <button onclick="createPin()" 
+            style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer;">
+      Valider
+    </button>
+  </div>
+</div>
+
+<!-- MODAL POUR VÉRIFIER LE PIN -->
+<div id="verifyPinModal" style="display:none; 
+                                position:fixed; 
+                                top:0; left:0; 
+                                width:100%; height:100%; 
+                                background:rgba(0,0,0,0.7); 
+                                justify-content:center; 
+                                align-items:center; 
+                                z-index:9999;">
+  <div style="background:#ffffff; color:#000000; padding:20px; border-radius:10px; width:300px; text-align:center; box-shadow:0 0 15px rgba(0,0,0,0.3);">
+    <h3 style="color:#333333;">Entrez votre PIN</h3>
+    <input type="password" id="verifyPinInput" placeholder="4 chiffres" maxlength="4" 
+           style="width:100%; padding:8px; margin:10px 0; border:1px solid #ccc; border-radius:5px; color:#000;">
+    <button onclick="verifyPin()" 
+            style="padding:10px 20px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">
+      Valider
+    </button>
+  </div>
+</div>
   
-        <script type="module">
-      import { supabase } from './supabase.js';
+<script type="module">
+
+import { supabase } from './supabase.js';
+
+const supabaseUrl = "https://czbqmzclcxitxxfydadl.supabase.co";
 
 let currentUser = null;
-let walletChart = null;
+let currentProfile = null;
+let isProcessingDeposit = false;
+  
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      location.href = "login.html";
+      return;
+    }
 
-/* ======================
-LOAD USER
-===================== */
-async function loadUser() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { location.href = "login.html"; return; }
-  currentUser = user;
+    currentUser = user;
 
-  document.getElementById("userEmail").innerText = user.email;
+    // Afficher email
+    const emailEl = document.getElementById("userEmail");
+    if (emailEl) emailEl.innerText = currentUser.email;
 
-  // Filtre par type
-  const filter = document.getElementById("filterType");
-  if (filter) filter.addEventListener("change", loadTransactions);
+    // Vérifier PIN
+    await checkPinStatus();
 
+    // Charger wallet après
+    await loadWallet();
+
+  } catch (err) {
+    alert("Erreur lors du chargement : " + err.message);
+  }
+});
+
+
+/* ================= PIN SYSTEM ================= */
+async function checkPinStatus() {
+  let profile;
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, pin")
+      .eq("id", currentUser.id)
+      .single();
+
+    if (error) throw error;
+
+    profile = data;
+  } catch (err) {
+    alert("Erreur récupération profil : " + err.message);
+    return;
+  }
+
+  currentProfile = profile;
+
+  if (!profile.pin) {
+    // PIN non défini → créer
+    const modal = document.getElementById("createPinModal");
+    if (modal) modal.style.display = "flex";
+  } else {
+    // PIN existant → vérifier
+    const modal = document.getElementById("verifyPinModal");
+    if (modal) modal.style.display = "flex";
+  }
+}
+async function createPin() {
+
+  const pin = document.getElementById("newPin").value.trim();
+
+  if (pin.length !== 4 || isNaN(pin)) {
+    alert("Le PIN doit contenir 4 chiffres");
+    return;
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ pin })
+    .eq("id", currentUser.id);
+
+  document.getElementById("createPinModal").style.display = "none";
+
+  unlockWallet();
+}
+
+function verifyPin() {
+
+  const enteredPin = document.getElementById("verifyPinInput").value.trim();
+
+  if (enteredPin === currentProfile.pin) {
+    document.getElementById("verifyPinModal").style.display = "none";
+    unlockWallet();
+  } else {
+    alert("❌ PIN incorrect");
+  }
+}
+
+function unlockWallet(){
+  document.getElementById("walletContainer").style.display = "block";
   loadWallet();
 }
 
-/* ======================
-LOAD WALLET
-===================== */
+          
+    
+// 🔹 Charger les informations du wallet
 async function loadWallet() {
-  const { data } = await supabase
-    .from("profiles")
-    .select("wallet_balance")
-    .eq("id", currentUser.id)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from("wallets")
+      .select("balance, available_balance, escrow_balance, wallet_number")
+      .eq("user_id", currentUser.id)
+      .single();
 
-  document.getElementById("balance").innerText = formatMoney(data?.wallet_balance || 0);
-  loadTransactions();
+    if (error) throw error;
+    if (!data) throw new Error("Wallet introuvable");
+
+    // Afficher le solde disponible
+    const balanceEl = document.getElementById("balance");
+    if (balanceEl) {
+      balanceEl.innerText = Number(data.available_balance).toLocaleString("fr-FR") + " FCFA";
+    }
+
+    // Afficher le solde total et l'argent bloqué en escrow (optionnel)
+    const totalEl = document.getElementById("totalBalance");
+    if (totalEl) {
+      totalEl.innerText = `Total: ${Number(data.balance).toLocaleString("fr-FR")} FCFA (Escrow: ${Number(data.escrow_balance).toLocaleString("fr-FR")} FCFA)`;
+    }
+
+    // Afficher le numéro du wallet
+    const walletEl = document.getElementById("walletNumber");
+    if (walletEl) walletEl.innerText = data.wallet_number || "Non disponible";
+
+    // Charger l'historique des transactions si fonction disponible
+    if (typeof loadTransactions === "function") loadTransactions();
+
+  } catch (err) {
+    console.error("Erreur lors du chargement du wallet :", err);
+    alert(err.message || "Impossible de charger le wallet");
+  }
 }
 
-/* ======================
-LOAD TRANSACTIONS
+// 🔹 Copier le numéro du wallet
+function copyWalletNumber() {
+  const el = document.getElementById("walletNumber");
+  if (!el) return;
+
+  const number = el.textContent.replace(/\s/g, "");
+
+  if (!number || number === "Non disponible") {
+    alert("Numéro indisponible");
+    return;
+  }
+
+  navigator.clipboard.writeText(number)
+    .then(() => alert("Numéro copié !"))
+    .catch(() => alert("Impossible de copier le numéro"));
+}
+
+// 🔹 Déclarer la fonction globalement pour l'HTML
+window.copyWalletNumber = copyWalletNumber;
+
+
+// =====================================
+// RECHARGEMENT FEDA PAY
+// =====================================
+window.submitDeposit = async function () {
+
+  if (isProcessingDeposit) return;
+
+  const amount = Number(document.getElementById("depositAmount").value);
+  const phone = document.getElementById("depositPhone").value.trim();
+  const operatorEl = document.querySelector('input[name="depositOperator"]:checked');
+  const operator = operatorEl ? operatorEl.value : null;
+
+  if (!amount || amount <= 0) return alert("Montant invalide");
+  if (!phone) return alert("Numéro requis");
+  if (!operator) return alert("Sélectionnez un opérateur");
+
+  isProcessingDeposit = true;
+
+  try {
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error("Session expirée");
+
+    const payload = {
+  user_id: currentUser.id,
+  type: "deposit",
+  operator,
+  phone,
+  amount,
+  currency: "XOF",
+  description: "Recharge portefeuille",
+  email: currentUser.email,
+  first_name: currentUser.user_metadata?.first_name || "Client",
+  last_name: currentUser.user_metadata?.last_name || "MANG",
+
+  metadata: {
+    user_id: currentUser.id,   // ⭐ indispensable pour le webhook
+    operator: operator,
+    phone: phone,
+    source: "web"
+  },
+
+  // FedaPay redirige toujours vers profile.html après paiement ou annulation
+      redirect_url: `${window.location.origin}/profile.html?amount=${amount}`
+    };  
+
+    const res = await fetch(`${supabaseUrl}/functions/v1/create-transaction`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || "Erreur serveur");
+    }
+
+    const data = await res.json();
+
+    const paymentUrl =
+      data?.transaction?.payment_url ||
+      data?.transaction?.["v1/transaction"]?.payment_url;
+
+    if (!paymentUrl) throw new Error("Lien de paiement introuvable");
+
+// 🔹 redirection directe dans le même onglet
+    window.location.href = paymentUrl;
+
+    closeDeposit();
+
+  } catch (err) {
+    console.error("Erreur recharge :", err);
+    alert("Erreur : " + err.message);
+  } finally {
+    isProcessingDeposit = false;
+  }
+
+};
+
+/* =====================================
+   OUVERTURE / FERMETURE MODALES
+===================================== */
+window.openDeposit = () => {
+  document.getElementById("depositModal").style.display = "flex";
+};
+
+window.closeDeposit = () => {
+  document.getElementById("depositModal").style.display = "none";
+};
+
+window.openWithdraw = () => {
+  document.getElementById("withdrawModal").style.display = "flex";
+};
+
+window.closeWithdraw = () => {
+  document.getElementById("withdrawModal").style.display = "none";
+};
+          
+ /* ======================
+   TRANSFERT D'ARGENT
 ===================== */
+
+// 🔹 Ouvrir le modal
+function openTransferModal() {
+  const modal = document.getElementById("transferModal");
+  if (modal) modal.style.display = "flex";
+}
+
+// 🔹 Fermer le modal et réinitialiser les champs
+function closeTransferModal() {
+  const modal = document.getElementById("transferModal");
+  if (modal) modal.style.display = "none";
+
+  const info = document.getElementById("receiverInfo");
+  if (info) info.innerHTML = "";
+
+  document.getElementById("receiverNumber").value = "";
+  document.getElementById("transferAmount").value = "";
+  document.getElementById("transferPin").value = "";
+}
+
+// 🔹 Bouton pour ouvrir le modal
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("openTransferModal");
+  if (btn) btn.addEventListener("click", openTransferModal);
+});
+
+// 🔎 Vérification automatique du destinataire
+document.addEventListener("input", async (e) => {
+  if (e.target.id !== "receiverNumber") return;
+
+  const number = e.target.value.replace(/\s/g, "").trim();
+  if (number.length < 6) return;
+
+  try {
+    // Récupérer l'utilisateur à partir du wallet_number
+    const { data: walletData } = await supabase
+      .from("wallets")
+      .select("user_id")
+      .eq("wallet_number", number)
+      .maybeSingle(); // ✅ use maybeSingle pour éviter l'erreur
+
+    const info = document.getElementById("receiverInfo");
+    if (!info) return;
+
+    if (!walletData) {
+      info.innerHTML = "Numéro introuvable";
+      return;
+    }
+
+    // Récupérer l'email du destinataire
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", walletData.user_id)
+      .maybeSingle();
+
+    if (profileData) {
+      info.innerHTML = `Destinataire : <b>${profileData.email}</b>`;
+    } else {
+      info.innerHTML = "Destinataire trouvé";
+    }
+
+  } catch (err) {
+    console.error("Erreur vérification destinataire :", err);
+  }
+});
+
+// 🔹 Confirmer le transfert
+async function confirmTransfer() {
+  if (!confirm("Êtes-vous sûr de vouloir effectuer ce transfert ?")) return;
+  await sendMoney();
+}
+
+// 🔹 Envoyer l'argent
+async function sendMoney() {
+  const loader = document.getElementById("transferLoader");
+  if (loader) loader.style.display = "block";
+
+  try {
+    const receiverNumber = document.getElementById("receiverNumber")?.value.replace(/\s/g, "").trim();
+    const amount = parseFloat(document.getElementById("transferAmount")?.value);
+    const pin = document.getElementById("transferPin")?.value.trim();
+
+    if (!receiverNumber || !amount || !pin) throw new Error("Veuillez remplir tous les champs");
+
+    // 🔹 Récupérer l'utilisateur connecté
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Utilisateur non connecté");
+
+    // 🔹 Appel RPC transfer_money
+    const { error: rpcError } = await supabase.rpc("transfer_money", {
+      sender_uuid: user.id,
+      receiver_wallet_number: receiverNumber,
+      transfer_amount: amount,
+      user_pin: pin
+    });
+
+    if (rpcError) throw rpcError;
+
+    // 🔹 Succès
+    alert("✅ Transfert réussi !");
+    closeTransferModal();
+    await loadWallet();
+    await loadTransactions(); // recharge les transactions
+
+  } catch (err) {
+    alert("❌ " + err.message);
+    console.error("Erreur transfert :", err);
+  } finally {
+    if (loader) loader.style.display = "none";
+  }
+}
+
+// 🔹 Export des fonctions pour le HTML
+window.openTransferModal = openTransferModal;
+window.closeTransferModal = closeTransferModal;
+window.confirmTransfer = confirmTransfer;
+window.sendMoney = sendMoney;
+
+    
+/* ======================
+LOAD TRANSACTIONS & REALTIME NOTIFICATIONS
+====================== */
 async function loadTransactions() {
+  if (!currentUser) return;
+
   const filter = document.getElementById("filterType")?.value || "";
 
   let query = supabase
@@ -332,9 +1177,12 @@ async function loadTransactions() {
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
 
-  if (filter) query = query.ilike("type", `%${filter}%`);
+  if (filter) {
+    query = query.ilike("transaction_type", `%${filter}%`);
+  }
 
   const { data, error } = await query;
+
   const container = document.getElementById("transactions");
   container.innerHTML = "";
 
@@ -348,11 +1196,12 @@ async function loadTransactions() {
   let totalOut = 0;
 
   data.forEach(tx => {
-    const isCredit = isPositive(tx);
-    const amount = Math.abs(Number(tx.amount));
+    const amount = Number(tx.amount) || 0;
+    const isCredit = amount > 0;
+    const absAmount = Math.abs(amount);
 
-    if (isCredit) totalIn += amount;
-    else totalOut += amount;
+    if (isCredit) totalIn += absAmount;
+    else totalOut += absAmount;
 
     const div = document.createElement("div");
     div.className = "transaction";
@@ -360,12 +1209,12 @@ async function loadTransactions() {
 
     div.innerHTML = `
       <div>
-        <strong>${getTitle(tx)}</strong><br>
+        ${getIcon(tx)} <strong>${getTitle(tx)}</strong><br>
         <small>${new Date(tx.created_at).toLocaleString()}</small><br>
         ${statusBadge(tx.status)}
       </div>
-      <div class="amount ${isCredit ? 'plus' : 'minus'}">
-        ${isCredit ? '+' : '-'}${formatMoney(amount)} FCFA
+      <div class="amount ${isCredit ? "plus" : "minus"}">
+        ${isCredit ? "+" : "-"}${formatMoney(absAmount)} FCFA
       </div>
     `;
 
@@ -377,114 +1226,127 @@ async function loadTransactions() {
 }
 
 /* ======================
-CREDIT LOGIC
-===================== */
-function isPositive(tx) {
-  const type = tx.type?.toLowerCase() || "";
-  return type.includes("deposit") || type.includes("refund");
+ICONS
+====================== */
+function getIcon(tx) {
+  const type = tx.transaction_type?.toLowerCase() || "";
+  if (type.includes("deposit")) return "💰";
+  if (type.includes("transfer")) return "🔄";
+  if (type.includes("withdraw")) return "💸";
+  if (type.includes("purchase")) return "🛒";
+  if (type.includes("premium")) return "⭐";
+  return "💳";
 }
 
 /* ======================
+NOTIFICATIONS WALLET
+====================== */
+function showWalletNotification(amount) {
+  const notif = document.createElement("div");
+  notif.className = "wallet-notif";
+  notif.style.position = "fixed";
+  notif.style.top = "20px";
+  notif.style.right = "20px";
+  notif.style.background = "#00c853";
+  notif.style.color = "white";
+  notif.style.padding = "12px 18px";
+  notif.style.borderRadius = "8px";
+  notif.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
+  notif.style.zIndex = 9999;
+  notif.innerHTML = `🔔 Recharge réussie<br>${amount.toLocaleString()} FCFA ont été ajoutés à votre portefeuille`;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 5000);
+}
+
+/* ======================
+ANIMATION SOLDE WALLET
+====================== */
+function animateWalletIncrease(amount) {
+  const walletEl = document.getElementById("walletBalance");
+  if (!walletEl) return;
+  const current = Number(walletEl.textContent.replace(/\sFCFA/g, '')) || 0;
+  const final = current + amount;
+  let temp = current;
+  const step = Math.ceil(amount / 20);
+
+  const interval = setInterval(() => {
+    temp += step;
+    if (temp >= final) temp = final;
+    walletEl.textContent = temp.toLocaleString() + " FCFA";
+    if (temp >= final) clearInterval(interval);
+  }, 30);
+}
+
+/* ======================
+LISTENER REALTIME WALLET
+====================== */
+function listenWalletRechargeRealtime() {
+  supabase
+    .channel('wallet_changes')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'wallet_transactions',
+    }, (payload) => {
+      const tx = payload.new;
+      if (tx.user_id === currentUser.id && tx.transaction_type === "transfer") {
+        showWalletNotification(Number(tx.amount));
+        animateWalletIncrease(Number(tx.amount));
+        loadTransactions(); // recharge historique automatiquement
+      }
+    })
+    .subscribe();
+}
+
+listenWalletRechargeRealtime();
+
+/* ======================
 GET TITLE
-===================== */
+====================== */
 function getTitle(tx) {
-  const type = tx.type?.toLowerCase() || "";
+  const type = tx.transaction_type?.toLowerCase() || "";
   const desc = tx.description?.toLowerCase() || "";
 
   if (type.includes("deposit")) return "Rechargement Mobile Money";
   if (type.includes("withdraw")) return "Retrait Mobile Money";
-  if (type.includes("premium") || desc.includes("premium")) return "Abonnement Premium MANG";
-  if (type.includes("purchase")) return tx.description || "Paiement produit";
   if (type.includes("transfer")) return "Transfert utilisateur";
+  if (type.includes("purchase")) return tx.description || "Paiement produit";
+  if (type.includes("premium") || desc.includes("premium")) return "Abonnement Premium";
+
   return "Transaction";
 }
 
 /* ======================
 FORMAT MONEY
-===================== */
+====================== */
 function formatMoney(amount) {
   return Number(amount || 0).toLocaleString("fr-FR");
 }
 
 /* ======================
 STATUS BADGE
-===================== */
+====================== */
 function statusBadge(status) {
-  if (!status) return badge("Validé", "#00c853");
+  if (!status || status === "completed") return badge("Validé", "#00c853");
   if (status === "pending") return badge("En attente", "#ff9800");
   if (status === "failed") return badge("Échoué", "#ff5252");
   return badge("Validé", "#00c853");
 }
+
 function badge(text, color) {
-  return `<span style="background:${color};color:white;padding:4px 8px;border-radius:6px;font-size:11px;">${text}</span>`;
-}
-
-/* ======================
-DETAIL MODAL
-===================== */
-function showTransactionDetail(tx) {
-  const isCredit = isPositive(tx);
-  const amount = Math.abs(Number(tx.amount));
-  const sign = isCredit ? "+" : "-";
-  const color = isCredit ? "#00e676" : "#ff5252";
-
-  const detail = document.getElementById("transactionDetails");
-  detail.innerHTML = `
-    <h4>${getTitle(tx)}</h4>
-    <div style="font-size:22px;font-weight:700;color:${color}">${sign}${formatMoney(amount)} FCFA</div>
-    <hr>
-    <p><strong>Date :</strong><br>${new Date(tx.created_at).toLocaleString()}</p>
-    <p><strong>Statut :</strong><br>${tx.status || "Validé"}</p>
-    ${tx.operator ? `<p><strong>Opérateur :</strong><br>${tx.operator}</p>` : ""}
-    ${tx.phone ? `<p><strong>Numéro :</strong><br>${tx.phone}</p>` : ""}
-    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
-    <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
-      Télécharger PDF
-    </button>
+  return `
+    <span style="
+      background:${color};
+      color:white;
+      padding:4px 8px;
+      border-radius:6px;
+      font-size:11px;">
+      ${text}
+    </span>
   `;
-  document.getElementById("detailModal").style.display = "flex";
-
-  document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
 }
 
-window.closeDetail = () => {
-  document.getElementById("detailModal").style.display = "none";
-};
-
-          async function loadWallet() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("wallet_number, wallet_balance")
-    .eq("id", user.id)
-    .single();
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  // Formater numéro (12 34 56 78 90)
-  const formattedNumber = data.wallet_number.replace(/(\d{2})(?=\d)/g, "$1 ");
-
-  document.getElementById("walletNumber").textContent = formattedNumber;
-  document.getElementById("walletBalance").textContent =
-    Number(data.wallet_balance).toLocaleString() + " FCFA";
-}
-
-loadWallet();
-
-          function copyWalletNumber() {
-  const number = document
-    .getElementById("walletNumber")
-    .textContent.replace(/\s/g, "");
-
-  navigator.clipboard.writeText(number);
-  alert("Numéro copié !");
-          }
-/* ======================
+          /* ======================
 USAGE DESCRIPTION
 ===================== */
 function getUsage(tx) {
@@ -495,37 +1357,129 @@ function getUsage(tx) {
   if (tx.type === "purchase") return tx.description ? `Paiement pour : ${tx.description}` : "Paiement d’un produit.";
   if (tx.type === "transfer") return "Transfert vers un autre utilisateur.";
   return "Transaction enregistrée.";
+          }
+/* ======================
+SHOW TRANSACTION DETAIL
+====================== */
+function showTransactionDetail(tx) {
+  const amount = Number(tx.amount) || 0;
+  const isCredit = amount > 0;
+  const absAmount = Math.abs(amount);
+  const sign = isCredit ? "+" : "-";
+  const color = isCredit ? "#00e676" : "#ff5252";
+
+  const detail = document.getElementById("transactionDetails");
+  if (!detail) return;
+
+  detail.innerHTML = `
+    <h4>${getTitle(tx)}</h4>
+    <div style="font-size:22px;font-weight:700;color:${color}">
+      ${sign}${formatMoney(absAmount)} FCFA
+    </div>
+    <hr>
+    <p><strong>Date :</strong><br>
+      ${new Date(tx.created_at).toLocaleString()}
+    </p>
+    <p><strong>Statut :</strong><br>
+      ${tx.status || "Validé"}
+    </p>
+    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
+    <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
+      Télécharger PDF
+    </button>
+  `;
+
+  document.getElementById("detailModal").style.display = "flex";
+  document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
+  
 }
 
 /* ======================
-CHART
-===================== */
+CLOSE MODAL
+====================== */
+function closeDetail() {
+  document.getElementById("detailModal").style.display = "none";
+}
+
+/* ======================
+FILTER CHANGE
+====================== */
+document.addEventListener("DOMContentLoaded", () => {
+  const filter = document.getElementById("filterType");
+  if (filter) {
+    filter.addEventListener("change", loadTransactions);
+  }
+});
+let walletChart = null;
+
 function renderChart(totalIn, totalOut) {
-  const ctx = document.getElementById("walletChart");
-  if (!ctx) return;
-  if (walletChart) walletChart.destroy();
+  const canvas = document.getElementById("walletChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  if (walletChart) {
+    walletChart.destroy();
+  }
 
   walletChart = new Chart(ctx, {
     type: "doughnut",
     data: {
       labels: ["Entrées", "Sorties"],
-      datasets: [{ data: [totalIn, totalOut], backgroundColor: ["#00e676", "#ff5252"] }]
+      datasets: [{
+        data: [totalIn, totalOut],
+        backgroundColor: ["#00e676", "#ff5252"],
+        borderWidth: 0
+      }]
     },
-    options: { plugins: { legend: { labels: { color: "white" } } } }
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            color: "#ffffff"
+          }
+        }
+      }
+    }
   });
-}
-async function generateHash(text) {
+          }
+
+          
+
+          async function generateHash(text) {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-}
-/* ======================
+          }
+
+          
+
+          function loadImageBase64(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+          }
+
+          /* ======================
 PDF RECEIPT CLIENT
 ===================== */
       async function downloadReceiptPDF(id) {
   try {
+
     const { data: tx, error } = await supabase
       .from("wallet_transactions")
       .select("*")
@@ -538,103 +1492,135 @@ PDF RECEIPT CLIENT
     const doc = new jsPDF({ unit: "pt", format: "a4" });
 
     const primary = "#0b3d2e";
-    const accent = tx.type === "credit" ? "#16a34a" : "#dc2626";
+    const success = "#16a34a";
+    const danger = "#dc2626";
+
+    const isCredit = Number(tx.amount) > 0;
+    const accent = isCredit ? success : danger;
+
+    const cleanAmount = Math.abs(Number(tx.amount));
 
     /* ===== NUMÉRO OFFICIEL ===== */
-    const receiptNumber = `MANG-${new Date().getFullYear()}-${String(tx.id).padStart(6, "0")}`;
+    const receiptNumber =
+      `MANG-${new Date().getFullYear()}-${String(tx.id).padStart(6, "0")}`;
 
     /* ===== HASH SÉCURITÉ ===== */
-    const securityString = `${receiptNumber}|${tx.amount}|${tx.created_at}`;
+    const securityString =
+      `${receiptNumber}|${tx.amount}|${tx.created_at}`;
     const hash = await generateHash(securityString);
 
-    /* ===== HEADER ===== */
+    /* ===== HEADER FOND ===== */
     doc.setFillColor(primary);
-    doc.rect(0, 0, 595, 100, "F");
+    doc.rect(0, 0, 595, 110, "F");
+
+    /* ===== LOGO ===== */
+    const logo = await loadImageBase64("assets/img/logos.png");
+    doc.addImage(logo, "PNG", 40, 25, 60, 60);
 
     doc.setTextColor("#ffffff");
     doc.setFontSize(20);
-    doc.text("MANG WALLET", 40, 60);
+    doc.text("MANG WALLET", 120, 60);
 
     doc.setFontSize(11);
-    doc.text("Reçu Financier Sécurisé", 400, 60);
+    doc.text("Reçu Financier Officiel", 420, 60);
 
-    /* ===== CARTE BLANCHE ===== */
+    /* ===== CARTE PRINCIPALE ===== */
     doc.setFillColor("#ffffff");
-    doc.roundedRect(40, 140, 515, 360, 14, 14, "F");
+    doc.roundedRect(40, 150, 515, 400, 18, 18, "F");
 
     doc.setDrawColor(220);
-    doc.roundedRect(40, 140, 515, 360, 14, 14);
+    doc.roundedRect(40, 150, 515, 400, 18, 18);
+
+    /* ===== TITRE ===== */
+    doc.setFontSize(14);
+    doc.setTextColor("#333");
+    doc.text("Détails de la transaction", 60, 190);
 
     /* ===== MONTANT CENTRAL ===== */
-    doc.setFontSize(34);
+    doc.setFontSize(36);
     doc.setTextColor(accent);
     doc.text(
-      `${tx.type === "credit" ? "+" : "-"} ${Number(tx.amount).toLocaleString()} FCFA`,
+      `${isCredit ? "+" : "-"} ${cleanAmount.toLocaleString()} FCFA`,
       297,
-      220,
+      250,
       { align: "center" }
     );
 
-    /* ===== BADGE ===== */
+    /* ===== BADGE TYPE ===== */
     doc.setFillColor(accent);
-    doc.roundedRect(240, 235, 120, 30, 8, 8, "F");
+    doc.roundedRect(230, 270, 135, 30, 10, 10, "F");
 
     doc.setTextColor("#ffffff");
     doc.setFontSize(12);
-    doc.text(tx.type.toUpperCase(), 300, 255, { align: "center" });
+
+    const typeLabel =
+      tx.type === "transfer_received" ? "TRANSFERT REÇU"
+      : tx.type === "transfer_sent" ? "TRANSFERT ENVOYÉ"
+      : tx.type?.toUpperCase() || "TRANSACTION";
+
+    doc.text(typeLabel, 297, 290, { align: "center" });
 
     /* ===== INFOS ===== */
     doc.setTextColor("#333");
     doc.setFontSize(12);
 
-    let y = 300;
-    const gap = 30;
+    let y = 330;
+    const gap = 32;
 
-    doc.text("Numéro de reçu :", 70, y);
-    doc.text(receiptNumber, 230, y);
+    const infoLine = (label, value, offset) => {
+      doc.setFont(undefined, "bold");
+      doc.text(label, 70, y + gap * offset);
+      doc.setFont(undefined, "normal");
+      doc.text(String(value), 230, y + gap * offset);
+    };
 
-    doc.text("Transaction ID :", 70, y + gap);
-    doc.text(String(tx.id), 230, y + gap);
+    infoLine("Numéro de reçu :", receiptNumber, 0);
+    infoLine("Transaction ID :", tx.id, 1);
+    infoLine("Date :", new Date(tx.created_at).toLocaleString(), 2);
+    infoLine("Description :", tx.description || "-", 3);
 
-    doc.text("Date :", 70, y + gap * 2);
-    doc.text(new Date(tx.created_at).toLocaleString(), 230, y + gap * 2);
-
-    doc.text("Description :", 70, y + gap * 3);
-    doc.text(tx.description || "-", 230, y + gap * 3, { maxWidth: 250 });
-
-    /* ===== QR CODE SÉCURISÉ ===== */
+    /* ===== QR CODE ===== */
     const qrCanvas = document.createElement("canvas");
 
     await new Promise(resolve => {
       new QRCode(qrCanvas, {
         text: `${receiptNumber}|HASH:${hash}`,
-        width: 110,
-        height: 110,
+        width: 120,
+        height: 120,
         correctLevel: QRCode.CorrectLevel.H
       });
-      setTimeout(resolve, 200);
+      setTimeout(resolve, 250);
     });
 
     const qrData = qrCanvas.toDataURL("image/png");
-    doc.addImage(qrData, "PNG", 410, 330, 110, 110);
+    doc.addImage(qrData, "PNG", 400, 390, 120, 120);
 
-    /* ===== CACHE OFFICIEL ===== */
+    /* ===== CACHET OFFICIEL ===== */
     doc.setDrawColor(primary);
-    doc.circle(480, 470, 40);
-    doc.setFontSize(9);
-    doc.setTextColor(primary);
-    doc.text("OFFICIEL", 480, 475, { align: "center" });
+    doc.setLineWidth(2);
+    doc.circle(470, 520, 45);
 
-    /* ===== HASH INVISIBLE ===== */
+    doc.setFontSize(10);
+    doc.setTextColor(primary);
+    doc.text("CERTIFIÉ", 470, 525, { align: "center" });
+
+    /* ===== HASH FOOTER ===== */
     doc.setFontSize(6);
     doc.setTextColor("#aaaaaa");
-    doc.text(hash, 40, 820);
+    doc.text(hash, 40, 830);
 
-    /* ===== FOOTER ===== */
     doc.setFontSize(9);
     doc.setTextColor("#777");
-    doc.text("Document signé numériquement par MANG Wallet.", 40, 800);
-    doc.text("Toute altération rend ce document invalide.", 40, 815);
+    doc.text(
+      "Document signé électroniquement par MANG Wallet.",
+      40,
+      800
+    );
+    doc.text(
+      "Toute modification invalide ce reçu.",
+      40,
+      815
+    );
 
     doc.save(`${receiptNumber}.pdf`);
 
@@ -643,7 +1629,16 @@ PDF RECEIPT CLIENT
     alert("Erreur génération reçu.");
   }
           }
-          loadUser();
-        </script>
+          
+/* ================= GLOBAL ================= */
+
+window.createPin = createPin;
+window.verifyPin = verifyPin;
+window.closeDetail = closeDetail;
+          
+
+          
+</script>
+  
 </body>
 </html>
