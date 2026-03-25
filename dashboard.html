@@ -343,21 +343,22 @@ button:hover {
 
 
 <!-- ================= DEPOT ================= -->
-
 <div id="depositModal" class="modal">
-  <div class="modal-box">
-    <h3>Recharger</h3>
+  <div class="modal-content">
+    <span class="close" onclick="closeDeposit()">&times;</span>
+    <h3>Recharger mon portefeuille</h3>
 
-    <input id="depositAmount" placeholder="Montant">
-    <input id="depositPhone" placeholder="Numéro">
-
-    <div class="radio-group">
-      <label><input type="radio" name="depositOperator" value="MTN"> MTN</label>
-      <label><input type="radio" name="depositOperator" value="MOOV"> MOOV</label>
+    <label>Opérateur.</label>
+    <div class="operator-select">
+      <label><input type="radio" name="depositOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="depositOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="depositOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
     </div>
 
-    <button onclick="submitDeposit()">Payer</button>
-    <button onclick="closeDeposit()">Fermer</button>
+    <input id="depositPhone" type="text" placeholder="Numéro Mobile Money">
+    <input id="depositAmount" type="number" placeholder="Montant à recharger">
+    <button id="depositBtn" onclick="submitDeposit()">Recharger</button>
+    <span id="depositLoader" style="display:none;">⏳ Traitement...</span>
   </div>
 </div>
 
