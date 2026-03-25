@@ -8,262 +8,595 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ================= GLOBAL ================= */
-body {
-  margin: 0;
-  font-family: "Poppins", sans-serif;
-  background: linear-gradient(135deg, #e8f5f1, #d2f4e8);
-  color: #1a1a1a;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:white;
 }
 
-/* ================= CONTAINER ================= */
-.wallet-container {
-  padding: 15px;
+/* HEADER */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px;
 }
 
-/* ================= HEADER ================= */
-.wallet-header {
-  text-align: center;
-  margin-bottom: 15px;
+.profile{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
-.wallet-header h2 {
-  margin: 0;
+.profile-circle{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:white;
+  color:#1f4d3a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.close-btn{
+  background:rgba(255,255,255,0.15);
+  border:none;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+  transition:0.3s;
+}
+.close-btn:hover{background:red;}
+
+/* CARD */
+.container{padding:20px;}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:25px;
+  margin-bottom:25px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.3);
+}
+
+.balance-title{opacity:0.7;font-size:14px;}
+.balance{font-size:34px;font-weight:700;margin-top:5px;}
+
+.actions{
+  margin-top:20px;
+  display:flex;
+  gap:15px;
+}
+
+button{
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+  flex:1;
+}
+
+.deposit{background:#00c853;color:white;}
+.deposit:hover{background:#00a844;}
+
+.withdraw{background:#ff5252;color:white;}
+.withdraw:hover{background:#e63e3e;}
+
+/* TRANSACTIONS */
+.transaction{
+  background:rgba(255,255,255,0.05);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.amount.plus{color:#00e676;font-weight:bold;}
+.amount.minus{color:#ff5252;font-weight:bold;}
+
+.empty{opacity:0.6;}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+.modal-content{
+  background:#ffffff;
+  color:#333;
+  width:90%;
+  max-width:400px;
+  padding:25px;
+  border-radius:20px;
+  animation:pop 0.3s ease;
+}
+
+@keyframes pop{
+  from{transform:scale(0.8);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+.modal h3{margin-bottom:15px;}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-bottom:15px;
+}
+
+.operator{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.operator div{
+  flex:1;
+  border:2px solid #ddd;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.operator div.active{
+  border-color:#1f4d3a;
+  background:#e8f5e9;
+}
+
+.modal button{
+  width:100%;
+  background:#1f4d3a;
+  color:white;
+}
+  
+  .back{
+  padding:20px;
+  cursor:pointer;
+  font-weight:600;
+}
+  .wallet-box {
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:25px;
+  margin-bottom:25px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.3);
+}
+
+#walletNumber {
   font-size: 22px;
-  color: #0b3d2e;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+  
+  .modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
 }
 
-.wallet-header p {
-  font-size: 14px;
-  opacity: 0.7;
+.slide-up {
+  animation: slideUp 0.3s ease;
 }
 
-/* ================= WALLET CARD ================= */
-.wallet-card {
-  background: linear-gradient(135deg, #00c853, #009688);
-  color: white;
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 450px;
   padding: 20px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  margin-bottom: 15px;
-  position: relative;
-  overflow: hidden;
+  border-radius: 20px 20px 0 0;
 }
 
-/* glow */
-.wallet-card::after {
-  content: "";
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 50%;
-  top: -60px;
-  right: -60px;
-}
-
-/* ================= BALANCE ================= */
-.balance-box p {
-  margin: 0;
-  font-size: 13px;
-  opacity: 0.9;
-}
-
-.balance-box h1 {
-  margin: 5px 0;
-  font-size: 30px;
-  font-weight: 700;
-}
-
-.balance-box small {
-  opacity: 0.8;
-}
-
-/* ================= WALLET NUMBER ================= */
-.wallet-number {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  font-size: 13px;
-  gap: 5px;
-}
-
-.wallet-number button {
-  background: rgba(255,255,255,0.2);
-  border: none;
-  padding: 6px 8px;
-  width: 70px;
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
   border-radius: 8px;
-  cursor: pointer;
-  color: white;
+  border: 1px solid #ddd;
 }
 
-/* ================= ACTIONS ================= */
+.send-btn {
+  padding: 12px 18px;
+  background: #1e8e3e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-bottom:25px;
+}
+
+.receiver-info {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: green;
+}
+
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #1e8e3e;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 10px auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+  #openTransferModal{
+    margin-bottom:25px;
+  }
+  /* ======================
+BOUTONS ACTIONS
+===================== */
 .actions {
   display: flex;
-  justify-content: space-around;
-  margin-top: 18px;
+  gap: 15px;
+  justify-content: center;
+  margin: 20px 0;
 }
 
 .actions button {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
+  padding: 12px 25px;
   border: none;
-  font-size: 20px;
-  background: white;
-  color: #00c853;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  font-size: 16px;
+  color: #fff;
   cursor: pointer;
-  transition: 0.25s;
+  transition: all 0.3s ease;
 }
 
-.actions button:hover {
-  transform: scale(1.1);
-}
+.actions .deposit { background: #1f4d3a; }
+.actions .deposit:hover { background: #16663d; }
 
-/* ================= FILTER ================= */
-.filter {
-  width: 100%;
-  padding: 12px;
-  border-radius: 14px;
-  border: none;
-  margin: 10px 0;
-  background: white;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-}
+.actions .withdraw { background: #dc2626; }
+.actions .withdraw:hover { background: #b71c1c; }
 
-/* ================= GRAPH ================= */
-canvas {
-  background: white;
-  border-radius: 16px;
-  padding: 10px;
-  margin-top: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-/* ================= TRANSACTIONS ================= */
-.transaction {
-  background: white;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  transition: 0.2s;
-}
-
-.transaction:hover {
-  transform: translateY(-2px);
-}
-
-/* ================= AMOUNT ================= */
-.amount.plus {
-  color: #00c853;
-  font-weight: bold;
-}
-
-.amount.minus {
-  color: #ff5252;
-  font-weight: bold;
-}
-
-/* ================= MODAL ================= */
+/* ======================
+MODALES
+===================== */
 .modal {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
+  top:0; left:0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
 }
 
-/* ================= MODAL BOX ================= */
-.modal-box {
-  background: white;
-  padding: 20px;
-  border-radius: 20px;
+.modal-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
   width: 90%;
   max-width: 400px;
-  animation: fadeIn 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
 }
 
-/* ================= INPUT ================= */
-input {
+.modal-content input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.modal-content button {
+  background: #1f4d3a;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+  
+  /* ===== Operator selector ===== */
+.operator-select {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+.operator-select label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.operator-select img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+}
+.operator-select input[type="radio"] {
+  display: none;
+}
+.operator-select input[type="radio"]:checked + img {
+  border: 2px solid #1f4d3a;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.modal-content button:hover {
+  background: #16663d;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 20px;
+  color: #777;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-content .close:hover {
+  color: #000;
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #0b3d2e;
+}
+  
+.back{
+  padding:20px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .modal-content input,
+  .modal-content button {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  
+  .modal-content {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-content input {
   width: 100%;
   padding: 12px;
-  margin-top: 10px;
-  border-radius: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
   border: 1px solid #ddd;
-  outline: none;
-  transition: 0.2s;
 }
 
-input:focus {
-  border-color: #00c853;
-  box-shadow: 0 0 0 2px rgba(0,200,83,0.2);
+.send-btn {
+  padding: 12px 18px;
+  background: #1e8e3e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  margin-bottom:25px;
 }
 
-/* ================= RADIO ================= */
-.radio-group {
+.receiver-info {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: green;
+}
+
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #1e8e3e;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 10px auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+  #openTransferModal{
+    margin-bottom:25px;
+  }
+  /* ======================
+BOUTONS ACTIONS
+===================== */
+.actions {
   display: flex;
   gap: 15px;
-  margin-top: 10px;
+  justify-content: center;
+  margin: 20px 0;
 }
 
-/* ================= BUTTON ================= */
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 12px;
+.actions button {
+  padding: 12px 25px;
   border: none;
-  background: linear-gradient(135deg, #00c853, #009688);
-  color: white;
-  font-weight: bold;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #fff;
   cursor: pointer;
-  transition: 0.25s;
+  transition: all 0.3s ease;
 }
 
-button:hover {
-  transform: scale(1.03);
+.actions .deposit { background: #1f4d3a; }
+.actions .deposit:hover { background: #16663d; }
+
+.actions .withdraw { background: #dc2626; }
+.actions .withdraw:hover { background: #b71c1c; }
+
+/* ======================
+MODALES
+===================== */
+.modal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
 }
 
-/* ================= RECEIVER INFO ================= */
-.receiver-info {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #555;
-}
-
-/* ================= LOADER ================= */
-.loader {
+.modal-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
   text-align: center;
-  margin-top: 10px;
-  font-size: 14px;
+  position: relative;
 }
 
-/* ================= ANIMATION ================= */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.modal-content input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.modal-content button {
+  background: #1f4d3a;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+  
+  /* ===== Operator selector ===== */
+.operator-select {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+.operator-select label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.operator-select img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+}
+.operator-select input[type="radio"] {
+  display: none;
+}
+.operator-select input[type="radio"]:checked + img {
+  border: 2px solid #1f4d3a;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.modal-content button:hover {
+  background: #16663d;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 20px;
+  color: #777;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-content .close:hover {
+  color: #000;
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #0b3d2e;
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+  .modal-content {
+    padding: 20px;
+    width: 95%;
   }
 
-
+  .modal-content input,
+  .modal-content button {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+  }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -272,139 +605,177 @@ button:hover {
 
 <body>
 
-<!-- ================= WALLET UI ================= -->
+  <div class="back" onclick="window.location.href='profile.html'">⬅ Retour</div>
 
-<div class="wallet-container">
-
-  <!-- HEADER -->
-  <div class="wallet-header">
-    <h2>💰 MANG Wallet</h2>
-    <p id="userEmail"></p>
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
+  <div class="profile">
+    <div class="profile-circle">👤</div>
+    <div>
+      <div>Mon Portefeuille</div>
+      <small id="userEmail"></small>
+    </div>
   </div>
-
-  <!-- WALLET -->
-  <div id="walletContainer" class="wallet-card" style="display:none">
-
-    <div class="balance-box">
-      <p>Solde disponible</p>
-      <h1 id="balance">0 FCFA</h1>
-      <small id="totalBalance"></small>
-    </div>
-
-    <div class="wallet-number">
-      <span>Numéro :</span>
-      <span id="walletNumber"></span>
-      <button onclick="copyWalletNumber()">📋</button>
-    </div>
-
-    <!-- ACTIONS -->
-    <div class="actions">
-      <button onclick="openDeposit()">➕</button>
-      <button onclick="openWithdraw()">💸</button>
-      <button onclick="openTransferModal()">🔄</button>
-    </div>
-
-  </div>
-
-  <!-- FILTRE -->
-  <select id="filterType" class="filter">
-    <option value="">Toutes les transactions</option>
-    <option value="deposit">Recharges</option>
-    <option value="transfer">Transferts</option>
-    <option value="withdraw">Retraits</option>
-  </select>
-
-  <!-- GRAPH -->
-  <canvas id="walletChart"></canvas>
-
-  <!-- TRANSACTIONS -->
-  <div id="transactions"></div>
-
+  
 </div>
 
+<!-- ================= WALLET CONTAINER ================= -->
+<div id="walletContainer" style="display:none;">
 
-<!-- ================= PIN ================= -->
+  <div class="card">
+    <div class="balance-title">Solde disponible</div>
+    <div class="balance"><span id="balance">0</span></div>
 
-<div id="createPinModal" class="modal">
-  <div class="modal-box">
-    <h3>Créer votre PIN</h3>
-    <input id="newPin" placeholder="4 chiffres" type="password">
-    <button onclick="createPin()">Valider</button>
-  </div>
+  
+<div class="actions">
+  <button class="deposit" onclick="openDeposit()">Recharger</button>
+  <button class="withdraw" onclick="openWithdraw()">Retirer</button>
 </div>
-
-<div id="verifyPinModal" class="modal">
-  <div class="modal-box">
-    <h3>Entrer votre PIN</h3>
-    <input id="verifyPinInput" type="password">
-    <button onclick="verifyPin()">Valider</button>
   </div>
-</div>
-
-
-<!-- ================= DEPOT ================= -->
-
+<!-- ========================= -->
+<!-- MODAL RECHARGER -->
+<!-- ========================= -->
 <div id="depositModal" class="modal">
-  <div class="modal-box">
-    <h3>Recharger</h3>
+  <div class="modal-content">
+    <span class="close" onclick="closeDeposit()">&times;</span>
+    <h3>Recharger mon portefeuille</h3>
 
-    <input id="depositAmount" placeholder="Montant">
-    <input id="depositPhone" placeholder="Numéro">
-
-    <div class="radio-group">
-      <label><input type="radio" name="depositOperator" value="MTN"> MTN</label>
-      <label><input type="radio" name="depositOperator" value="MOOV"> MOOV</label>
+    <label>Opérateur.</label>
+    <div class="operator-select">
+      <label><input type="radio" name="depositOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="depositOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="depositOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
     </div>
 
-    <button onclick="submitDeposit()">Payer</button>
-    <button onclick="closeDeposit()">Fermer</button>
+    <input id="depositPhone" type="text" placeholder="Numéro Mobile Money">
+    <input id="depositAmount" type="number" placeholder="Montant à recharger">
+    <button id="depositBtn" onclick="submitDeposit()">Recharger</button>
+    <span id="depositLoader" style="display:none;">⏳ Traitement...</span>
   </div>
 </div>
 
-
-<!-- ================= RETRAIT ================= -->
-
+<!-- ========================= -->
+<!-- MODAL RETRAIT -->
+<!-- ========================= -->
 <div id="withdrawModal" class="modal">
-  <div class="modal-box">
-    <h3>Retrait</h3>
-    <p>Fonction bientôt disponible</p>
-    <button onclick="closeWithdraw()">Fermer</button>
+  <div class="modal-content">
+    <span class="close" onclick="closeWithdraw()">&times;</span>
+    <h3>Retirer de mon portefeuille</h3>
+
+    <label>Opérateur</label>
+    <div class="operator-select">
+      <label><input type="radio" name="withdrawOperator" value="MTN"><img src="assets/img/mtn.png" alt="MTN"></label>
+      <label><input type="radio" name="withdrawOperator" value="Moov"><img src="assets/img/moov.png" alt="Moov"></label>
+      <label><input type="radio" name="withdrawOperator" value="Celtis"><img src="assets/img/celtis.png" alt="Celtis"></label>
+    </div>
+
+    <input id="withdrawPhone" type="text" placeholder="Numéro Mobile Money">
+    <input id="withdrawAmount" type="number" placeholder="Montant à retirer">
+    <button id="withdrawBtn" onclick="submitWithdraw()">Retirer</button>
+    <span id="withdrawLoader" style="display:none;">⏳ Traitement...</span>
   </div>
 </div>
+    
+  <div class="wallet-box">
+    <h3>Mon numéro de portefeuille</h3>
+    <div id="walletNumber">Chargement...</div>
+    <button onclick="copyWalletNumber()">Copier</button>
+  </div>
+
+  <button id="openTransferModal" class="send-btn">
+    💸 Envoyer de l'argent
+  </button>
 
 
-<!-- ================= TRANSFERT ================= -->
+  <!-- ================= TRANSFER MODAL ================= -->
+<div class="modal" id="transferModal">
+  <div class="modal-content">
+    <h3>Envoyer de l'argent</h3>
 
-<div id="transferModal" class="modal">
-  <div class="modal-box">
+    <input type="text" id="receiverNumber" placeholder="Numéro portefeuille">
 
-    <h3>Transfert</h3>
+    <div id="receiverInfo" style="margin:8px 0; font-size:13px;"></div>
 
-    <input id="receiverNumber" placeholder="Numéro wallet">
-    <div id="receiverInfo" class="receiver-info"></div>
+    <input type="number" id="transferAmount" placeholder="Montant">
 
-    <input id="transferAmount" placeholder="Montant">
-    <input id="transferPin" placeholder="PIN" type="password">
+    <input type="password" id="transferPin" maxlength="4" placeholder="Votre PIN">
+
+    <div id="transferLoader" style="display:none; margin:10px;">
+      Traitement...
+    </div>
 
     <button onclick="confirmTransfer()">Envoyer</button>
-    <button onclick="closeTransferModal()">Fermer</button>
-
-    <div id="transferLoader" class="loader" style="display:none">
-      ⏳ Chargement...
-    </div>
-
+    <button onclick="closeTransferModal()" style="margin-top:8px; background:#ccc; color:#000;">
+      Annuler
+    </button>
   </div>
 </div>
+  
+  <div class="card">
+  <h3>Historique</h3>
+     <div style="margin:15px 0;display:flex;gap:10px;flex-wrap:wrap">
+  <select id="filterType" onchange="loadTransactions()" style="padding:8px;border-radius:8px;">
+    
+    <option value="">Toutes</option>
+    <option value="deposit">Rechargement</option>
+    <option value="withdraw">Retrait</option>
+    <option value="transfer">Transfert</option>
+    <option value="purchase">Achat</option>
+  </select>
+     </div>
+  <canvas id="walletChart" height="120"></canvas>
 
+  <div id="transactions"></div>
+</div>
 
-<!-- ================= DETAILS ================= -->
-
-<div id="detailModal" class="modal">
-  <div class="modal-box">
+<div class="modal" id="detailModal">
+  <div class="modal-content">
     <div id="transactionDetails"></div>
     <button onclick="closeDetail()">Fermer</button>
   </div>
 </div>
+</div>
+
+<!-- MODAL POUR CRÉER LE PIN -->
+<div id="createPinModal" style="display:none; 
+                                position:fixed; 
+                                top:0; left:0; 
+                                width:100%; height:100%; 
+                                background:rgba(0,0,0,0.7);  /* fond un peu plus sombre */
+                                justify-content:center; 
+                                align-items:center; 
+                                z-index:9999;">
+  <div style="background:#ffffff; color:#000000; padding:20px; border-radius:10px; width:300px; text-align:center; box-shadow:0 0 15px rgba(0,0,0,0.3);">
+    <h3 style="color:#333333;">Créer un PIN pour votre portefeuille</h3>
+    <input type="password" id="newPin" placeholder="4 chiffres" maxlength="4" 
+           style="width:100%; padding:8px; margin:10px 0; border:1px solid #ccc; border-radius:5px; color:#000;">
+    <button onclick="createPin()" 
+            style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer;">
+      Valider
+    </button>
+  </div>
+</div>
+
+<!-- MODAL POUR VÉRIFIER LE PIN -->
+<div id="verifyPinModal" style="display:none; 
+                                position:fixed; 
+                                top:0; left:0; 
+                                width:100%; height:100%; 
+                                background:rgba(0,0,0,0.7); 
+                                justify-content:center; 
+                                align-items:center; 
+                                z-index:9999;">
+  <div style="background:#ffffff; color:#000000; padding:20px; border-radius:10px; width:300px; text-align:center; box-shadow:0 0 15px rgba(0,0,0,0.3);">
+    <h3 style="color:#333333;">Entrez votre PIN</h3>
+    <input type="password" id="verifyPinInput" placeholder="4 chiffres" maxlength="4" 
+           style="width:100%; padding:8px; margin:10px 0; border:1px solid #ccc; border-radius:5px; color:#000;">
+    <button onclick="verifyPin()" 
+            style="padding:10px 20px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;">
+      Valider
+    </button>
+  </div>
+</div>
+  
 <script type="module">
 
 import { supabase } from './supabase.js';
@@ -1001,125 +1372,22 @@ function showTransactionDetail(tx) {
   if (!detail) return;
 
   detail.innerHTML = `
-  <div style="
-    background:white;
-    border-radius:16px;
-    padding:18px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.1);
-    font-family:Arial;
-  ">
-
-    <!-- HEADER -->
-    <div style="
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    ">
-      <h3 style="
-        margin:0;
-        font-size:16px;
-        color:#222;
-      ">
-        ${getTitle(tx)}
-      </h3>
-
-      <span style="
-        padding:5px 10px;
-        border-radius:20px;
-        font-size:12px;
-        font-weight:bold;
-        background:${
-          tx.status === "pending" ? "#fff3e0" :
-          tx.status === "failed" ? "#ffeaea" : "#e6f9f0"
-        };
-        color:${
-          tx.status === "pending" ? "#ff9800" :
-          tx.status === "failed" ? "#ff5252" : "#00c853"
-        };
-      ">
-        ${
-          tx.status === "pending" ? "⏳ En attente" :
-          tx.status === "failed" ? "❌ Échoué" : "✅ Validé"
-        }
-      </span>
-    </div>
-
-    <!-- MONTANT -->
-    <div style="
-      font-size:28px;
-      font-weight:800;
-      text-align:center;
-      margin:20px 0;
-      color:${color};
-    ">
+    <h4>${getTitle(tx)}</h4>
+    <div style="font-size:22px;font-weight:700;color:${color}">
       ${sign}${formatMoney(absAmount)} FCFA
     </div>
-
-    <!-- INFOS -->
-    <div>
-
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        padding:10px 0;
-        border-bottom:1px solid #eee;
-        font-size:14px;
-      ">
-        <span style="color:#777;">📅 Date</span>
-        <span style="font-weight:600;color:#222;text-align:right;">
-          ${new Date(tx.created_at).toLocaleString()}
-        </span>
-      </div>
-
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        padding:10px 0;
-        border-bottom:1px solid #eee;
-        font-size:14px;
-      ">
-        <span style="color:#777;">🧾 Type</span>
-        <span style="font-weight:600;color:#222;">
-          ${getTitle(tx)}
-        </span>
-      </div>
-
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        padding:10px 0;
-        border-bottom:1px solid #eee;
-        font-size:14px;
-      ">
-        <span style="color:#777;">📌 Détail</span>
-        <span style="font-weight:600;color:#222;text-align:right;max-width:60%;">
-          ${getUsage(tx)}
-        </span>
-      </div>
-
-    </div>
-
-    <!-- ACTION -->
-    <button id="downloadPdfBtn" style="
-      margin-top:20px;
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      background:linear-gradient(135deg,#00c853,#009624);
-      color:white;
-      font-weight:bold;
-      font-size:14px;
-      cursor:pointer;
-      transition:0.3s;
-    "
-    onmouseover="this.style.transform='scale(1.03)';this.style.boxShadow='0 6px 15px rgba(0,200,83,0.3)'"
-    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
-      📄 Télécharger le reçu
+    <hr>
+    <p><strong>Date :</strong><br>
+      ${new Date(tx.created_at).toLocaleString()}
+    </p>
+    <p><strong>Statut :</strong><br>
+      ${tx.status || "Validé"}
+    </p>
+    <p><strong>Détail :</strong><br>${getUsage(tx)}</p>
+    <button id="downloadPdfBtn" style="margin-top:15px;background:#1f4d3a;color:white;padding:10px;border-radius:8px;width:100%">
+      Télécharger PDF
     </button>
-
-  </div>
-`;
+  `;
 
   document.getElementById("detailModal").style.display = "flex";
   document.getElementById("downloadPdfBtn").onclick = () => downloadReceiptPDF(tx.id);
