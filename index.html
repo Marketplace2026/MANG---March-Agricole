@@ -2576,6 +2576,8 @@ async function loadCurrentUser() {
 
   currentProfile = profile;
 
+ await checkUserLocation();
+
   const now = new Date();
   const premiumEnd = profile.premium_end
     ? new Date(profile.premium_end)
@@ -2757,6 +2759,8 @@ tabVente.onclick = async () => {
 window.addEventListener("load", updateBottomSpace);
 window.addEventListener("resize", updateBottomSpace);
 ;
+
+ 
 async function checkUserLocation() {
   try {
     // 1. Récupérer utilisateur connecté
@@ -2806,7 +2810,7 @@ async function checkUserLocation() {
     console.error("❌ Erreur localisation:", err);
   }
  }
-checkUserLocation();
+
  
 
  function closeAllModals(){
