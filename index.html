@@ -2757,86 +2757,81 @@ tabVente.onclick = async () => {
 window.addEventListener("load", updateBottomSpace);
 window.addEventListener("resize", updateBottomSpace);
 
+async function initUserLocation() {
 
+  // 🔐 1. Récupérer utilisateur connecté
+  const { data: { user } } = await supabase.auth.getUser();
 
- 
-  const nearbyShopsBtn = document.getElementById("nearbyShopsBtn");
-const maxDistance = 15; // km maximum à afficher
+  if (!user) {
+    console.log("❌ Pas connecté");
+    return;
+  }
 
-// Fonction calcul distance en km
-function distanceKm(lat1, lon1, lat2, lon2) {
-  const R = 6371; // rayon terre en km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat/2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon/2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-}
+  // 🔎 2. Vérifier si déjà localisé
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("latitude, longitude")
+    .eq("id", user.id)
+    .single();
 
-// Charger boutiques depuis Supabase
-async function loadNearbyShops() {
-  try {
-    const { data: shops, error } = await supabase.from("shops").select("*");
-    if (error) throw error;
-    if (!shops || shops.length === 0) {
-      alert("Aucune boutique trouvée");
-      return;
-    }
+  if (error) {
+    console.log("Erreur profil:", error);
+    return;
+  }
 
-    // Récupérer la position de l'utilisateur
-    navigator.geolocation.getCurrentPosition(async pos => {
-      const userLat = pos.coords.latitude;
-      const userLon = pos.coords.longitude;
+  // ✅ 3. Si déjà localisé → STOP
+  if (profile?.latitude && profile?.longitude) {
+    console.log("📍 Localisation déjà existante");
 
-      // Filtrer boutiques proches
-      const nearby = shops.filter(shop => {
-        if (!shop.latitude || !shop.longitude) return false;
-        const dist = distanceKm(userLat, userLon, shop.latitude, shop.longitude);
-        shop.distance = dist; // stocker distance pour affichage
-        return dist <= maxDistance;
-      });
+    localStorage.setItem("user_lat", profile.latitude);
+    localStorage.setItem("user_lng", profile.longitude);
 
-      // Trier par proximité
-      nearby.sort((a,b) => a.distance - b.distance);
+    return;
+  }
 
-      // Affichage
-      const shopsList = document.getElementById("shopsList"); // ton container
-      shopsList.innerHTML = "";
+  // ❌ 4. Sinon demander la localisation
+  if (!navigator.geolocation) {
+    console.log("❌ Géolocalisation non supportée");
+    return;
+  }
 
-      if (nearby.length === 0) {
-        shopsList.innerHTML = "<p>Aucune boutique à moins de "+maxDistance+" km</p>";
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      console.log("📍 Nouvelle position:", lat, lng);
+
+      // 💾 5. Sauvegarder dans Supabase
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          latitude: lat,
+          longitude: lng
+        })
+        .eq("id", user.id);
+
+      if (updateError) {
+        console.log("Erreur sauvegarde:", updateError);
         return;
       }
 
-      nearby.forEach(shop => {
-        const div = document.createElement("div");
-        div.className = "shopCard";
-        div.innerHTML = `
-          <h3>${shop.name}</h3>
-          <p>${shop.description || ""}</p>
-          <p>Distance : ${shop.distance.toFixed(1)} km</p>
-        `;
-        shopsList.appendChild(div);
-      });
+      // 💾 6. Stockage local (optionnel mais rapide)
+      localStorage.setItem("user_lat", lat);
+      localStorage.setItem("user_lng", lng);
 
-    }, err => {
-      alert("Impossible de récupérer votre position : " + err.message);
-    });
+      console.log("✅ Localisation enregistrée");
 
-  } catch(err) {
-    console.error(err);
-    alert("Erreur lors du chargement des boutiques");
-  }
+    },
+    (err) => {
+      console.log("❌ Refus utilisateur:", err.message);
+    }
+  );
 }
 
-// Événement bouton
-nearbyShopsBtn.onclick = loadNearbyShops;
-  
-console.log("✅ JS ACHAT – FILTRE CATÉGORIES INITIALISÉ");
+// 🚀 Lancer automatiquement
+initUserLocation();
 
 
  function closeAllModals(){
