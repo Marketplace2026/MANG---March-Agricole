@@ -3009,52 +3009,59 @@ resetFilterBtn.onclick = () => {
 categorySearch.oninput = () => {
   renderCategoryList(categorySearch.value);
 };
-    
+
+ 
     async function checkUserLocation() {
-  try {
-    if (!currentUser) return;
+  console.log("🚀 Fonction lancée");
 
-    // Vérifier localisation existante
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("latitude, longitude")
-      .eq("id", currentUser.id)
-      .maybeSingle();
+  const { data: { user } } = await supabase.auth.getUser();
 
-    if (profile?.latitude && profile?.longitude) {
-      console.log("📍 Déjà localisé");
-      return;
-    }
+  console.log("USER:", user);
 
-    // Demander localisation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        console.log("📍 Position:", lat, lng);
-
-        // Sauvegarde PRO
-        await supabase
-          .from("profiles")
-          .upsert({
-            id: currentUser.id,
-            latitude: lat,
-            longitude: lng
-          });
-
-        alert("📍 Localisation enregistrée");
-
-      }, (err) => {
-        console.log("❌ Refus:", err.message);
-      });
-    }
-
-  } catch (err) {
-    console.log("❌ Erreur:", err);
+  if (!user) {
+    console.log("❌ Pas connecté");
+    return;
   }
- }
+
+  // ⚠️ On NE vérifie PAS profile pour test
+  if (!navigator.geolocation) {
+    alert("❌ GPS non supporté");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (position) => {
+
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    alert("📍 GPS OK: " + lat);
+
+    console.log("📍 Position:", lat, lng);
+
+    // 🔥 FORCER INSERT
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        latitude: lat,
+        longitude: lng
+      });
+
+    if (error) {
+      console.error("❌ Erreur DB:", error);
+    } else {
+      alert("✅ Enregistré !");
+    }
+
+  }, (err) => {
+    alert("❌ Refus GPS");
+    console.log(err);
+  });
+    }
+
+ setTimeout(() => {
+  checkUserLocation();
+}, 2000);
             
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
