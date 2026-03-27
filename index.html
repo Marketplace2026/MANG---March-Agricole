@@ -2756,83 +2756,58 @@ tabVente.onclick = async () => {
 
 window.addEventListener("load", updateBottomSpace);
 window.addEventListener("resize", updateBottomSpace);
+;
+async function checkUserLocation() {
+  try {
+    // 1. Récupérer utilisateur connecté
+    const { data: { user } } = await supabase.auth.getUser();
 
-async function initUserLocation() {
+    if (!user) return;
 
-  // 🔐 1. Récupérer utilisateur connecté
-  const { data: { user } } = await supabase.auth.getUser();
+    // 2. Vérifier si localisation existe
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("latitude, longitude")
+      .eq("id", user.id)
+      .single();
 
-  if (!user) {
-    console.log("❌ Pas connecté");
-    return;
-  }
-
-  // 🔎 2. Vérifier si déjà localisé
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("latitude, longitude")
-    .eq("id", user.id)
-    .single();
-
-  if (error) {
-    console.log("Erreur profil:", error);
-    return;
-  }
-
-  // ✅ 3. Si déjà localisé → STOP
-  if (profile?.latitude && profile?.longitude) {
-    console.log("📍 Localisation déjà existante");
-
-    localStorage.setItem("user_lat", profile.latitude);
-    localStorage.setItem("user_lng", profile.longitude);
-
-    return;
-  }
-
-  // ❌ 4. Sinon demander la localisation
-  if (!navigator.geolocation) {
-    console.log("❌ Géolocalisation non supportée");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-
-      console.log("📍 Nouvelle position:", lat, lng);
-
-      // 💾 5. Sauvegarder dans Supabase
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          latitude: lat,
-          longitude: lng
-        })
-        .eq("id", user.id);
-
-      if (updateError) {
-        console.log("Erreur sauvegarde:", updateError);
-        return;
-      }
-
-      // 💾 6. Stockage local (optionnel mais rapide)
-      localStorage.setItem("user_lat", lat);
-      localStorage.setItem("user_lng", lng);
-
-      console.log("✅ Localisation enregistrée");
-
-    },
-    (err) => {
-      console.log("❌ Refus utilisateur:", err.message);
+    // 3. Si déjà localisé → STOP
+    if (profile && profile.latitude && profile.longitude) {
+      console.log("📍 Localisation déjà enregistrée");
+      return;
     }
-  );
-}
 
-// 🚀 Lancer automatiquement
-initUserLocation();
+    // 4. Sinon → demander localisation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
 
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        console.log("📍 Position récupérée :", lat, lng);
+
+        // 5. Sauvegarder dans Supabase
+        await supabase
+          .from("profiles")
+          .update({
+            latitude: lat,
+            longitude: lng
+          })
+          .eq("id", user.id);
+
+        alert("📍 Localisation enregistrée avec succès");
+
+      }, (error) => {
+        console.error("❌ Refus localisation", error);
+      });
+    }
+
+  } catch (err) {
+    console.error("❌ Erreur localisation:", err);
+  }
+ }
+checkUserLocation();
+ 
 
  function closeAllModals(){
 
