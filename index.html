@@ -3044,12 +3044,12 @@ async function initLocationAlibaba() {
     return;
   }
 
-  console.log("✅ USER:", user.id);
+  console.log("✅ USER:", user);
 
-  // 🔥 récupérer le profil existant
+  // 🔥 récupérer profil existant
   const { data: existingProfile, error: profileError } = await supabase
     .from("profiles")
-    .select("username")
+    .select("username, email")
     .eq("id", user.id)
     .single();
 
@@ -3078,12 +3078,13 @@ async function initLocationAlibaba() {
 
     console.log("📍 Ville:", city);
 
-    // 🔥 UPDATE avec username inclus
+    // 🔥 UPSERT COMPLET
     const { error } = await supabase
       .from("profiles")
       .upsert({
         id: user.id,
-        username: existingProfile.username, // 🔥 IMPORTANT
+        username: existingProfile.username,
+        email: existingProfile.email || user.email, // 🔥 FIX ICI
         city: city,
         latitude: lat,
         longitude: lng
@@ -3094,14 +3095,15 @@ async function initLocationAlibaba() {
       alert("Erreur DB: " + error.message);
     } else {
       console.log("✅ SUCCÈS");
-      alert("Localisation enregistrée !");
+      alert("✅ Localisation enregistrée !");
     }
 
   } catch (err) {
     console.error("❌ API ERROR:", err);
     alert("Erreur API");
   }
- }
+}
+        
 
     
  setTimeout(() => {
