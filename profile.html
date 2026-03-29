@@ -627,6 +627,8 @@ color:#666;
 
 <h3 id="displayName">Utilisateur</h3>
 
+  <p id="userCity">📍 Chargement...</p>
+
 <div class="email" id="userEmail"></div>
 
 <div class="user-badge">Utilisateur MANG</div>
@@ -911,6 +913,29 @@ badge.style.display="none";
 }
 
 }
+
+  async function loadUserLocation() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("city")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const el = document.getElementById("userCity");
+
+  if (profile?.city) {
+    el.textContent = "📍 " + profile.city;
+  } else {
+    el.textContent = "📍 Non définie";
+  }
+}
+
+// lancer
+loadUserLocation();
 
   // =====================
 // RÉFÉRENCES FAVORIS
