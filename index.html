@@ -2576,7 +2576,12 @@ async function loadCurrentUser() {
 
   currentProfile = profile;
 
- 
+  
+
+ document.addEventListener("DOMContentLoaded", () => {
+  initLocationAlibaba();
+});
+            
 
   const now = new Date();
   const premiumEnd = profile.premium_end
@@ -3027,52 +3032,65 @@ categorySearch.oninput = () => {
   }
  }
 
- async function initLocationAlibaba() {
+async function initLocationAlibaba() {
 
-  console.log("🚀 init lancé");
+  console.log("🚀 INIT LANCÉ");
 
+  // 1. USER
   const { data: { user } } = await supabase.auth.getUser();
+  console.log("USER:", user);
 
   if (!user) {
-    console.log("❌ Pas connecté");
+    alert("❌ Utilisateur non connecté");
     return;
   }
 
-  console.log("USER OK:", user.id);
+  // 2. TEST API IP
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
 
-  // 🌍 récupérer IP
-  const ipLocation = await getLocationFromIP();
+    console.log("🌍 IP DATA:", data);
 
-  console.log("IP:", ipLocation);
+    const city = data.city;
+    const lat = data.latitude;
+    const lng = data.longitude;
 
-  if (!ipLocation || !ipLocation.city) {
-    console.log("❌ Ville introuvable");
-    return;
+    if (!city) {
+      alert("❌ Ville introuvable");
+      return;
+    }
+
+    alert("📍 Ville trouvée : " + city);
+
+    // 3. INSERT DB
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        city: city,
+        latitude: lat,
+        longitude: lng
+      });
+
+    if (error) {
+      console.log("❌ DB ERROR:", error);
+      alert("Erreur DB");
+    } else {
+      console.log("✅ ENREGISTRÉ");
+      alert("✅ Ville enregistrée !");
+    }
+
+  } catch (err) {
+    console.log("❌ API ERROR:", err);
+    alert("Erreur API IP");
   }
+}
 
-  // 💾 enregistrer DIRECT (on force)
-  const { error } = await supabase
-    .from("profiles")
-    .upsert({
-      id: user.id,
-      city: ipLocation.city,
-      latitude: ipLocation.lat,
-      longitude: ipLocation.lng
-    });
-
-  if (error) {
-    console.log("❌ ERREUR DB:", error);
-  } else {
-    console.log("✅ Ville enregistrée :", ipLocation.city);
-  }
- }
-
- 
-
- document.addEventListener("DOMContentLoaded", () => {
+ setTimeout(() => {
   initLocationAlibaba();
-});
-            
+}, 2000);
+
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
 // ===================================
