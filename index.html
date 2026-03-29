@@ -3036,81 +3036,74 @@ async function initLocationAlibaba() {
 
   console.log("🚀 INIT LANCÉ");
 
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error("❌ USER ERROR:", userError);
+    alert("Utilisateur non connecté");
+    return;
+  }
+
+  console.log("✅ USER:", user.id);
+
+  // 🔥 récupérer le profil existant
+  const { data: existingProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  console.log("📄 PROFILE:", existingProfile);
+
+  if (profileError) {
+    console.error("❌ PROFILE ERROR:", profileError);
+    alert("Erreur récupération profil");
+    return;
+  }
+
   try {
-
-    // ================= USER =================
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    console.log("👤 USER DATA:", userData);
-    console.log("❌ USER ERROR:", userError);
-
-    const user = userData?.user;
-
-    if (!user) {
-      alert("❌ Utilisateur non connecté");
-      return;
-    }
-
-    console.log("✅ USER ID:", user.id);
-
-    // ================= API IP =================
     const res = await fetch("https://ipapi.co/json/");
-    const ipData = await res.json();
+    const data = await res.json();
 
-    console.log("🌍 IP FULL DATA:", ipData);
+    console.log("🌍 IP DATA:", data);
 
-    const city = ipData.city;
-    const lat = ipData.latitude;
-    const lng = ipData.longitude;
-
-    console.log("📍 CITY:", city);
-    console.log("📍 LAT:", lat);
-    console.log("📍 LNG:", lng);
+    const city = data.city;
+    const lat = data.latitude;
+    const lng = data.longitude;
 
     if (!city) {
-      alert("❌ Ville introuvable depuis API");
+      alert("Ville introuvable");
       return;
     }
 
-    alert("📍 Ville trouvée : " + city);
+    console.log("📍 Ville:", city);
 
-    // ================= TEST SELECT AVANT =================
-    const { data: existingProfile, error: selectError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    console.log("📄 PROFILE EXISTANT:", existingProfile);
-    console.log("❌ SELECT ERROR:", selectError);
-
-    // ================= UPSERT =================
-    const { data: upsertData, error: upsertError } = await supabase
+    // 🔥 UPDATE avec username inclus
+    const { error } = await supabase
       .from("profiles")
       .upsert({
         id: user.id,
+        username: existingProfile.username, // 🔥 IMPORTANT
         city: city,
         latitude: lat,
         longitude: lng
-      })
-      .select();
+      });
 
-    console.log("📦 UPSERT DATA:", upsertData);
-    console.log("❌ UPSERT ERROR:", upsertError);
-
-    if (upsertError) {
-      alert("❌ ERREUR DB : " + upsertError.message);
-      return;
+    if (error) {
+      console.error("❌ DB ERROR:", error);
+      alert("Erreur DB: " + error.message);
+    } else {
+      console.log("✅ SUCCÈS");
+      alert("Localisation enregistrée !");
     }
 
-    console.log("✅ ENREGISTRÉ AVEC SUCCÈS");
-    alert("✅ Ville enregistrée !");
-
   } catch (err) {
-    console.log("🔥 ERREUR GLOBALE:", err);
-    alert("❌ ERREUR GLOBALE : " + err.message);
+    console.error("❌ API ERROR:", err);
+    alert("Erreur API");
   }
-}
+ }
+
+    
  setTimeout(() => {
   initLocationAlibaba();
 }, 2000);
