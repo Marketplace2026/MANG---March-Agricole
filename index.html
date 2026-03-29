@@ -3034,78 +3034,90 @@ categorySearch.oninput = () => {
 
 async function initLocationAlibaba() {
 
-  console.log("🚀 INIT LANCÉ");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  // 🔥 1. GPS D'ABORD
+  if (navigator.geolocation) {
 
-  if (userError || !user) {
-    console.error("❌ USER ERROR:", userError);
-    alert("Utilisateur non connecté");
-    return;
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      console.log("📡 GPS:", lat, lng);
+
+      // 🔥 convertir en ville
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      const data = await res.json();
+
+      const city =
+        data.address.city ||
+        data.address.town ||
+        data.address.village ||
+        "Ville inconnue";
+
+      console.log("📍 Ville GPS:", city);
+
+      await saveLocation(user, city, lat, lng);
+
+    }, async (err) => {
+
+      console.log("❌ GPS refusé → fallback IP");
+
+      await useIPLocation(user);
+
+    });
+
+  } else {
+    await useIPLocation(user);
   }
+}
 
-  console.log("✅ USER:", user);
 
-  // 🔥 récupérer profil existant
-  const { data: existingProfile, error: profileError } = await supabase
+// 🔥 fallback IP
+async function useIPLocation(user) {
+
+  const res = await fetch("https://ipapi.co/json/");
+  const data = await res.json();
+
+  const city = data.city;
+  const lat = data.latitude;
+  const lng = data.longitude;
+
+  console.log("🌐 IP Ville:", city);
+
+  await saveLocation(user, city, lat, lng);
+}
+
+
+// 🔥 sauvegarde DB
+async function saveLocation(user, city, lat, lng) {
+
+  const { data: profile } = await supabase
     .from("profiles")
     .select("username, email")
     .eq("id", user.id)
     .single();
 
-  console.log("📄 PROFILE:", existingProfile);
+  const { error } = await supabase
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      username: profile.username,
+      email: profile.email || user.email,
+      city,
+      latitude: lat,
+      longitude: lng
+    });
 
-  if (profileError) {
-    console.error("❌ PROFILE ERROR:", profileError);
-    alert("Erreur récupération profil");
-    return;
-  }
-
-  try {
-    const res = await fetch("https://ipapi.co/json/");
-    const data = await res.json();
-
-    console.log("🌍 IP DATA:", data);
-
-    const city = data.city;
-    const lat = data.latitude;
-    const lng = data.longitude;
-
-    if (!city) {
-      alert("Ville introuvable");
-      return;
-    }
-
-    console.log("📍 Ville:", city);
-
-    // 🔥 UPSERT COMPLET
-    const { error } = await supabase
-      .from("profiles")
-      .upsert({
-        id: user.id,
-        username: existingProfile.username,
-        email: existingProfile.email || user.email, // 🔥 FIX ICI
-        city: city,
-        latitude: lat,
-        longitude: lng
-      });
-
-    if (error) {
-      console.error("❌ DB ERROR:", error);
-      alert("Erreur DB: " + error.message);
-    } else {
-      console.log("✅ SUCCÈS");
-      alert("✅ Localisation enregistrée !");
-    }
-
-  } catch (err) {
-    console.error("❌ API ERROR:", err);
-    alert("Erreur API");
+  if (error) {
+    console.error("❌ DB ERROR:", error);
+  } else {
+    console.log("✅ Localisation enregistrée :", city);
   }
 }
-        
-
-    
+ 
  setTimeout(() => {
   initLocationAlibaba();
 }, 2000);
