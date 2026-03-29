@@ -3029,30 +3029,28 @@ categorySearch.oninput = () => {
 
  async function initLocationAlibaba() {
 
+  console.log("🚀 init lancé");
+
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
 
-  // 🔍 Vérifier si déjà stocké
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("city")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profile?.city) {
-    console.log("📍 Déjà enregistré :", profile.city);
+  if (!user) {
+    console.log("❌ Pas connecté");
     return;
   }
 
-  // 🌍 Localisation IP
+  console.log("USER OK:", user.id);
+
+  // 🌍 récupérer IP
   const ipLocation = await getLocationFromIP();
 
-  if (!ipLocation) {
-    console.log("❌ Impossible de localiser");
+  console.log("IP:", ipLocation);
+
+  if (!ipLocation || !ipLocation.city) {
+    console.log("❌ Ville introuvable");
     return;
   }
 
-  // 💾 Sauvegarde
+  // 💾 enregistrer DIRECT (on force)
   const { error } = await supabase
     .from("profiles")
     .upsert({
@@ -3063,11 +3061,13 @@ categorySearch.oninput = () => {
     });
 
   if (error) {
-    console.log("❌ Erreur DB:", error);
+    console.log("❌ ERREUR DB:", error);
   } else {
-    console.log("✅ Localisation enregistrée :", ipLocation.city);
+    console.log("✅ Ville enregistrée :", ipLocation.city);
   }
  }
+
+ 
 
  document.addEventListener("DOMContentLoaded", () => {
   initLocationAlibaba();
