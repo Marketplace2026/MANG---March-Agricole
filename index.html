@@ -2576,7 +2576,7 @@ async function loadCurrentUser() {
 
   currentProfile = profile;
 
- await checkUserLocation();
+ 
 
   const now = new Date();
   const premiumEnd = profile.premium_end
@@ -3009,60 +3009,69 @@ resetFilterBtn.onclick = () => {
 categorySearch.oninput = () => {
   renderCategoryList(categorySearch.value);
 };
-async function checkUserLocation() {
+
+ async function getLocationFromIP() {
   try {
-    // 1. Récupérer utilisateur connecté
-    const { data: { user } } = await supabase.auth.getUser();
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
 
-    if (!user) return;
-
-    // 2. Vérifier si localisation existe
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("latitude, longitude")
-      .eq("id", user.id)
-      .single();
-
-    // 3. Si déjà localisé → STOP
-    if (profile && profile.latitude && profile.longitude) {
-      console.log("📍 Localisation déjà enregistrée");
-      return;
-    }
-
-    // 4. Sinon → demander localisation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        console.log("📍 Position récupérée :", lat, lng);
-
-        // 5. Sauvegarder dans Supabase
-        await supabase
-          .from("profiles")
-          .update({
-            latitude: lat,
-            longitude: lng
-          })
-          .eq("id", user.id);
-
-        alert("📍 Localisation enregistrée avec succès");
-
-      }, (error) => {
-        console.error("❌ Refus localisation", error);
-      });
-    }
+    return {
+      city: data.city,
+      lat: data.latitude,
+      lng: data.longitude
+    };
 
   } catch (err) {
-    console.error("❌ Erreur localisation:", err);
+    console.log("❌ Erreur IP:", err);
+    return null;
   }
-}
- 
-    
- setTimeout(() => {
-  checkUserLocation();
-}, 2000);
+ }
+
+ async function initLocationAlibaba() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // 🔍 Vérifier si déjà stocké
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("city")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.city) {
+    console.log("📍 Déjà enregistré :", profile.city);
+    return;
+  }
+
+  // 🌍 Localisation IP
+  const ipLocation = await getLocationFromIP();
+
+  if (!ipLocation) {
+    console.log("❌ Impossible de localiser");
+    return;
+  }
+
+  // 💾 Sauvegarde
+  const { error } = await supabase
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      city: ipLocation.city,
+      latitude: ipLocation.lat,
+      longitude: ipLocation.lng
+    });
+
+  if (error) {
+    console.log("❌ Erreur DB:", error);
+  } else {
+    console.log("✅ Localisation enregistrée :", ipLocation.city);
+  }
+ }
+
+ document.addEventListener("DOMContentLoaded", () => {
+  initLocationAlibaba();
+});
             
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
