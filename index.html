@@ -3036,57 +3036,81 @@ async function initLocationAlibaba() {
 
   console.log("🚀 INIT LANCÉ");
 
-  // 1. USER
-  const { data: { user } } = await supabase.auth.getUser();
-  console.log("USER:", user);
-
-  if (!user) {
-    alert("❌ Utilisateur non connecté");
-    return;
-  }
-
-  // 2. TEST API IP
   try {
+
+    // ================= USER =================
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    console.log("👤 USER DATA:", userData);
+    console.log("❌ USER ERROR:", userError);
+
+    const user = userData?.user;
+
+    if (!user) {
+      alert("❌ Utilisateur non connecté");
+      return;
+    }
+
+    console.log("✅ USER ID:", user.id);
+
+    // ================= API IP =================
     const res = await fetch("https://ipapi.co/json/");
-    const data = await res.json();
+    const ipData = await res.json();
 
-    console.log("🌍 IP DATA:", data);
+    console.log("🌍 IP FULL DATA:", ipData);
 
-    const city = data.city;
-    const lat = data.latitude;
-    const lng = data.longitude;
+    const city = ipData.city;
+    const lat = ipData.latitude;
+    const lng = ipData.longitude;
+
+    console.log("📍 CITY:", city);
+    console.log("📍 LAT:", lat);
+    console.log("📍 LNG:", lng);
 
     if (!city) {
-      alert("❌ Ville introuvable");
+      alert("❌ Ville introuvable depuis API");
       return;
     }
 
     alert("📍 Ville trouvée : " + city);
 
-    // 3. INSERT DB
-    const { error } = await supabase
+    // ================= TEST SELECT AVANT =================
+    const { data: existingProfile, error: selectError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    console.log("📄 PROFILE EXISTANT:", existingProfile);
+    console.log("❌ SELECT ERROR:", selectError);
+
+    // ================= UPSERT =================
+    const { data: upsertData, error: upsertError } = await supabase
       .from("profiles")
       .upsert({
         id: user.id,
         city: city,
         latitude: lat,
         longitude: lng
-      });
+      })
+      .select();
 
-    if (error) {
-      console.log("❌ DB ERROR:", error);
-      alert("Erreur DB");
-    } else {
-      console.log("✅ ENREGISTRÉ");
-      alert("✅ Ville enregistrée !");
+    console.log("📦 UPSERT DATA:", upsertData);
+    console.log("❌ UPSERT ERROR:", upsertError);
+
+    if (upsertError) {
+      alert("❌ ERREUR DB : " + upsertError.message);
+      return;
     }
 
+    console.log("✅ ENREGISTRÉ AVEC SUCCÈS");
+    alert("✅ Ville enregistrée !");
+
   } catch (err) {
-    console.log("❌ API ERROR:", err);
-    alert("Erreur API IP");
+    console.log("🔥 ERREUR GLOBALE:", err);
+    alert("❌ ERREUR GLOBALE : " + err.message);
   }
 }
-
  setTimeout(() => {
   initLocationAlibaba();
 }, 2000);
