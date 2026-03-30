@@ -3820,36 +3820,55 @@ async function loadShops() {
         default: shop.stars = '—';
       }
     });
+// 📍 MODE PROXIMITÉ OU NORMAL
 
-   // 📍 MODE PROXIMITÉ OU NORMAL
+if (isNearbyMode && userLat !== null && userLon !== null) {
 
-if (isNearbyMode && userLat && userLon) {
+  console.log("📍 MODE PROXIMITÉ ACTIVÉ");
+  console.log("USER:", userLat, userLon);
 
+  // 🔥 CALCUL DISTANCE
   shops.forEach(shop => {
+
     if (shop.latitude && shop.longitude) {
+
       shop.distance = distanceKm(
         userLat,
         userLon,
         shop.latitude,
         shop.longitude
       );
+
     } else {
+
       shop.distance = null;
+
     }
+
   });
 
-  // 🔥 FILTRER
+  // 🔥 FILTRER (enlever boutiques sans position)
   shops = shops.filter(shop => shop.distance !== null);
+
+  // 🔥 SI AUCUNE BOUTIQUE PROCHE
+  if (shops.length === 0) {
+    shopsList.innerHTML = "<p>Aucune boutique proche trouvée</p>";
+    return;
+  }
 
   // 🔥 TRI PAR DISTANCE
   shops.sort((a, b) => a.distance - b.distance);
 
 } else {
- 
+
+  console.log("🌍 MODE NORMAL");
+
   // 🔹 TRI PREMIUM
   shops.sort((a, b) => b.premiumScore - a.premiumScore);
 
-}
+ }
+   
+
     // 🔹 Affichage cartes
     shopsList.innerHTML = "";
 
