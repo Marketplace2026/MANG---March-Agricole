@@ -3756,6 +3756,9 @@ document.addEventListener("click", function(e) {
   }
 
 });
+
+
+ const MAX_DISTANCE = 20; // km (tu peux mettre 10, 15, 50...)
  
 // ====== CHARGER BOUTIQUES (PRO + STATUS PREMIUM) ======
 async function loadShops() {
@@ -3848,8 +3851,9 @@ if (isNearbyMode && userLat !== null && userLon !== null) {
   });
 
   // 🔥 FILTRER (enlever boutiques sans position)
-  shops = shops.filter(shop => shop.distance !== null);
-
+  shops = shops.filter(shop => 
+  shop.distance !== null && shop.distance <= MAX_DISTANCE
+);
   // 🔥 SI AUCUNE BOUTIQUE PROCHE
   if (shops.length === 0) {
     shopsList.innerHTML = "<p>Aucune boutique proche trouvée</p>";
