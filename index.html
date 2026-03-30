@@ -3933,6 +3933,19 @@ right:8px;
     </span>
   </div>
 
+  ${isNearbyMode && shop.distance !== undefined ? `
+  <div style="
+    font-size:12px;
+    color:#888;
+    margin-top:2px;
+    font-weight:600;
+  ">
+    ${shop.distance < 5 
+      ? "🔥 Très proche" 
+      : "📍 " + shop.distance.toFixed(1) + " km"}
+  </div>
+` : ""}
+
   <div class="shopDesc" style="font-size:13px;">
     <span class="scrollText">
       ${shop.description ? shop.description : ""}
