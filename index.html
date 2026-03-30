@@ -3776,7 +3776,7 @@ async function loadShops() {
       query = query.eq('livraison', livraisonFilter);
     }
 
-    const { data: shops, error } = await query;
+    let { data: shops, error } = await query;
 
     if (error) {
       console.error("Erreur loadShops:", error);
