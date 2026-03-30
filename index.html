@@ -3122,6 +3122,73 @@ async function saveLocation(user, city, lat, lng) {
   initLocationAlibaba();
 }, 2000);
 
+
+
+ let isNearbyMode = false;
+let userLat = null;
+let userLon = null;
+
+ async function getUserLocation() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("latitude, longitude")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !data) {
+    console.log("❌ Localisation introuvable");
+    return;
+  }
+
+  userLat = data.latitude;
+  userLon = data.longitude;
+
+  console.log("📍 USER:", userLat, userLon);
+ }
+
+  function distanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+  }
+
+ 
+ const nearbyShopsBtn = document.getElementById("nearbyShopsBtn");
+
+if (nearbyShopsBtn) {
+
+  nearbyShopsBtn.onclick = async () => {
+
+    console.log("📍 MODE PROXIMITÉ ACTIVÉ");
+
+    await getUserLocation();
+
+    if (!userLat || !userLon) {
+      alert("Active ta localisation d'abord");
+      return;
+    }
+
+    isNearbyMode = true;
+
+    loadShops();
+  };
+}
+
+ 
+
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
 // ===================================
@@ -3754,9 +3821,31 @@ async function loadShops() {
       }
     });
 
-    // 🔹 Trier par premium décroissant
-    shops.sort((a, b) => b.premiumScore - a.premiumScore);
+   // 📍 MODE PROXIMITÉ OU NORMAL
+if (isNearbyMode && userLat && userLon) {
 
+  shops.forEach(shop => {
+    if (shop.latitude && shop.longitude) {
+      shop.distance = distanceKm(
+        userLat,
+        userLon,
+        shop.latitude,
+        shop.longitude
+      );
+    } else {
+      shop.distance = 9999;
+    }
+  });
+
+  // 🔥 TRI PAR DISTANCE
+  shops.sort((a, b) => a.distance - b.distance);
+
+} else {
+
+  // 🔹 TRI PREMIUM
+  shops.sort((a, b) => b.premiumScore - a.premiumScore);
+
+}
     // 🔹 Affichage cartes
     shopsList.innerHTML = "";
 
