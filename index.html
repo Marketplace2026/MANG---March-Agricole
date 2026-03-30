@@ -3822,6 +3822,7 @@ async function loadShops() {
     });
 
    // 📍 MODE PROXIMITÉ OU NORMAL
+
 if (isNearbyMode && userLat && userLon) {
 
   shops.forEach(shop => {
@@ -3833,15 +3834,18 @@ if (isNearbyMode && userLat && userLon) {
         shop.longitude
       );
     } else {
-      shop.distance = 9999;
+      shop.distance = null;
     }
   });
+
+  // 🔥 FILTRER
+  shops = shops.filter(shop => shop.distance !== null);
 
   // 🔥 TRI PAR DISTANCE
   shops.sort((a, b) => a.distance - b.distance);
 
 } else {
-
+ 
   // 🔹 TRI PREMIUM
   shops.sort((a, b) => b.premiumScore - a.premiumScore);
 
@@ -3932,17 +3936,20 @@ right:8px;
       ${shop.ownerUsername}
     </span>
   </div>
-
-  ${isNearbyMode && shop.distance !== undefined ? `
+${isNearbyMode && shop.distance !== null ? `
   <div style="
     font-size:12px;
     color:#888;
     margin-top:2px;
     font-weight:600;
   ">
-    ${shop.distance < 5 
-      ? "🔥 Très proche" 
-      : "📍 " + shop.distance.toFixed(1) + " km"}
+    ${
+      shop.distance < 2 
+        ? "🔥 À côté de vous"
+        : shop.distance < 5 
+        ? "⚡ Très proche"
+        : "📍 " + shop.distance.toFixed(1) + " km"
+    }
   </div>
 ` : ""}
 
