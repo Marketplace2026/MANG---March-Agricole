@@ -3437,7 +3437,6 @@ function filterShops(query) {
       owner: ownerEl?.textContent || "",
       description: card.dataset.description || "",
       category: card.dataset.category || "",
-      premium_level: card.dataset.premium || "",
       distance: parseFloat(card.dataset.distance || 999)
     };
 
@@ -3474,18 +3473,6 @@ function filterShops(query) {
 }
 
 
-// ===============================
-// 🔥 TRENDING SEARCH
-// ===============================
-function getTrendingSearches() {
-  return [
-    "Restaurant",
-    "Chaussures",
-    "Téléphone",
-    "Mode",
-    "Électronique"
-  ];
-}
 
 
 // ===============================
