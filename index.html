@@ -3727,35 +3727,49 @@ document.addEventListener("click", (e) => {
 // ===============================
 loadShopsForSearch();
 
- // ===============================
-// 🔥 PLACEHOLDER ANIMÉ ALIBABA STYLE
+// ===============================
+// 🔥 PLACEHOLDER ANIMÉ PRO (FIX)
 // ===============================
 
 let placeholderIndex = 0;
 let names = [];
-let animInterval;
+let animInterval = null;
 
 function initAnimatedPlaceholder() {
 
-  if (!allShops || allShops.length === 0) return;
-
-  names = allShops
-    .map(s => s.name)
-    .filter(Boolean)
-    .slice(0, 10);
-
   const container = document.getElementById("animatedPlaceholder");
-
   if (!container) return;
 
-  // premier texte
+  // 🔥 STOP ancienne animation
+  if (animInterval) {
+    clearInterval(animInterval);
+    animInterval = null;
+  }
+
+  // 🔥 sécuriser les données
+  if (!allShops || allShops.length === 0) {
+    names = ["Boutique Mode", "Chaussures", "Tech Store", "Parfums"];
+  } else {
+    names = allShops
+      .map(s => s.name)
+      .filter(Boolean)
+      .slice(0, 10);
+  }
+
+  // 🔥 reset container
+  container.innerHTML = "";
+
   let current = document.createElement("div");
   current.className = "placeholder-text slide-active";
   current.textContent = "🔍 " + names[0];
+
   container.appendChild(current);
+
+  placeholderIndex = 0;
 
   function animateText() {
 
+    // ❌ ne pas animer si input actif
     if (document.activeElement === searchInput) return;
 
     const nextIndex = (placeholderIndex + 1) % names.length;
@@ -3766,41 +3780,57 @@ function initAnimatedPlaceholder() {
 
     container.appendChild(next);
 
-    // force reflow
-    void next.offsetWidth;
+    // animation fluide
+    requestAnimationFrame(() => {
+      current.classList.add("slide-out");
+      next.classList.remove("slide-in");
+      next.classList.add("slide-active");
+    });
 
-    // animation
-    current.classList.add("slide-out");
-    next.classList.remove("slide-in");
-    next.classList.add("slide-active");
-
-    // cleanup
+    // nettoyage
     setTimeout(() => {
-      container.removeChild(current);
+      if (container.contains(current)) {
+        container.removeChild(current);
+      }
       current = next;
       placeholderIndex = nextIndex;
     }, 400);
-
   }
 
   animInterval = setInterval(animateText, 2000);
 }
 
- 
-loadShopsForSearch().then(() => {
-  initAnimatedPlaceholder();
-});
 
- searchInput.addEventListener("focus", () => {
-  clearInterval(animInterval);
-  document.getElementById("animatedPlaceholder").style.display = "none";
+// ===============================
+// 🚀 INIT PROPRE
+// ===============================
+async function startPlaceholder() {
+  await loadShopsForSearch(); // 🔥 attendre les données
+  initAnimatedPlaceholder();
+}
+
+startPlaceholder();
+
+
+// ===============================
+// 🎯 UX FOCUS / BLUR
+// ===============================
+searchInput.addEventListener("focus", () => {
+  if (animInterval) {
+    clearInterval(animInterval);
+    animInterval = null;
+  }
+
+  const el = document.getElementById("animatedPlaceholder");
+  if (el) el.style.display = "none";
 });
 
 searchInput.addEventListener("blur", () => {
-  document.getElementById("animatedPlaceholder").style.display = "flex";
-  initAnimatedPlaceholder();
+  const el = document.getElementById("animatedPlaceholder");
+  if (el) el.style.display = "block";
+
+  initAnimatedPlaceholder(); // 🔥 relance propre
 });
- 
 
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
