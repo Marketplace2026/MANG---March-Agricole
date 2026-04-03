@@ -255,6 +255,50 @@ header.topbar{
   transform:scale(1.05);
 }
 
+ /* Wrapper */
+.input-wrapper{
+  position:relative;
+  width:100%;
+}
+
+/* Placeholder animé */
+.animated-placeholder{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  pointer-events:none;
+  color:#94a3b8;
+  font-size:14px;
+  overflow:hidden;
+  height:20px;
+  display:flex;
+  align-items:center;
+}
+
+/* Texte */
+.placeholder-text{
+  position:absolute;
+  width:100%;
+  transition:all 0.4s ease;
+}
+
+/* Animation */
+.slide-out{
+  transform:translateY(100%);
+  opacity:0;
+}
+
+.slide-in{
+  transform:translateY(-100%);
+  opacity:0;
+}
+
+.slide-active{
+  transform:translateY(0);
+  opacity:1;
+}
+
 
 /* ===== LIGNE LOGO + SLOGAN ===== */
 
@@ -2289,19 +2333,24 @@ height:100px;
     </div>
 
   </div>
-
-  
 <div class="search-bar">
 
   <div class="search-box">
 
-    
-    <input 
-      type="text" 
-      id="searchInput" 
-      placeholder="Rechercher une boutique..."
-      autocomplete="off"
-    >
+    <!-- 🔥 WRAPPER INPUT -->
+    <div class="input-wrapper">
+
+      <input 
+        type="text" 
+        id="searchInput" 
+        placeholder=""
+        autocomplete="off"
+      >
+
+      <!-- 🔥 PLACEHOLDER ANIMÉ -->
+      <div id="animatedPlaceholder" class="animated-placeholder"></div>
+
+    </div>
 
     <span class="icon-mic" id="micBtn">🎤</span>
 
@@ -2313,6 +2362,8 @@ height:100px;
   </div>
 
 </div>
+  
+
  </header>
 
 <!-- PANEL NOTIFICATIONS -->
@@ -3676,51 +3727,79 @@ document.addEventListener("click", (e) => {
 // ===============================
 loadShopsForSearch();
 
- 
-
  // ===============================
-// 🔥 PLACEHOLDER DYNAMIQUE
+// 🔥 PLACEHOLDER ANIMÉ ALIBABA STYLE
 // ===============================
 
 let placeholderIndex = 0;
-let placeholderInterval;
+let names = [];
+let animInterval;
 
-// 🔥 Liste des noms (chargée depuis tes shops)
-function initDynamicPlaceholder() {
+function initAnimatedPlaceholder() {
 
   if (!allShops || allShops.length === 0) return;
 
-  const names = allShops
+  names = allShops
     .map(s => s.name)
     .filter(Boolean)
-    .slice(0, 10); // limite pour performance
+    .slice(0, 10);
 
-  function updatePlaceholder() {
-    if (document.activeElement === searchInput) return; // ne change pas si user tape
+  const container = document.getElementById("animatedPlaceholder");
 
-    searchInput.placeholder = "🔍 " + names[placeholderIndex];
+  if (!container) return;
 
-    placeholderIndex = (placeholderIndex + 1) % names.length;
+  // premier texte
+  let current = document.createElement("div");
+  current.className = "placeholder-text slide-active";
+  current.textContent = "🔍 " + names[0];
+  container.appendChild(current);
+
+  function animateText() {
+
+    if (document.activeElement === searchInput) return;
+
+    const nextIndex = (placeholderIndex + 1) % names.length;
+
+    const next = document.createElement("div");
+    next.className = "placeholder-text slide-in";
+    next.textContent = "🔍 " + names[nextIndex];
+
+    container.appendChild(next);
+
+    // force reflow
+    void next.offsetWidth;
+
+    // animation
+    current.classList.add("slide-out");
+    next.classList.remove("slide-in");
+    next.classList.add("slide-active");
+
+    // cleanup
+    setTimeout(() => {
+      container.removeChild(current);
+      current = next;
+      placeholderIndex = nextIndex;
+    }, 400);
+
   }
 
-  // 🔥 lancer loop
-  placeholderInterval = setInterval(updatePlaceholder, 2000);
-
-  updatePlaceholder();
- }
-
-loadShopsForSearch().then(() => {
-  initDynamicPlaceholder();
-});
+  animInterval = setInterval(animateText, 2000);
+}
 
  searchInput.addEventListener("focus", () => {
-  clearInterval(placeholderInterval);
+  clearInterval(animInterval);
+  document.getElementById("animatedPlaceholder").style.display = "none";
 });
 
 searchInput.addEventListener("blur", () => {
-  initDynamicPlaceholder();
+  document.getElementById("animatedPlaceholder").style.display = "flex";
+  initAnimatedPlaceholder();
 });
  
+loadShopsForSearch().then(() => {
+  initAnimatedPlaceholder();
+});
+
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
 // ===================================
