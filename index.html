@@ -3531,41 +3531,36 @@ function showSuggestions(query) {
   }
 
   suggestionsBox.innerHTML = suggestions.map((item, i) => `
-    <div class="suggestion-item" data-index="${i}">
+  <div class="suggestion-item" data-index="${i}" data-value="${item.value}">
+    
+    <div style="display:flex;align-items:center;gap:8px;">
       
-      <div style="display:flex;align-items:center;gap:8px;">
-        
-        <div style="font-size:18px;">
-          ${
-            item.type === "trend" ? "🔥" :
-            item.type === "history" ? "🕘" : "🔍"
-          }
-        </div>
+      <div style="font-size:18px;">
+        ${
+          item.type === "trend" ? "🔥" :
+          item.type === "history" ? "🕘" : "🔍"
+        }
+      </div>
 
-        <div>
-          <div style="font-weight:600;">
-            ${highlight(item.value, query)}
-          </div>
-
-          ${item.desc ? `
-            <div style="font-size:12px;color:#777;">
-              ${item.desc.slice(0,40)}
-            </div>
-          ` : ""}
-        </div>
-
+      <div style="font-weight:600;">
+        ${highlight(item.value, query)}
       </div>
 
     </div>
-  `).join("");
 
-  suggestionsBox.style.display = "block";
-  selectedIndex = -1;
+  </div>
+`).join("");
 
-  document.querySelectorAll(".suggestion-item").forEach(el => {
-    el.onclick = () => selectSuggestion(el.innerText);
-  });
-}
+suggestionsBox.style.display = "block";
+selectedIndex = -1;
+
+// 🔥 CLICK PRO (sans bug texte)
+document.querySelectorAll(".suggestion-item").forEach(el => {
+  el.onclick = () => {
+    const value = el.dataset.value;
+    selectSuggestion(value);
+  };
+});
 
 
 // ===============================
