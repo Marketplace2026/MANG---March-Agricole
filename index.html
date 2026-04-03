@@ -3313,6 +3313,63 @@ if (nearbyShopsBtn) {
   };
 }
 const searchInput = document.getElementById("searchInput");
+
+let searchTimeout;
+
+// 🔥 fonction pour nettoyer texte (accents + majuscules)
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD") // enlève accents
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+// 🔥 filtrage intelligent
+searchInput.addEventListener("input", () => {
+
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
+
+    const query = normalize(searchInput.value.trim());
+
+    const shopCards = shopsList.querySelectorAll(".shopCard");
+
+    shopCards.forEach(card => {
+
+      // 🔹 récupérer les données
+      const name = normalize(
+        card.querySelector("h3")?.textContent || ""
+      );
+
+      const owner = normalize(
+        card.querySelector(".ownerName")?.textContent || ""
+      );
+
+      const desc = normalize(
+        card.dataset.description || ""
+      );
+
+      // 🔥 score intelligent (comme Alibaba)
+      let match =
+        name.includes(query) ||
+        owner.includes(query) ||
+        desc.includes(query);
+
+      // 🔥 affichage
+      if (!query || match) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
+
+    });
+
+  }, 250); // 🔥 debounce (fluide)
+});
+
+ 
+const searchInput = document.getElementById("searchInput");
 const suggestionsBox = document.getElementById("suggestionsBox");
 
 let allShops = []; // 🔥 on va stocker les boutiques ici
@@ -4203,7 +4260,7 @@ right:8px;
   </h3>
 
   <div style="font-size:14px;line-height:1.2;">
-    <span style="color:#555;">👤</span>
+    <span class="ownerName" style="color:#555;">👤</span>
     <span style="font-weight:600;color:#1B8F3A;">
       ${shop.ownerUsername}
     </span>
