@@ -3513,7 +3513,7 @@ function showSuggestions(query) {
   }
 
 suggestionsBox.innerHTML = suggestions.map((item, i) => ` 
-  <div class="suggestion-item" data-index="${i}">
+  <div class="suggestion-item" data-index="${i}" data-value="${item.value}">
     
     <div style="display:flex;align-items:center;gap:8px;">
       
@@ -3538,25 +3538,23 @@ suggestionsBox.innerHTML = suggestions.map((item, i) => `
 suggestionsBox.style.display = "block";
 selectedIndex = -1;
 
+// 🔥 CLICK CLEAN
 document.querySelectorAll(".suggestion-item").forEach(el => {
-  el.onclick = () => selectSuggestion(el.innerText);
+  el.onclick = () => selectSuggestion(el.dataset.value);
 });
-}
+ }
 
 // ===============================
 // 🔥 SELECT
 // ===============================
-function selectSuggestion(text) {
-  const clean = text.replace("🕘 ", "").replace("🔍 ", "").replace("🔥 ", "");
+function selectSuggestion(value) {
 
-  searchInput.value = clean;
+  searchInput.value = value;
   suggestionsBox.style.display = "none";
 
-  saveHistory(clean);
-  filterShops(normalize(clean));
+  saveHistory(value);
+  filterShops(normalize(value));
 }
-
-
 // ===============================
 // 🔥 HISTORIQUE
 // ===============================
