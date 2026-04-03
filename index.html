@@ -3786,6 +3786,11 @@ function initAnimatedPlaceholder() {
   animInterval = setInterval(animateText, 2000);
 }
 
+ 
+loadShopsForSearch().then(() => {
+  initAnimatedPlaceholder();
+});
+
  searchInput.addEventListener("focus", () => {
   clearInterval(animInterval);
   document.getElementById("animatedPlaceholder").style.display = "none";
@@ -3796,9 +3801,6 @@ searchInput.addEventListener("blur", () => {
   initAnimatedPlaceholder();
 });
  
-loadShopsForSearch().then(() => {
-  initAnimatedPlaceholder();
-});
 
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
