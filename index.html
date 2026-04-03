@@ -4394,8 +4394,12 @@ if (isNearbyMode && userLat !== null && userLon !== null) {
       const div = document.createElement("div");
       div.className = "shopCard";
 
-      div.dataset.category = shop.category || "";
-      div.dataset.description = shop.description || "";
+     div.dataset.category = shop.category || "";
+div.dataset.description = shop.description || "";
+div.dataset.distance = shop.distance ?? 9999;
+div.dataset.premium = shop.premium_level || "free";
+div.dataset.owner = shop.ownerUsername || "";
+div.dataset.name = shop.name || "";
 
       // 🔥 BADGE PREMIUM DYNAMIQUE
       let premiumBadge = "";
