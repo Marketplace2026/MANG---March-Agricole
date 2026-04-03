@@ -3525,13 +3525,8 @@ function showSuggestions(query) {
 
   }
 
-  if (suggestions.length === 0) {
-    suggestionsBox.style.display = "none";
-    return;
-  }
-
-  suggestionsBox.innerHTML = suggestions.map((item, i) => `
-  <div class="suggestion-item" data-index="${i}" data-value="${item.value}">
+suggestionsBox.innerHTML = suggestions.map((item, i) => ` 
+  <div class="suggestion-item" data-index="${i}">
     
     <div style="display:flex;align-items:center;gap:8px;">
       
@@ -3542,8 +3537,10 @@ function showSuggestions(query) {
         }
       </div>
 
-      <div style="font-weight:600;">
-        ${highlight(item.value, query)}
+      <div>
+        <div style="font-weight:600;">
+          ${highlight(item.value, query)}
+        </div>
       </div>
 
     </div>
@@ -3554,14 +3551,9 @@ function showSuggestions(query) {
 suggestionsBox.style.display = "block";
 selectedIndex = -1;
 
-// 🔥 CLICK PRO (sans bug texte)
 document.querySelectorAll(".suggestion-item").forEach(el => {
-  el.onclick = () => {
-    const value = el.dataset.value;
-    selectSuggestion(value);
-  };
+  el.onclick = () => selectSuggestion(el.innerText);
 });
-
 
 // ===============================
 // 🔥 SELECT
