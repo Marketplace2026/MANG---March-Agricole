@@ -3756,8 +3756,35 @@ document.addEventListener("click", function(e) {
   }
 
 });
+const resetFilterBtn = document.getElementById("resetFilterBtn");
 
+if (resetFilterBtn) {
+  resetFilterBtn.onclick = () => {
 
+    console.log("🔄 RESET TOTAL");
+
+    // 🔥 RESET DES MODES
+    isNearbyMode = false;
+
+    // 🔥 RESET FILTRES
+    selectedCategory = null;
+    livraisonFilter = null;
+
+    // 🔥 OPTIONNEL (si tu veux clean visuel)
+    userLat = null;
+    userLon = null;
+
+    // 🔥 RECHARGER TOUT
+    loadShops();
+  };
+}
+
+document.querySelectorAll(".topBtn").forEach(btn => {
+  btn.classList.remove("active");
+});
+
+resetFilterBtn.classList.add("active");
+ 
  const MAX_DISTANCE = 1500; // km (tu peux mettre 10, 15, 50...)
  
 // ====== CHARGER BOUTIQUES (PRO + STATUS PREMIUM) ======
