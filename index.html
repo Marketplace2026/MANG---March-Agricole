@@ -93,10 +93,14 @@ header.topbar{
 
   margin:0;
 }
+
+
+
+
 /* ===== SEARCH BAR FIXE ===== */
 .search-bar{
   position:fixed;
-  top:78px; /* sous le header */
+  top:78px;
   left:0;
   width:100%;
 
@@ -105,7 +109,7 @@ header.topbar{
   display:flex;
   justify-content:center;
 
-  padding:8px 0;
+  padding:4px 0; /* 🔽 réduit */
 
   background:white;
 
@@ -115,29 +119,31 @@ header.topbar{
 
 /* ===== CONTENEUR STYLE ALIBABA ===== */
 .search-box{
-  width:85%;
+  position:relative;
+  width:90%;
+  display:flex;
+  align-items:center;
 
-padding:8px 12px;
+  background:#fff;
 
-border-radius:40px;
-border:2px solid #e2e8f0;
+  border-radius:25px; /* 🔽 plus compact */
+  border:2px solid #1B8F3A; /* 🔽 moins épais */
 
-font-size:16px;
+  padding:4px 8px; /* 🔽 réduit */
 
-outline:none;
-background:white;
+  height:40px; /* 🔥 hauteur contrôlée */
 
-box-shadow:0 6px 15px rgba(0,0,0,0.08);
+  box-shadow:0 4px 10px rgba(0,0,0,0.06);
 
-transition:all 0.25s ease;
+  transition:all 0.25s ease;
 }
 
 
 /* ===== EFFET FOCUS GLOBAL ===== */
 .search-box:focus-within{
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.12),
-    0 0 0 3px rgba(46,204,113,0.25);
+    0 6px 15px rgba(0,0,0,0.1),
+    0 0 0 2px rgba(46,204,113,0.2);
   transform:scale(1.01);
 }
 
@@ -149,10 +155,9 @@ transition:all 0.25s ease;
   border:none;
   outline:none;
 
- padding:4px;
-  font-size:13px;
+  font-size:14px; /* 🔽 réduit */
 
-  
+  padding:4px 4px; /* 🔽 réduit */
 
   background:transparent;
 }
@@ -161,28 +166,28 @@ transition:all 0.25s ease;
 /* ===== PLACEHOLDER ===== */
 #searchInput::placeholder{
   color:#94a3b8;
-  font-size:15px;
+  font-size:14px;
 }
 
 
 /* ===== ICONE CAMERA ===== */
 .icon-camera{
-  font-size:20px;
-  margin-right:8px;
+  font-size:16px; /* 🔽 réduit */
+  margin-right:6px;
 }
 
 
 /* ===== EMOJI ===== */
 .icon-emoji{
-  font-size:18px;
-  margin-right:8px;
+  font-size:16px;
+  margin-right:6px;
 }
 
 
 /* ===== MICRO ===== */
 .icon-mic{
-  font-size:20px;
-  margin-right:8px;
+  font-size:16px;
+  margin-right:6px;
   cursor:pointer;
   color:#555;
 }
@@ -196,19 +201,22 @@ transition:all 0.25s ease;
 
   color:white;
 
- 
+  padding:6px 10px; /* 🔽 réduit */
 
-  padding:10px 14px;
-
-  border-radius:15px;
+  border-radius:12px;
 
   cursor:pointer;
 
-  box-shadow:0 3px 8px rgba(0,0,0,0.2);
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
 
   transition:0.2s;
 }
 
+
+/* ===== HOVER BOUTON ===== */
+#searchBtn:hover{
+  transform:scale(1.05);
+}
 
  /* ===== SUGGESTIONS BOX ===== */
 .suggestions-box{
