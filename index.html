@@ -5636,26 +5636,7 @@ contactShopBtn.onclick = async () => {
   loadshops();
 };
   
-  const searchInput = document.getElementById("searchInput");
-
-// Fonction pour filtrer boutiques
-searchInput.addEventListener("input", () => {
-  const query = searchInput.value.toLowerCase();
-
-  // Parcourir toutes les cartes de boutique
-  const shopCards = shopsList.querySelectorAll(".shopCard");
-  shopCards.forEach(card => {
-    const name = card.querySelector("h4")?.textContent.toLowerCase() || "";
-    const category = card.querySelector("small")?.textContent.toLowerCase() || "";
-    const desc = card.dataset.description?.toLowerCase() || "";
-
-    if (name.includes(query) || category.includes(query) || desc.includes(query)) {
-      card.style.display = "block";
-    } else {
-      card.style.display = "none";
-    }
-  });
-});
+  
 // ====== ENVOI MESSAGE ======
 sendBtn.onclick = async () => {
   const text = messageInput.value.trim();
