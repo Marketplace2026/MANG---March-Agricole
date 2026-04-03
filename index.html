@@ -255,35 +255,33 @@ header.topbar{
   transform:scale(1.05);
 }
 
- /* Wrapper */
 .input-wrapper{
   position:relative;
-  width:100%;
+  flex:1;
 }
 
-/* Placeholder animé */
+/* 🔥 TEXTE ANIMÉ */
 .animated-placeholder{
   position:absolute;
-  left:12px;
+  left:10px;
   top:50%;
   transform:translateY(-50%);
-  pointer-events:none;
   color:#94a3b8;
   font-size:14px;
-  overflow:hidden;
+  pointer-events:none;
+  width:100%;
   height:20px;
-  display:flex;
-  align-items:center;
+  overflow:hidden;
 }
 
-/* Texte */
+/* texte */
 .placeholder-text{
   position:absolute;
   width:100%;
   transition:all 0.4s ease;
 }
 
-/* Animation */
+/* animation */
 .slide-out{
   transform:translateY(100%);
   opacity:0;
@@ -298,7 +296,6 @@ header.topbar{
   transform:translateY(0);
   opacity:1;
 }
-
 
 /* ===== LIGNE LOGO + SLOGAN ===== */
 
