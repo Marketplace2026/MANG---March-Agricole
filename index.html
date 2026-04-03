@@ -3670,12 +3670,57 @@ document.addEventListener("click", (e) => {
   }
 });
 
-
+ 
 // ===============================
 // 🚀 INIT
 // ===============================
 loadShopsForSearch();
 
+ 
+
+ // ===============================
+// 🔥 PLACEHOLDER DYNAMIQUE
+// ===============================
+
+let placeholderIndex = 0;
+let placeholderInterval;
+
+// 🔥 Liste des noms (chargée depuis tes shops)
+function initDynamicPlaceholder() {
+
+  if (!allShops || allShops.length === 0) return;
+
+  const names = allShops
+    .map(s => s.name)
+    .filter(Boolean)
+    .slice(0, 10); // limite pour performance
+
+  function updatePlaceholder() {
+    if (document.activeElement === searchInput) return; // ne change pas si user tape
+
+    searchInput.placeholder = "🔍 " + names[placeholderIndex];
+
+    placeholderIndex = (placeholderIndex + 1) % names.length;
+  }
+
+  // 🔥 lancer loop
+  placeholderInterval = setInterval(updatePlaceholder, 2000);
+
+  updatePlaceholder();
+ }
+
+loadShopsForSearch().then(() => {
+  initDynamicPlaceholder();
+});
+
+ searchInput.addEventListener("focus", () => {
+  clearInterval(placeholderInterval);
+});
+
+searchInput.addEventListener("blur", () => {
+  initDynamicPlaceholder();
+});
+ 
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
 // ===================================
