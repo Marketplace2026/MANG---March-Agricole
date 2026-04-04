@@ -2370,6 +2370,12 @@ height:100px;
 
   <div class="search-box">
 
+   <span class="icon-camera" id="cameraBtn">
+  📷
+</span>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+
   <!-- 🔥 PLACEHOLDER ANIMÉ -->
   <div id="animatedPlaceholder" class="animated-placeholder"></div>
 
@@ -3891,6 +3897,46 @@ searchInput.addEventListener("blur", () => {
 
 });
 
+
+ // ===============================
+// 📷 CAMERA SEARCH
+// ===============================
+const cameraBtn = document.getElementById("cameraBtn");
+const cameraInput = document.getElementById("cameraInput");
+
+// 🔥 ouvrir caméra
+cameraBtn.onclick = () => {
+  cameraInput.click();
+};
+
+// 🔥 quand image sélectionnée
+cameraInput.addEventListener("change", (e) => {
+
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // 🔥 SIMULATION ANALYSE (version simple)
+  const fakeDetected = detectCategoryFromName(file.name);
+
+  // 🔥 filtrer boutiques
+  filterShops(normalize(fakeDetected));
+});
+
+
+// ===============================
+// 🔥 SIMULATION IA (simple)
+// ===============================
+function detectCategoryFromName(fileName) {
+
+  const name = fileName.toLowerCase();
+
+  if (name.includes("shoe") || name.includes("chaussure")) return "chaussure";
+  if (name.includes("phone")) return "telephone";
+  if (name.includes("parfum")) return "parfum";
+  if (name.includes("robe")) return "mode";
+
+  return "";
+}
 
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
