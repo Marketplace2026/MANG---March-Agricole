@@ -3724,7 +3724,7 @@ document.addEventListener("click", (e) => {
 loadShopsForSearch();
 
 // ===============================
-// 🔥 PLACEHOLDER ANIMÉ PRO (FIX)
+// 🔥 PLACEHOLDER ANIMÉ PRO FINAL
 // ===============================
 
 let placeholderIndex = 0;
@@ -3742,9 +3742,9 @@ function initAnimatedPlaceholder() {
     animInterval = null;
   }
 
-  // 🔥 sécuriser les données
+  // 🔥 DATA SAFE
   if (!allShops || allShops.length === 0) {
-    names = ["Boutique Mode", "Chaussures", "Tech Store", "Parfums"];
+    names = ["Mode", "Chaussures", "Téléphones", "Parfums"];
   } else {
     names = allShops
       .map(s => s.name)
@@ -3752,7 +3752,9 @@ function initAnimatedPlaceholder() {
       .slice(0, 10);
   }
 
-  // 🔥 reset container
+  if (names.length === 0) return;
+
+  // 🔥 RESET
   container.innerHTML = "";
 
   let current = document.createElement("div");
@@ -3760,13 +3762,12 @@ function initAnimatedPlaceholder() {
   current.textContent = "🔍 " + names[0];
 
   container.appendChild(current);
-
   placeholderIndex = 0;
 
   function animateText() {
 
-    // ❌ ne pas animer si input actif
-    if (document.activeElement === searchInput) return;
+    // ❌ STOP si utilisateur tape
+    if (searchInput.value.trim().length > 0) return;
 
     const nextIndex = (placeholderIndex + 1) % names.length;
 
@@ -3776,14 +3777,12 @@ function initAnimatedPlaceholder() {
 
     container.appendChild(next);
 
-    // animation fluide
     requestAnimationFrame(() => {
       current.classList.add("slide-out");
       next.classList.remove("slide-in");
       next.classList.add("slide-active");
     });
 
-    // nettoyage
     setTimeout(() => {
       if (container.contains(current)) {
         container.removeChild(current);
@@ -3801,7 +3800,7 @@ function initAnimatedPlaceholder() {
 // 🚀 INIT PROPRE
 // ===============================
 async function startPlaceholder() {
-  await loadShopsForSearch(); // 🔥 attendre les données
+  await loadShopsForSearch();
   initAnimatedPlaceholder();
 }
 
@@ -3809,24 +3808,59 @@ startPlaceholder();
 
 
 // ===============================
-// 🎯 UX FOCUS / BLUR
+// 🎯 UX INTELLIGENT
 // ===============================
+
+// 🔥 Dès que l'utilisateur tape → cacher
+searchInput.addEventListener("input", () => {
+
+  const el = document.getElementById("animatedPlaceholder");
+
+  if (searchInput.value.trim().length > 0) {
+
+    // ❌ cacher animation
+    if (animInterval) {
+      clearInterval(animInterval);
+      animInterval = null;
+    }
+
+    if (el) el.style.display = "none";
+
+  } else {
+
+    // ✅ relancer animation si vide
+    if (el) el.style.display = "block";
+    initAnimatedPlaceholder();
+  }
+
+});
+
+
+// 🔥 Focus → cacher
 searchInput.addEventListener("focus", () => {
+  const el = document.getElementById("animatedPlaceholder");
+
   if (animInterval) {
     clearInterval(animInterval);
     animInterval = null;
   }
 
-  const el = document.getElementById("animatedPlaceholder");
   if (el) el.style.display = "none";
 });
 
-searchInput.addEventListener("blur", () => {
-  const el = document.getElementById("animatedPlaceholder");
-  if (el) el.style.display = "block";
 
-  initAnimatedPlaceholder(); // 🔥 relance propre
+// 🔥 Blur → afficher si vide
+searchInput.addEventListener("blur", () => {
+
+  const el = document.getElementById("animatedPlaceholder");
+
+  if (searchInput.value.trim().length === 0) {
+    if (el) el.style.display = "block";
+    initAnimatedPlaceholder();
+  }
+
 });
+
 
     // ===================================
 // 🔔 NOTIFICATIONS SYSTEM (OVERLAY SPA VERSION – VERSION FINALE)
