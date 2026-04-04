@@ -168,24 +168,26 @@ header.topbar{
   color:transparent;   /* 🔥 cache le placeholder classique */
 }
 
-/* ===== ICONE CAMERA ===== */
+ /* ===== ICONE CAMERA ===== */
 .icon-camera{
-  
-width:32px;
+  width:32px;
   height:32px;
 
   border-radius:50%;
   background:#f5f5f5;
- margin-left:15px; /* 🔥 espace entre micro et bouton */
- 
+
+  margin-left:10px; /* 🔥 propre */
 
   display:flex;
   align-items:center;
   justify-content:center;
 
   color:#333;
-}
 
+  position:relative;
+  z-index:2; /* 🔥 passe au-dessus du texte */
+}
+ 
 /* ===== EMOJI ===== */
 .icon-emoji{
   font-size:14px;
@@ -282,12 +284,13 @@ width:32px;
   position:relative;
   flex:1;
 }
-
 /* 🔥 PLACEHOLDER CONTAINER ULTRA */
 .animated-placeholder{
   position:absolute;
-  left:12px;
-  right:70px;
+
+  left:55px; /* 🔥 LA CLÉ → décale après la caméra */
+  right:90px; /* 🔥 espace micro + bouton */
+
   top:50%;
   transform:translateY(-50%);
 
@@ -304,8 +307,9 @@ width:32px;
   overflow:hidden;
 
   white-space:nowrap;
-}
 
+  z-index:1; /* 🔥 derrière input et icônes */
+}
 
 /* 🔥 TEXTE */
 .placeholder-text{
