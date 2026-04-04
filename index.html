@@ -145,8 +145,6 @@ header.topbar{
     0 0 0 2px rgba(46,204,113,0.2);
   transform:scale(1.01);
 }
-
-
 /* ===== INPUT ===== */
 #searchInput{
   flex:1;
@@ -154,20 +152,21 @@ header.topbar{
   border:none;
   outline:none;
 
-  font-size:13px; /* 🔽 compact */
+  font-size:13px;
 
   padding:2px;
 
   background:transparent;
+
+  position:relative;   /* 🔥 IMPORTANT */
+  z-index:2;           /* 🔥 au-dessus du texte animé */
 }
 
 
-/* ===== PLACEHOLDER ===== */
+/* ❌ PLACEHOLDER NATIF DÉSACTIVÉ */
 #searchInput::placeholder{
-  color:#94a3b8;
-  font-size:13px;
+  color:transparent;   /* 🔥 cache le placeholder classique */
 }
-
 
 /* ===== ICONE CAMERA ===== */
 .icon-camera{
@@ -263,40 +262,52 @@ header.topbar{
 /* 🔥 TEXTE ANIMÉ */
 .animated-placeholder{
   position:absolute;
-  left:10px;
+  left:12px;
+  right:70px; /* 🔥 laisse place au micro + bouton */
   top:50%;
   transform:translateY(-50%);
+
+  display:flex;
+  align-items:center;
+
   color:#94a3b8;
   font-size:14px;
+
   pointer-events:none;
-  width:100%;
+
   height:20px;
   overflow:hidden;
 }
 
-/* texte */
+/* 🔥 TEXTE */
 .placeholder-text{
   position:absolute;
   width:100%;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
   transition:all 0.4s ease;
 }
 
-/* animation */
+/* 🔥 ANIMATION SORTIE */
 .slide-out{
   transform:translateY(100%);
   opacity:0;
 }
 
+/* 🔥 ANIMATION ENTRÉE */
 .slide-in{
   transform:translateY(-100%);
   opacity:0;
 }
 
+/* 🔥 TEXTE ACTIF */
 .slide-active{
   transform:translateY(0);
   opacity:1;
 }
-
 /* ===== LIGNE LOGO + SLOGAN ===== */
 
 .logo-row{
@@ -2330,36 +2341,24 @@ height:100px;
     </div>
 
   </div>
-<div class="search-bar">
 
   <div class="search-box">
 
-    <!-- 🔥 WRAPPER INPUT -->
-    <div class="input-wrapper">
+  <!-- 🔥 PLACEHOLDER ANIMÉ -->
+  <div id="animatedPlaceholder" class="animated-placeholder"></div>
 
-      <input 
-        type="text" 
-        id="searchInput" 
-        placeholder=""
-        autocomplete="off"
-      >
+  <input 
+    type="text" 
+    id="searchInput"
+    autocomplete="off"
+  >
 
-      <!-- 🔥 PLACEHOLDER ANIMÉ -->
-      <div id="animatedPlaceholder" class="animated-placeholder"></div>
+  <span class="icon-mic" id="micBtn">🎤</span>
+  <button id="searchBtn">🔎</button>
 
-    </div>
-
-    <span class="icon-mic" id="micBtn">🎤</span>
-
-    <button id="searchBtn">🔎</button>
-
-    <!-- ✅ SUGGESTIONS -->
-    <div id="suggestionsBox" class="suggestions-box"></div>
+  <div id="suggestionsBox" class="suggestions-box"></div>
 
   </div>
-
-</div>
-  
 
  </header>
 
