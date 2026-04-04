@@ -179,14 +179,23 @@ header.topbar{
   font-size:14px;
 }
 
-
-/* ===== MICRO ===== */
 .icon-mic{
-  font-size:14px;
-  cursor:pointer;
-  color:#555;
+  width:32px;
+  height:32px;
+
+  border-radius:50%;
+  background:#f5f5f5;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#333;
 }
 
+.icon-mic:hover{
+  background:#eaeaea;
+}
 
 /* ===== BOUTON RECHERCHE ===== */
 #searchBtn{
@@ -2366,8 +2375,12 @@ height:100px;
     id="searchInput"
     autocomplete="off"
   >
-
-  <span class="icon-mic" id="micBtn">🎤</span>
+<span class="icon-mic" id="micBtn">
+  <svg viewBox="0 0 24 24" width="20" height="20">
+    <path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V21h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-3.08A7 7 0 0 1 5 11a1 1 0 1 1 2 0 5 5 0 0 0 10 0z"/>
+  </svg>
+</span>
+   
   <button id="searchBtn">🔎</button>
 
   <div id="suggestionsBox" class="suggestions-box"></div>
