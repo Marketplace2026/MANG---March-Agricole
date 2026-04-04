@@ -259,11 +259,11 @@ header.topbar{
   flex:1;
 }
 
-/* 🔥 TEXTE ANIMÉ */
+/* 🔥 PLACEHOLDER CONTAINER ULTRA */
 .animated-placeholder{
   position:absolute;
   left:12px;
-  right:70px; /* 🔥 laisse place au micro + bouton */
+  right:70px;
   top:50%;
   transform:translateY(-50%);
 
@@ -272,42 +272,56 @@ header.topbar{
 
   color:#94a3b8;
   font-size:14px;
+  font-weight:500;
 
   pointer-events:none;
 
   height:20px;
   overflow:hidden;
+
+  white-space:nowrap;
 }
+
 
 /* 🔥 TEXTE */
 .placeholder-text{
   position:absolute;
   width:100%;
 
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-
-  transition:all 0.4s ease;
-}
-
-/* 🔥 ANIMATION SORTIE */
-.slide-out{
-  transform:translateY(100%);
   opacity:0;
+  transform:translateY(-120%);
+  filter:blur(2px);
+
+  transition:
+    transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s ease,
+    filter 0.35s ease;
 }
 
-/* 🔥 ANIMATION ENTRÉE */
-.slide-in{
-  transform:translateY(-100%);
-  opacity:0;
-}
 
-/* 🔥 TEXTE ACTIF */
+/* 🔥 TEXTE ACTIF (visible) */
 .slide-active{
-  transform:translateY(0);
   opacity:1;
+  transform:translateY(0);
+  filter:blur(0);
 }
+
+
+/* 🔥 TEXTE QUI SORT (vers le bas) */
+.slide-out{
+  opacity:0;
+  transform:translateY(120%);
+  filter:blur(2px);
+}
+
+
+/* 🔥 TEXTE QUI ENTRE (du haut) */
+.slide-in{
+  opacity:0;
+  transform:translateY(-120%);
+  filter:blur(3px);
+}
+ 
 /* ===== LIGNE LOGO + SLOGAN ===== */
 
 .logo-row{
