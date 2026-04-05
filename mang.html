@@ -6,7 +6,6 @@
 <title>Profil</title>
 
 <style>
-
 body{
   margin:0;
   font-family:Arial;
@@ -21,8 +20,7 @@ body{
   position:relative;
   padding:15px;
   background:linear-gradient(135deg,#1B8F3A,#2ECC71);
-
-color:white;
+  color:white;
   font-weight:700;
 }
 
@@ -48,12 +46,31 @@ color:white;
   background:#ddd;
   overflow:hidden;
   cursor:pointer;
+  position:relative;
 }
 
 .avatar img{
   width:100%;
   height:100%;
   object-fit:cover;
+}
+
+.avatar-add {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #16a34a;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 2px solid white;
+  font-size: 16px;
 }
 
 .user-info{
@@ -89,14 +106,13 @@ color:white;
   margin-left:6px;
 }
 
-  .modal{
+.modal{
   position:fixed;
   top:0;
   left:0;
   width:100%;
   height:100%;
   background:rgba(0,0,0,0.4);
-
   display:none;
   align-items:center;
   justify-content:center;
@@ -147,6 +163,35 @@ color:white;
   to{transform:scale(1);opacity:1;}
 }
 
+/* Plein écran avatar */
+#avatarFullScreen {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  justify-content: center;
+  align-items: center;
+}
+
+#avatarFullScreen img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+#avatarFullScreen span {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -158,16 +203,15 @@ color:white;
 </div>
 
 <div class="profile-top">
-
   <div class="avatar" id="avatar">
-    <img id="avatarImg" src="">
+    <img id="avatarImg" src="https://via.placeholder.com/100">
+    <div class="avatar-add" id="avatarAdd">+</div>
   </div>
 
   <div class="user-info">
     <div class="username" id="username">...</div>
     <div>🇧🇯 BJ</div>
   </div>
-
 </div>
 
 <div class="section">
@@ -187,21 +231,6 @@ color:white;
     <div class="item-right" id="phone">Incomplet <span class="arrow">›</span></div>
   </div>
 
-<div id="modalName" class="modal">
-
-  <div class="modal-content">
-    <h3>Modifier le nom</h3>
-
-    <input type="text" id="inputName" placeholder="Entrez votre nom">
-
-    <div class="modal-actions">
-      <button onclick="closeModal()">Annuler</button>
-      <button onclick="saveName()">OK</button>
-    </div>
-  </div>
-
-</div>
-  
   <div class="item" id="changePassword">
     <div>Mot de passe</div>
     <div class="arrow">›</div>
@@ -209,12 +238,28 @@ color:white;
 
 </div>
 
+<!-- Modal Nom -->
+<div id="modalName" class="modal">
+  <div class="modal-content">
+    <h3>Modifier le nom</h3>
+    <input type="text" id="inputName" placeholder="Entrez votre nom">
+    <div class="modal-actions">
+      <button id="cancelName">Annuler</button>
+      <button id="saveNameBtn">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Plein écran avatar -->
+<div id="avatarFullScreen">
+  <span id="closeAvatarFull">&times;</span>
+  <img id="avatarFullImg" src="">
+</div>
+
 <input type="file" id="fileInput" hidden>
 
 <script type="module">
 import { supabase } from './supabase.js';
-  
- 
 
 let currentUser;
 
@@ -222,7 +267,6 @@ let currentUser;
 // LOAD USER
 // =======================
 async function loadUser(){
-
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if(error || !user){
@@ -245,7 +289,6 @@ async function loadUser(){
   const username = profile?.username || "Utilisateur";
   const fullname = profile?.fullname || "Non défini";
   const phone = profile?.phone || "Incomplet";
-
   const email = user.email.replace(/(.{3}).+(@.+)/, "$1****$2");
 
   document.getElementById("username").textContent = username;
@@ -253,170 +296,117 @@ async function loadUser(){
   document.getElementById("email").textContent = email;
   document.getElementById("phone").innerHTML = phone + " ›";
 
-  // 🔥 AVATAR
   const avatarImg = document.getElementById("avatarImg");
-
-  if(profile?.avatar_url){
-    avatarImg.src = profile.avatar_url;
-  }else{
-    avatarImg.src = "https://via.placeholder.com/100";
-  }
-
+  avatarImg.src = profile?.avatar_url || "https://via.placeholder.com/100";
 }
 
 loadUser();
 
-  // =======================
+// =======================
 // MODAL NAME HANDLER
 // =======================
-
-// Ouvrir le modal
 document.getElementById("editName").addEventListener("click", () => {
   const modal = document.getElementById("modalName");
   modal.style.display = "flex";
-
-  // Pré-remplir l'input avec le nom actuel
   const currentName = currentUser?.fullname || "";
   document.getElementById("inputName").value = currentName;
 });
 
-// Fermer le modal
 function closeModal() {
   document.getElementById("modalName").style.display = "none";
 }
 
-// Sauvegarder le nom
 async function saveName() {
   const name = document.getElementById("inputName").value.trim();
-  if (!name) {
-    alert("Le nom ne peut pas être vide !");
-    return;
-  }
+  if(!name){ alert("Le nom ne peut pas être vide !"); return; }
 
   const { error } = await supabase.from("profiles")
     .update({ fullname: name })
     .eq("id", currentUser.id);
 
-  if (error) {
-    alert(error.message);
-  } else {
-    loadUser(); // recharge l'utilisateur avec le nouveau nom
-    closeModal();
-  }
+  if(error){ alert(error.message); }
+  else { loadUser(); closeModal(); }
 }
 
-// Lier les boutons du modal
-document.getElementById("modalName").querySelector("button:nth-child(1)").addEventListener("click", closeModal);
-document.getElementById("modalName").querySelector("button:nth-child(2)").addEventListener("click", saveName);
+document.getElementById("cancelName").addEventListener("click", closeModal);
+document.getElementById("saveNameBtn").addEventListener("click", saveName);
 
-// Fermer le modal si clic en dehors
 window.addEventListener("click", (e) => {
   const modal = document.getElementById("modalName");
-  if (e.target === modal) closeModal();
+  if(e.target === modal) closeModal();
 });
-  
+
 // =======================
 // EDIT PHONE
 // =======================
 document.getElementById("editPhone").onclick = async () => {
-
   const phone = prompt("Votre numéro :");
   if(!phone) return;
-
-  const { error } = await supabase.from("profiles")
-    .update({ phone })
-    .eq("id", currentUser.id);
-
-  if(error){
-    alert(error.message);
-  }
-
+  const { error } = await supabase.from("profiles").update({ phone }).eq("id", currentUser.id);
+  if(error){ alert(error.message); }
   loadUser();
 };
-
 
 // =======================
 // PASSWORD
 // =======================
 document.getElementById("changePassword").onclick = async () => {
-
   const pass = prompt("Nouveau mot de passe");
   if(!pass) return;
-
-  const { error } = await supabase.auth.updateUser({
-    password: pass
-  });
-
-  if(error){
-    alert(error.message);
-  }else{
-    alert("Mot de passe modifié ✅");
-  }
-
+  const { error } = await supabase.auth.updateUser({ password: pass });
+  if(error){ alert(error.message); }
+  else{ alert("Mot de passe modifié ✅"); }
 };
 
-
 // =======================
-// UPLOAD PHOTO (🔥 FIX TOTAL)
+// AVATAR HANDLER
 // =======================
-document.getElementById("avatar").onclick = () => {
+document.getElementById("avatarAdd").addEventListener("click", () => {
   document.getElementById("fileInput").click();
-};
+});
+
+document.getElementById("avatar").addEventListener("click", (e) => {
+  if(e.target.id === "avatarAdd") return;
+  const fullImg = document.getElementById("avatarFullImg");
+  fullImg.src = document.getElementById("avatarImg").src;
+  document.getElementById("avatarFullScreen").style.display = "flex";
+});
+
+document.getElementById("closeAvatarFull").addEventListener("click", () => {
+  document.getElementById("avatarFullScreen").style.display = "none";
+});
+
+document.getElementById("avatarFullScreen").addEventListener("click", (e) => {
+  if(e.target.id === "avatarFullScreen") {
+    document.getElementById("avatarFullScreen").style.display = "none";
+  }
+});
 
 document.getElementById("fileInput").addEventListener("change", async (e) => {
-
   const file = e.target.files[0];
   if(!file) return;
 
-  // 🔥 PREVIEW DIRECT (effet pro)
   const previewURL = URL.createObjectURL(file);
   document.getElementById("avatarImg").src = previewURL;
 
   const fileName = currentUser.id + "/avatar.png";
 
-  // 🔥 UPLOAD AVEC CHECK
-  const { error: uploadError } = await supabase.storage
-    .from("avatars")
-    .upload(fileName, file, { upsert: true });
+  const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
+  if(uploadError){ alert("Erreur upload: " + uploadError.message); return; }
 
-  if(uploadError){
-    console.error("UPLOAD ERROR:", uploadError);
-    alert("Erreur upload: " + uploadError.message);
-    return;
-  }
-
-  // 🔥 GET URL
-  const { data } = supabase.storage
-    .from("avatars")
-    .getPublicUrl(fileName);
-
+  const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
   const url = data.publicUrl;
 
-  console.log("IMAGE URL:", url);
+  const { error: dbError } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", currentUser.id);
+  if(dbError){ alert("Erreur DB: " + dbError.message); return; }
 
-  // 🔥 SAVE DB
-  const { error: dbError } = await supabase
-    .from("profiles")
-    .update({ avatar_url: url })
-    .eq("id", currentUser.id);
-
-  if(dbError){
-    console.error("DB ERROR:", dbError);
-    alert("Erreur DB: " + dbError.message);
-    return;
-  }
-
-  // 🔥 FINAL IMAGE (serveur)
   document.getElementById("avatarImg").src = url;
-
 });
-
 
 // =======================
 // BACK
 // =======================
 document.querySelector(".back").onclick = () => history.back();
-
 </script>
 
 </body>
