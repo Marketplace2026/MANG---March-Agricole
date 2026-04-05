@@ -274,18 +274,6 @@ loadUser();
   document.getElementById("editName").onclick = () => {
   document.getElementById("modalName").style.display = "flex";
 };
-  if(!name) return;
-
-  const { error } = await supabase.from("profiles")
-    .update({ fullname: name })
-    .eq("id", currentUser.id);
-
-  if(error){
-    alert(error.message);
-  }
-
-  loadUser();
-};
 
 
 
