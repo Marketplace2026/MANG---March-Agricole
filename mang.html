@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f5f5f5;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+  padding:15px;
+  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+
+color:white;
+  font-weight:700;
+}
+
+.back{
+  position:absolute;
+  left:15px;
+  cursor:pointer;
+}
+
+/* TOP */
+.profile-top{
+  background:white;
+  padding:15px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.avatar{
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:#ddd;
+  overflow:hidden;
+  cursor:pointer;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.user-info{
+  flex:1;
+}
+
+.username{
+  font-weight:700;
+}
+
+.section{
+  margin-top:10px;
+  background:white;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  padding:14px;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+}
+
+.item:last-child{
+  border-bottom:none;
+}
+
+.item-right{
+  color:#888;
+}
+
+.arrow{
+  margin-left:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <span class="back">←</span>
+  Profil
+</div>
+
+<div class="profile-top">
+
+  <div class="avatar" id="avatar">
+    <img id="avatarImg" src="">
+  </div>
+
+  <div class="user-info">
+    <div class="username" id="username">...</div>
+    <div>🇧🇯 BJ</div>
+  </div>
+
+</div>
+
+<div class="section">
+
+  <div class="item" id="editName">
+    <div>Nom complet</div>
+    <div class="item-right" id="fullname">--- <span class="arrow">›</span></div>
+  </div>
+
+  <div class="item">
+    <div>E-mail</div>
+    <div class="item-right" id="email">---</div>
+  </div>
+
+  <div class="item" id="editPhone">
+    <div>Téléphone</div>
+    <div class="item-right" id="phone">Incomplet <span class="arrow">›</span></div>
+  </div>
+
+  <div class="item" id="changePassword">
+    <div>Mot de passe</div>
+    <div class="arrow">›</div>
+  </div>
+
+</div>
+
+<input type="file" id="fileInput" hidden>
+
+<script type="module">
+import { supabase } from './supabase.js';
+  
+ 
+
+let currentUser;
+
+// =======================
+// LOAD USER
+// =======================
+async function loadUser(){
+
+  const { data: { user }, error } = await supabase.auth.getUser();
+
+  if(error || !user){
+    location.href = "login.html";
+    return;
+  }
+
+  currentUser = user;
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if(profileError){
+    console.error("PROFILE ERROR:", profileError);
+  }
+
+  const username = profile?.username || "Utilisateur";
+  const fullname = profile?.fullname || "Non défini";
+  const phone = profile?.phone || "Incomplet";
+
+  const email = user.email.replace(/(.{3}).+(@.+)/, "$1****$2");
+
+  document.getElementById("username").textContent = username;
+  document.getElementById("fullname").innerHTML = fullname + " ›";
+  document.getElementById("email").textContent = email;
+  document.getElementById("phone").innerHTML = phone + " ›";
+
+  // 🔥 AVATAR
+  const avatarImg = document.getElementById("avatarImg");
+
+  if(profile?.avatar_url){
+    avatarImg.src = profile.avatar_url;
+  }else{
+    avatarImg.src = "https://via.placeholder.com/100";
+  }
+
+}
+
+loadUser();
+
+
+// =======================
+// EDIT NAME
+// =======================
+document.getElementById("editName").onclick = async () => {
+
+  const name = prompt("Nouveau nom complet :");
+  if(!name) return;
+
+  const { error } = await supabase.from("profiles")
+    .update({ fullname: name })
+    .eq("id", currentUser.id);
+
+  if(error){
+    alert(error.message);
+  }
+
+  loadUser();
+};
+
+
+// =======================
+// EDIT PHONE
+// =======================
+document.getElementById("editPhone").onclick = async () => {
+
+  const phone = prompt("Votre numéro :");
+  if(!phone) return;
+
+  const { error } = await supabase.from("profiles")
+    .update({ phone })
+    .eq("id", currentUser.id);
+
+  if(error){
+    alert(error.message);
+  }
+
+  loadUser();
+};
+
+
+// =======================
+// PASSWORD
+// =======================
+document.getElementById("changePassword").onclick = async () => {
+
+  const pass = prompt("Nouveau mot de passe");
+  if(!pass) return;
+
+  const { error } = await supabase.auth.updateUser({
+    password: pass
+  });
+
+  if(error){
+    alert(error.message);
+  }else{
+    alert("Mot de passe modifié ✅");
+  }
+
+};
+
+
+// =======================
+// UPLOAD PHOTO (🔥 FIX TOTAL)
+// =======================
+document.getElementById("avatar").onclick = () => {
+  document.getElementById("fileInput").click();
+};
+
+document.getElementById("fileInput").addEventListener("change", async (e) => {
+
+  const file = e.target.files[0];
+  if(!file) return;
+
+  // 🔥 PREVIEW DIRECT (effet pro)
+  const previewURL = URL.createObjectURL(file);
+  document.getElementById("avatarImg").src = previewURL;
+
+  const fileName = currentUser.id + "/avatar.png";
+
+  // 🔥 UPLOAD AVEC CHECK
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(fileName, file, { upsert: true });
+
+  if(uploadError){
+    console.error("UPLOAD ERROR:", uploadError);
+    alert("Erreur upload: " + uploadError.message);
+    return;
+  }
+
+  // 🔥 GET URL
+  const { data } = supabase.storage
+    .from("avatars")
+    .getPublicUrl(fileName);
+
+  const url = data.publicUrl;
+
+  console.log("IMAGE URL:", url);
+
+  // 🔥 SAVE DB
+  const { error: dbError } = await supabase
+    .from("profiles")
+    .update({ avatar_url: url })
+    .eq("id", currentUser.id);
+
+  if(dbError){
+    console.error("DB ERROR:", dbError);
+    alert("Erreur DB: " + dbError.message);
+    return;
+  }
+
+  // 🔥 FINAL IMAGE (serveur)
+  document.getElementById("avatarImg").src = url;
+
+});
+
+
+// =======================
+// BACK
+// =======================
+document.querySelector(".back").onclick = () => history.back();
+
+</script>
+
+</body>
+</html>
