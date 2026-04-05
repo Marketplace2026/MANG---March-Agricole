@@ -243,38 +243,49 @@ document.getElementById("changePassword").onclick = async () => {
 // =======================
 // UPLOAD PHOTO
 // =======================
-document.getElementById("avatar").onclick = () => {
-  document.getElementById("fileInput").click();
-};
-
 document.getElementById("fileInput").addEventListener("change", async (e) => {
 
   const file = e.target.files[0];
-  if(!file) return;
+  if (!file) return;
 
   const fileName = currentUser.id + "-" + Date.now();
 
-  // upload
-  await supabase.storage
+  // 🔥 UPLOAD AVEC DEBUG
+  const { error: uploadError } = await supabase.storage
     .from("avatars")
-    .upload(fileName, file, { upsert:true });
+    .upload(fileName, file, { upsert: true });
 
-  // get public url
+  if (uploadError) {
+    console.error("UPLOAD ERROR:", uploadError);
+    alert(uploadError.message);
+    return;
+  }
+
+  // 🔥 URL
   const { data } = supabase.storage
     .from("avatars")
     .getPublicUrl(fileName);
 
   const url = data.publicUrl;
 
-  // save in db
-  await supabase.from("profiles")
+  console.log("URL IMAGE:", url);
+
+  // 🔥 SAVE DB
+  const { error: dbError } = await supabase
+    .from("profiles")
     .update({ avatar_url: url })
     .eq("id", currentUser.id);
 
-  loadUser();
+  if (dbError) {
+    console.error("DB ERROR:", dbError);
+    alert(dbError.message);
+    return;
+  }
+
+  // 🔥 AFFICHAGE DIRECT
+  document.getElementById("avatarImg").src = url;
 
 });
-
 
 // =======================
 // BACK
