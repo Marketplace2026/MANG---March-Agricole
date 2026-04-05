@@ -139,6 +139,7 @@ body{
 <script type="module">
 import { supabase } from './supabase.js';
   
+ 
 
 let currentUser;
 
@@ -147,20 +148,24 @@ let currentUser;
 // =======================
 async function loadUser(){
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if(!user){
+  if(error || !user){
     location.href = "login.html";
     return;
   }
 
   currentUser = user;
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
+
+  if(profileError){
+    console.error("PROFILE ERROR:", profileError);
+  }
 
   const username = profile?.username || "Utilisateur";
   const fullname = profile?.fullname || "Non défini";
@@ -173,10 +178,13 @@ async function loadUser(){
   document.getElementById("email").textContent = email;
   document.getElementById("phone").innerHTML = phone + " ›";
 
+  // 🔥 AVATAR
+  const avatarImg = document.getElementById("avatarImg");
+
   if(profile?.avatar_url){
-    document.getElementById("avatarImg").src = profile.avatar_url;
+    avatarImg.src = profile.avatar_url;
   }else{
-    document.getElementById("avatarImg").src = "https://via.placeholder.com/100";
+    avatarImg.src = "https://via.placeholder.com/100";
   }
 
 }
@@ -190,12 +198,15 @@ loadUser();
 document.getElementById("editName").onclick = async () => {
 
   const name = prompt("Nouveau nom complet :");
-
   if(!name) return;
 
-  await supabase.from("profiles")
+  const { error } = await supabase.from("profiles")
     .update({ fullname: name })
     .eq("id", currentUser.id);
+
+  if(error){
+    alert(error.message);
+  }
 
   loadUser();
 };
@@ -207,12 +218,15 @@ document.getElementById("editName").onclick = async () => {
 document.getElementById("editPhone").onclick = async () => {
 
   const phone = prompt("Votre numéro :");
-
   if(!phone) return;
 
-  await supabase.from("profiles")
+  const { error } = await supabase.from("profiles")
     .update({ phone })
     .eq("id", currentUser.id);
+
+  if(error){
+    alert(error.message);
+  }
 
   loadUser();
 };
@@ -224,7 +238,6 @@ document.getElementById("editPhone").onclick = async () => {
 document.getElementById("changePassword").onclick = async () => {
 
   const pass = prompt("Nouveau mot de passe");
-
   if(!pass) return;
 
   const { error } = await supabase.auth.updateUser({
@@ -241,34 +254,42 @@ document.getElementById("changePassword").onclick = async () => {
 
 
 // =======================
-// UPLOAD PHOTO
+// UPLOAD PHOTO (🔥 FIX TOTAL)
 // =======================
+document.getElementById("avatar").onclick = () => {
+  document.getElementById("fileInput").click();
+};
+
 document.getElementById("fileInput").addEventListener("change", async (e) => {
 
   const file = e.target.files[0];
-  if (!file) return;
+  if(!file) return;
 
-  const fileName = currentUser.id + "-" + Date.now();
+  // 🔥 PREVIEW DIRECT (effet pro)
+  const previewURL = URL.createObjectURL(file);
+  document.getElementById("avatarImg").src = previewURL;
 
-  // 🔥 UPLOAD AVEC DEBUG
+  const fileName = currentUser.id + "/avatar.png";
+
+  // 🔥 UPLOAD AVEC CHECK
   const { error: uploadError } = await supabase.storage
     .from("avatars")
     .upload(fileName, file, { upsert: true });
 
-  if (uploadError) {
+  if(uploadError){
     console.error("UPLOAD ERROR:", uploadError);
-    alert(uploadError.message);
+    alert("Erreur upload: " + uploadError.message);
     return;
   }
 
-  // 🔥 URL
+  // 🔥 GET URL
   const { data } = supabase.storage
     .from("avatars")
     .getPublicUrl(fileName);
 
   const url = data.publicUrl;
 
-  console.log("URL IMAGE:", url);
+  console.log("IMAGE URL:", url);
 
   // 🔥 SAVE DB
   const { error: dbError } = await supabase
@@ -276,16 +297,17 @@ document.getElementById("fileInput").addEventListener("change", async (e) => {
     .update({ avatar_url: url })
     .eq("id", currentUser.id);
 
-  if (dbError) {
+  if(dbError){
     console.error("DB ERROR:", dbError);
-    alert(dbError.message);
+    alert("Erreur DB: " + dbError.message);
     return;
   }
 
-  // 🔥 AFFICHAGE DIRECT
+  // 🔥 FINAL IMAGE (serveur)
   document.getElementById("avatarImg").src = url;
 
 });
+
 
 // =======================
 // BACK
