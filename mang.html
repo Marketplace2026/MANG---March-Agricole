@@ -271,13 +271,14 @@ loadUser();
 // =======================
 
 // Ouvrir le modal
-document.getElementById("editName").onclick = () => {
-  document.getElementById("modalName").style.display = "flex";
+document.getElementById("editName").addEventListener("click", () => {
+  const modal = document.getElementById("modalName");
+  modal.style.display = "flex";
 
-  // Pré-remplir l'input avec le nom actuel si nécessaire
-  const currentName = currentUser?.full_name || "";
+  // Pré-remplir l'input avec le nom actuel
+  const currentName = currentUser?.fullname || "";
   document.getElementById("inputName").value = currentName;
-};
+});
 
 // Fermer le modal
 function closeModal() {
@@ -304,12 +305,15 @@ async function saveName() {
   }
 }
 
-// Optionnel : fermer le modal si clic en dehors
+// Lier les boutons du modal
+document.getElementById("modalName").querySelector("button:nth-child(1)").addEventListener("click", closeModal);
+document.getElementById("modalName").querySelector("button:nth-child(2)").addEventListener("click", saveName);
+
+// Fermer le modal si clic en dehors
 window.addEventListener("click", (e) => {
   const modal = document.getElementById("modalName");
   if (e.target === modal) closeModal();
 });
-
   
 // =======================
 // EDIT PHONE
