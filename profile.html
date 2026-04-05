@@ -1,321 +1,1525 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profil</title>
+
+<title>Profil - MANG</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f5f5f5;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
 }
 
-/* HEADER */
-.header{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  position:relative;
-  padding:15px;
-  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+body{
+background:#f4f6f8;
+color:#333;
+}
+
+/* container */
+
+.container{
+max-width:480px;
+margin:auto;
+padding:16px;
+display:flex;
+flex-direction:column;
+gap:16px;
+}
+
+/* ===================== */
+/* HEADER PROFIL */
+/* ===================== */
+
+.profile-header{
+
+background:linear-gradient(135deg,#1B8F3A,#2ECC71);
 
 color:white;
-  font-weight:700;
+
+border-radius:18px;
+
+padding:35px 20px 28px;
+
+text-align:center;
+
+position:relative;
+
+box-shadow:0 10px 25px rgba(0,0,0,0.15);
+
 }
 
-.back{
-  position:absolute;
-  left:15px;
-  cursor:pointer;
+/* bouton retour */
+.back-btn{
+
+position:absolute;
+
+left:15px;
+top:15px;
+
+font-size:30px;
+
+cursor:pointer;
+
+color:white;
+
 }
 
-/* TOP */
-.profile-top{
-  background:white;
-  padding:15px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
+
+/* avatar */
 
 .avatar{
-  width:65px;
-  height:65px;
-  border-radius:50%;
-  background:#ddd;
-  overflow:hidden;
-  cursor:pointer;
+
+width:100px;
+height:100px;
+
+border-radius:50%;
+
+background:white;
+color:#1B8F3A;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:40px;
+font-weight:700;
+
+margin:auto;
+margin-bottom:10px;
+
+border:4px solid rgba(255,255,255,0.6);
+
+box-shadow:0 6px 18px rgba(0,0,0,0.2);
+
 }
 
-.avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+/* nom utilisateur */
+
+#displayName{
+font-size:20px;
+margin-top:5px;
 }
 
-.user-info{
-  flex:1;
+/* email */
+
+.email{
+font-size:13px;
+opacity:0.9;
 }
 
-.username{
-  font-weight:700;
+/* badge */
+
+.user-badge{
+
+margin-top:6px;
+
+display:inline-block;
+
+background:rgba(255,255,255,0.25);
+
+padding:4px 10px;
+
+border-radius:20px;
+
+font-size:11px;
+
 }
 
-.section{
-  margin-top:10px;
-  background:white;
+/* ===================== */
+/* CARTE STATS */
+/* ===================== */
+
+.card{
+
+background:white;
+
+border-radius:14px;
+
+padding:16px;
+
+box-shadow:0 3px 10px rgba(0,0,0,0.06);
+
 }
 
-.item{
-  display:flex;
-  justify-content:space-between;
-  padding:14px;
-  border-bottom:1px solid #eee;
-  cursor:pointer;
+.stats{
+
+display:flex;
+
+justify-content:space-between;
+
+text-align:center;
+
 }
 
-.item:last-child{
-  border-bottom:none;
+.stat{
+flex:1;
 }
 
-.item-right{
-  color:#888;
+.stat h3{
+
+font-size:18px;
+
+color:#1B8F3A;
+
+}
+
+.stat p{
+
+font-size:12px;
+
+color:#777;
+
+}
+
+/* ===================== */
+/* MENU */
+/* ===================== */
+
+.menu{
+
+display:flex;
+
+flex-direction:column;
+
+gap:6px;
+
+}
+
+.menu-btn{
+
+background:white;
+
+border:none;
+
+padding:15px;
+
+border-radius:12px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+font-size:14px;
+
+cursor:pointer;
+
+box-shadow:0 2px 6px rgba(0,0,0,0.05);
+
+transition:0.2s;
+
+}
+
+.menu-btn:hover{
+
+transform:translateY(-1px);
+
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+
+}
+
+.menu-left{
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+}
+
+.icon{
+
+font-size:18px;
+
+color:#1B8F3A;
+
 }
 
 .arrow{
-  margin-left:6px;
+
+font-size:16px;
+
+color:#bbb;
+
+}
+
+.badge{
+
+background:red;
+
+color:white;
+
+font-size:10px;
+
+padding:2px 6px;
+
+border-radius:20px;
+
+}
+
+.logout{
+color:#e53935;
+}
+
+.message{
+
+margin-top:10px;
+
+font-size:13px;
+
+text-align:center;
+
+color:#666;
+
+}
+
+#favoritesModal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+
+  display: none;
+  justify-content: flex-end;
+
+  z-index: 9999;
+}
+
+#favoritesModal.active{
+  display: flex;
+}
+.notifHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:14px;
+
+  border-bottom:1px solid #ddd;
+
+  font-weight:600;
+  font-size:16px;
+
+  background:#f9f9f9;
+}
+
+/* bouton X */
+.notifHeader button{
+  font-size:22px;
+  background:none;
+  border:none;
+  cursor:pointer;
+}
+
+/* boutons onglets */
+.favoritesTabs{
+  display:flex;
+  gap:10px;
+
+  padding:12px;
+
+  border-bottom:1px solid #eee;
+}
+
+.favoritesTabs button{
+  border:none;
+  background:#f5f5f5;
+
+  padding:8px 12px;
+
+  border-radius:8px;
+
+  cursor:pointer;
+}
+
+/* liste favoris */
+#favoritesShopsList,
+#favoritesProductsList{
+  flex:1;
+  overflow-y:auto;
+
+  padding:10px;
+
+  padding-bottom:120px;
+}
+  
+.favorite-shop-btn {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+.favorite-shop-btn.active {
+  background: #ffe5e5;
+  border-color: red;
+}
+  /* Overlay sombre */
+#favoritesPanel{
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+
+  background: white;
+
+  display: flex;
+  flex-direction: column;
+
+  animation: slideIn 0.3s ease;
+
+  box-shadow: -10px 0 40px rgba(0,0,0,0.2);
+}
+
+@keyframes slideIn{
+  from{ transform: translateX(100%); }
+  to{ transform: translateX(0); }
+}
+
+
+/* ===================== */
+/* MODAL BOUTIQUES */
+/* ===================== */
+#shopsModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: flex-end;
+  z-index: 9999;
+}
+
+#shopsModal.active {
+  display: flex;
+}
+
+#shopsPanel {
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+/* HEADER */
+.shopsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+}
+
+.shopsHeader button {
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* DASHBOARD GLOBAL */
+.shopsStats {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  background: #f9f9f9;
+}
+
+.shopStat {
+  text-align: center;
+}
+
+.shopStat h3 {
+  color: #1B8F3A;
+  font-size: 16px;
+}
+
+.shopStat p {
+  font-size: 11px;
+  color: #777;
+}
+
+/* SCROLL HORIZONTAL */
+.horizontalScroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px;
+  scroll-behavior: smooth;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.horizontalScroll::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+/* CARTE BOUTIQUE */
+.shopCard {
+  flex: 0 0 200px; /* largeur fixe pour scroll horizontal */
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.shopCard:hover {
+  transform: translateY(-5px);
+}
+
+/* Badge premium */
+.shopCard .premium {
+  color: gold;
+}
+
+/* Image boutique */
+.shopCard img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.shopCard h4 {
+  margin-bottom: 4px;
+  font-size: 16px;
+}
+
+.shopCard small {
+  font-size: 12px;
+  color: #555;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.shopCard .shopActions {
+  display: flex;
+  gap: 4px;
+}
+
+.shopCard .shopActions button {
+  flex: 1;
+  padding: 6px 0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  background: #f1f1f1;
+}
+
+/* MODAL BOUTIQUE DÉTAILLÉE */
+#shopFullModal {
+  margin-top: 10px;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.shopFullHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.shopFullHeader h4 {
+  font-size: 16px;
+}
+
+.shopFullHeader button {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* CARTE PRODUIT */
+.productCard {
+  flex: 0 0 180px;
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+.productCard:hover {
+  transform: translateY(-3px);
+}
+
+.productCard img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.productCard h4 {
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.productCard p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.productCard strong {
+  color: #1B8F3A;
+}
+
+.productCard button {
+  margin-top: 4px;
+  width: 100%;
+  padding: 5px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  background: #e53935;
+  color: white;
+}
+
+/* ANIMATION SLIDE */
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div class="header">
-  <span class="back">←</span>
-  Profil
-</div>
+<div class="container">
 
-<div class="profile-top">
+<!-- HEADER -->
 
-  <div class="avatar" id="avatar">
-    <img id="avatarImg" src="">
-  </div>
+<div class="profile-header">
 
-  <div class="user-info">
-    <div class="username" id="username">...</div>
-    <div>🇧🇯 BJ</div>
-  </div>
+<span class="back-btn" onclick="window.location.href='index.html'">←</span>
 
-</div>
+<div class="avatar" id="initialLetter">U</div>
+<h3 id="displayName">Utilisateur</h3>
 
-<div class="section">
+<div class="email" id="userEmail"></div>
 
-  <div class="item" id="editName">
-    <div>Nom complet</div>
-    <div class="item-right" id="fullname">--- <span class="arrow">›</span></div>
-  </div>
-
-  <div class="item">
-    <div>E-mail</div>
-    <div class="item-right" id="email">---</div>
-  </div>
-
-  <div class="item" id="editPhone">
-    <div>Téléphone</div>
-    <div class="item-right" id="phone">Incomplet <span class="arrow">›</span></div>
-  </div>
-
-  <div class="item" id="changePassword">
-    <div>Mot de passe</div>
-    <div class="arrow">›</div>
-  </div>
-
-</div>
-
-<input type="file" id="fileInput" hidden>
-
-<script type="module">
-import { supabase } from './supabase.js';
   
- 
+  <p   class="user-badge" id="userCity">📍 Chargement...</p>
+  
 
-let currentUser;
 
-// =======================
-// LOAD USER
-// =======================
-async function loadUser(){
 
-  const { data: { user }, error } = await supabase.auth.getUser();
+</div>
 
-  if(error || !user){
-    location.href = "login.html";
-    return;
-  }
+<!-- STATISTIQUES -->
 
-  currentUser = user;
+<div class="card">
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+<div class="stats">
 
-  if(profileError){
-    console.error("PROFILE ERROR:", profileError);
-  }
+<div class="stat">
+<h3 id="walletBalance">0 FCFA</h3>
+<p>Solde</p>
+</div>
 
-  const username = profile?.username || "Utilisateur";
-  const fullname = profile?.fullname || "Non défini";
-  const phone = profile?.phone || "Incomplet";
+<div class="stat">
+<h3 id="totalTransactions">0</h3>
+<p>Transactions</p>
+</div>
 
-  const email = user.email.replace(/(.{3}).+(@.+)/, "$1****$2");
+<div class="stat">
+<h3 id="createdAt"></h3>
+<p>Inscription</p>
+</div>
 
-  document.getElementById("username").textContent = username;
-  document.getElementById("fullname").innerHTML = fullname + " ›";
-  document.getElementById("email").textContent = email;
-  document.getElementById("phone").innerHTML = phone + " ›";
+</div>
 
-  // 🔥 AVATAR
-  const avatarImg = document.getElementById("avatarImg");
+</div>
 
-  if(profile?.avatar_url){
-    avatarImg.src = profile.avatar_url;
-  }else{
-    avatarImg.src = "https://via.placeholder.com/100";
-  }
+
+    <!-- MENU -->
+<div class="card">
+  <div class="menu">
+
+    <button id="btnMesCommandes" class="menu-btn">
+      <div class="menu-left">
+        <span class="icon">📦</span>
+        <span>Mes commandes</span>
+      </div>
+      <div>
+        <span id="order-badge" class="badge"></span>
+        <span class="arrow">›</span>
+      </div>
+    </button>
+
+    <!-- FAVORIS -->
+    <button class="menu-btn" id="favoritesBtn">
+      <div class="menu-left">
+        <span class="icon">❤️</span>
+        <span>Mes favoris</span>
+      </div>
+      <span class="arrow">›</span>
+    </button>
+    
+<button class="menu-btn" id="shopsBtn">
+  <div class="menu-left">
+    <span class="icon">🏪</span>
+    <span>Mes boutiques</span>
+  </div>
+  <span class="arrow">›</span>
+</button>
+
+    <button class="menu-btn" onclick="goWallet()">
+      <div class="menu-left">
+        <span class="icon">💳</span>
+        <span>Mon portefeuille</span>
+      </div>
+      <span class="arrow">›</span>
+    </button>
+
+    <button class="menu-btn" id="changePassBtn" onclick="goChangePassword()">
+      <div class="menu-left">
+        <span class="icon">🔒</span>
+        <span>Modifier mot de passe</span>
+      </div>
+      <span class="arrow">›</span>
+    </button>
+
+    <button class="menu-btn logout" onclick="logout()">
+      <div class="menu-left">
+        <span class="icon">🚪</span>
+        <span>Déconnexion</span>
+      </div>
+    </button>
+
+  </div>
+
+  <div class="message" id="msgBox"></div>
+</div>
+
+<!-- ===================== -->
+<!-- MODAL FAVORIS -->
+<!-- ===================== -->
+<div id="favoritesModal">
+  <div id="favoritesPanel">
+
+    <div class="notifHeader">
+      <h3>❤️ Favoris</h3>
+      <button id="closeFavorites">×</button>
+    </div>
+
+    <div class="favoritesTabs">
+      <button id="btnFavorisBoutiques">Boutiques</button>
+      <button id="btnFavorisProduits">Produits</button>
+    </div>
+
+    <div id="favoritesShopsList"></div>
+    <div id="favoritesProductsList" style="display:none;"></div>
+
+  </div>
+</div>
+<!-- ===================== -->
+<!-- MODAL MES BOUTIQUES -->
+<!-- ===================== -->
+<div id="shopsModal">
+  <div id="shopsPanel">
+
+    <!-- HEADER -->
+    <div class="shopsHeader">
+      <h3>🏪 Mes boutiques</h3>
+      <button id="closeShops">×</button>
+    </div>
+
+    <!-- DASHBOARD GLOBAL -->
+    <div class="shopsStats">
+      <div class="shopStat">
+        <h3 id="shopRevenue">0 FCFA</h3>
+        <p>Revenus</p>
+      </div>
+      <div class="shopStat">
+        <h3 id="shopProducts">0</h3>
+        <p>Produits</p>
+      </div>
+      <div class="shopStat">
+        <h3 id="shopOrders">0</h3>
+        <p>Commandes</p>
+      </div>
+    </div>
+
+    <!-- LISTE BOUTIQUES - SCROLL HORIZONTAL -->
+    <div id="shopsList" class="horizontalScroll"></div>
+
+    <!-- MODAL BOUTIQUE DÉTAILLÉE -->
+    <div id="shopFullModal" style="display:none;">
+      <div class="shopFullHeader">
+        <h4 id="shopProductsTitle">Boutique : </h4>
+        <button id="closeShopDetail">×</button>
+      </div>
+      <!-- PRODUITS - SCROLL HORIZONTAL -->
+      <div id="productsContainer" class="horizontalScroll"></div>
+    </div>
+
+  </div>
+</div>
+<script type="module">
+
+import { supabase } from './supabase.js';
+
+let currentUser=null;
+
+async function loadProfile(){
+
+try{
+
+const { data:{user}, error } = await supabase.auth.getUser();
+
+if(error || !user){
+
+window.location.href="login.html";
+return;
 
 }
 
-loadUser();
+currentUser=user;
 
+document.getElementById("userEmail").innerText=user.email;
 
-// =======================
-// EDIT NAME
-// =======================
-document.getElementById("editName").onclick = async () => {
+document.getElementById("displayName").innerText=user.email.split("@")[0];
 
-  const name = prompt("Nouveau nom complet :");
-  if(!name) return;
+document.getElementById("initialLetter").innerText=user.email.charAt(0).toUpperCase();
 
-  const { error } = await supabase.from("profiles")
-    .update({ fullname: name })
-    .eq("id", currentUser.id);
+document.getElementById("createdAt").innerText=new Date(user.created_at).toLocaleDateString();
 
-  if(error){
-    alert(error.message);
-  }
+const { data:wallet } = await supabase
+.from("wallets")
+.select("available_balance")
+.eq("user_id",user.id)
+.single();
 
-  loadUser();
-};
+document.getElementById("walletBalance").innerText =
+(wallet?.available_balance || 0).toLocaleString("fr-FR") + " FCFA";
 
+const { count } = await supabase
+.from("wallet_transactions")
+.select("*",{count:"exact",head:true})
+.eq("user_id",user.id);
 
-// =======================
-// EDIT PHONE
-// =======================
-document.getElementById("editPhone").onclick = async () => {
+document.getElementById("totalTransactions").innerText = count || 0;
 
-  const phone = prompt("Votre numéro :");
-  if(!phone) return;
+await loadNewOrdersCount();
 
-  const { error } = await supabase.from("profiles")
-    .update({ phone })
-    .eq("id", currentUser.id);
+}catch(err){
 
-  if(error){
-    alert(error.message);
-  }
+console.error(err);
 
-  loadUser();
-};
+}
 
+}
 
-// =======================
-// PASSWORD
-// =======================
-document.getElementById("changePassword").onclick = async () => {
+loadProfile();
 
-  const pass = prompt("Nouveau mot de passe");
-  if(!pass) return;
+window.goWallet=function(){
 
-  const { error } = await supabase.auth.updateUser({
-    password: pass
-  });
+window.location.href="dashboard.html";
 
-  if(error){
-    alert(error.message);
-  }else{
-    alert("Mot de passe modifié ✅");
-  }
+}
 
-};
+document.getElementById("btnMesCommandes").addEventListener("click",()=>{
 
-
-// =======================
-// UPLOAD PHOTO (🔥 FIX TOTAL)
-// =======================
-document.getElementById("avatar").onclick = () => {
-  document.getElementById("fileInput").click();
-};
-
-document.getElementById("fileInput").addEventListener("change", async (e) => {
-
-  const file = e.target.files[0];
-  if(!file) return;
-
-  // 🔥 PREVIEW DIRECT (effet pro)
-  const previewURL = URL.createObjectURL(file);
-  document.getElementById("avatarImg").src = previewURL;
-
-  const fileName = currentUser.id + "/avatar.png";
-
-  // 🔥 UPLOAD AVEC CHECK
-  const { error: uploadError } = await supabase.storage
-    .from("avatars")
-    .upload(fileName, file, { upsert: true });
-
-  if(uploadError){
-    console.error("UPLOAD ERROR:", uploadError);
-    alert("Erreur upload: " + uploadError.message);
-    return;
-  }
-
-  // 🔥 GET URL
-  const { data } = supabase.storage
-    .from("avatars")
-    .getPublicUrl(fileName);
-
-  const url = data.publicUrl;
-
-  console.log("IMAGE URL:", url);
-
-  // 🔥 SAVE DB
-  const { error: dbError } = await supabase
-    .from("profiles")
-    .update({ avatar_url: url })
-    .eq("id", currentUser.id);
-
-  if(dbError){
-    console.error("DB ERROR:", dbError);
-    alert("Erreur DB: " + dbError.message);
-    return;
-  }
-
-  // 🔥 FINAL IMAGE (serveur)
-  document.getElementById("avatarImg").src = url;
+window.location.href="commande.html";
 
 });
 
+window.goChangePassword=async function(){
 
-// =======================
-// BACK
-// =======================
-document.querySelector(".back").onclick = () => history.back();
+const btn=document.getElementById("changePassBtn");
+const msg=document.getElementById("msgBox");
 
+btn.disabled=true;
+btn.innerText="Envoi...";
+
+const { error } = await supabase.auth.resetPasswordForEmail(currentUser.email,{
+redirectTo:"https://marketplace2026.github.io/MANG---March-Agricole/reset-password.html"
+});
+
+if(error){
+
+msg.innerText="❌ Erreur lors de l'envoi";
+
+}else{
+
+msg.innerText="📩 Email envoyé. Vérifiez votre boîte mail";
+
+}
+
+btn.disabled=false;
+btn.innerText="🔒 Modifier mot de passe";
+
+}
+
+window.logout=async function(){
+
+await supabase.auth.signOut();
+
+window.location.href="login.html";
+
+}
+
+async function loadNewOrdersCount(){
+
+if(!currentUser) return;
+
+const { count } = await supabase
+.from('orders')
+.select('*',{count:'exact',head:true})
+.eq('seller_id',currentUser.id)
+.eq('status','pending')
+.eq('is_seen',false);
+
+const badge=document.getElementById("order-badge");
+
+if(count && count>0){
+
+badge.textContent=count;
+
+}else{
+
+badge.style.display="none";
+
+}
+
+}
+
+  async function loadUserLocation() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("city")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const el = document.getElementById("userCity");
+
+  if (profile?.city) {
+    el.textContent = "📍 " + profile.city;
+  } else {
+    el.textContent = "📍 Non définie";
+  }
+}
+
+// lancer
+loadUserLocation();
+
+  // =====================
+// RÉFÉRENCES FAVORIS
+// =====================
+const favoritesBtn = document.getElementById("favoritesBtn");
+const favoritesModal = document.getElementById("favoritesModal");
+const closeFavorites = document.getElementById("closeFavorites");
+const btnFavorisBoutiques = document.getElementById("btnFavorisBoutiques");
+const btnFavorisProduits = document.getElementById("btnFavorisProduits");
+const favoritesShopsList = document.getElementById("favoritesShopsList");
+const favoritesProductsList = document.getElementById("favoritesProductsList");
+
+// =====================
+// OUVRIR MODAL FAVORIS
+// =====================
+favoritesBtn.onclick = async () => {
+  favoritesModal.style.display = "flex";
+  favoritesShopsList.style.display = "block";
+  favoritesProductsList.style.display = "none";
+  await loadFavoriteShops();     
+  updateFavoritesBadge();        
+};
+
+// =====================
+// FERMER MODAL FAVORIS
+// =====================
+closeFavorites.onclick = () => {
+  favoritesModal.style.display = "none";
+};
+
+// =====================
+// ONGLET BOUTIQUES
+// =====================
+btnFavorisBoutiques.onclick = () => loadFavoriteShops();
+
+// =====================
+// ONGLET PRODUITS
+// =====================
+btnFavorisProduits.onclick = () => loadFavoriteProducts();
+
+// =====================
+// CHARGER BOUTIQUES FAVORIS
+// =====================
+async function loadFavoriteShops() {
+  favoritesShopsList.style.display = "block";
+  favoritesProductsList.style.display = "none";
+  favoritesShopsList.innerHTML = "<p>Chargement...</p>";
+
+  if (!currentUser || !currentUser.id) {
+    favoritesShopsList.innerHTML = "<p>Utilisateur non connecté.</p>";
+    return;
+  }
+
+  const { data: favs, error: favError } = await supabase
+    .from("favorite_shops")
+    .select("shop_id")
+    .eq("user_id", currentUser.id);
+
+  if (favError) {
+    console.error(favError);
+    favoritesShopsList.innerHTML = "<p>Erreur chargement favoris.</p>";
+    return;
+  }
+
+  if (!favs || favs.length === 0) {
+    favoritesShopsList.innerHTML = "<p>Aucune boutique suivie.</p>";
+    return;
+  }
+
+  const shopIds = favs.map(f => f.shop_id);
+
+  const { data: shops, error: shopError } = await supabase
+    .from("shops")
+    .select("*")
+    .in("id", shopIds);
+
+  if (shopError) {
+    console.error(shopError);
+    favoritesShopsList.innerHTML = "<p>Erreur chargement boutiques.</p>";
+    return;
+  }
+
+  favoritesShopsList.innerHTML = "";
+
+  shops.forEach(shop => {
+    const div = document.createElement("div");
+    div.className = "favoriteItem";
+div.style.cssText = `
+  display:flex;
+  gap:12px;
+  padding:12px;
+  border-radius:14px;
+  background:white;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  cursor:pointer;
+  align-items:center;
+  transition:all 0.25s ease;
+  margin-bottom:12px;
+`;
+
+div.innerHTML = `
+  <div style="
+    position:relative;
+    width:90px;
+    height:70px;
+    flex-shrink:0;
+  ">
+    <img src="${shop.image_url || 'https://via.placeholder.com/100'}"
+      style="
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        border-radius:10px;
+      ">
+    
+    <!-- Badge -->
+    <span style="
+      position:absolute;
+      bottom:5px;
+      left:5px;
+      background:#1B8F3A;
+      color:white;
+      font-size:10px;
+      padding:2px 6px;
+      border-radius:6px;
+    ">
+      Boutique
+    </span>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;">
+    <strong style="font-size:15px;color:#222;">
+      ${shop.name}
+    </strong>
+
+    <p style="
+      font-size:13px;
+      color:#666;
+      margin:4px 0;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+    ">
+      ${shop.description || "Aucune description"}
+    </p>
+
+    <span style="
+      font-size:12px;
+      color:#1B8F3A;
+      font-weight:600;
+    ">
+      Voir la boutique →
+    </span>
+  </div>
+`;
+
+    div.onmouseenter = () => {
+  div.style.transform = "translateY(-4px)";
+  div.style.boxShadow = "0 8px 20px rgba(0,0,0,0.12)";
+};
+
+div.onmouseleave = () => {
+  div.style.transform = "translateY(0)";
+  div.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+};
+
+    // Redirige vers index.html et passe l'ID de la boutique
+    div.onclick = () => {
+      window.location.href = `index.html?shopId=${shop.id}`;
+    };
+
+    favoritesShopsList.appendChild(div);
+  });
+}
+
+// =====================
+// CHARGER PRODUITS FAVORIS
+// =====================
+async function loadFavoriteProducts() {
+  favoritesProductsList.style.display = "block";
+  favoritesShopsList.style.display = "none";
+  favoritesProductsList.innerHTML = "<p>Chargement...</p>";
+
+  if (!currentUser || !currentUser.id) {
+    favoritesProductsList.innerHTML = "<p>Utilisateur non connecté.</p>";
+    return;
+  }
+
+  const { data: favData, error: favError } = await supabase
+    .from("favorite_products")
+    .select("product_id")
+    .eq("user_id", currentUser.id);
+
+  if (favError) {
+    console.error(favError);
+    favoritesProductsList.innerHTML = "<p>Erreur chargement produits.</p>";
+    return;
+  }
+
+  if (!favData || favData.length === 0) {
+    favoritesProductsList.innerHTML = "<p>Aucun produit suivi.</p>";
+    return;
+  }
+
+  const productIds = favData.map(f => f.product_id);
+
+  const { data: products, error: prodError } = await supabase
+    .from("shop_products")
+    .select("*")
+    .in("id", productIds)
+    .order("created_at", { ascending: false });
+
+  if (prodError) {
+    console.error(prodError);
+    favoritesProductsList.innerHTML = "<p>Erreur chargement produits.</p>";
+    return;
+  }
+
+  if (!products || products.length === 0) {
+    favoritesProductsList.innerHTML = "<p>Aucun produit suivi.</p>";
+    return;
+  }
+
+  favoritesProductsList.innerHTML = "";
+
+  products.forEach(product => {
+    const div = document.createElement("div");
+    div.className = "favoriteItem";
+div.style.cssText = `
+  display:flex;
+  gap:12px;
+  padding:12px;
+  border-radius:14px;
+  background:white;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  cursor:pointer;
+  align-items:center;
+  transition:all 0.25s ease;
+  margin-bottom:12px;
+`;
+
+div.innerHTML = `
+  <div style="
+    position:relative;
+    width:90px;
+    height:70px;
+    flex-shrink:0;
+  ">
+    <img src="${product.image_url || 'https://via.placeholder.com/100'}"
+      style="
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        border-radius:10px;
+      ">
+
+    <!-- Badge prix -->
+    <span style="
+      position:absolute;
+      bottom:5px;
+      right:5px;
+      background:#1B8F3A;
+      color:white;
+      font-size:11px;
+      padding:3px 7px;
+      border-radius:6px;
+      font-weight:600;
+    ">
+      ${product.price || "-"} FCFA
+    </span>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;">
+    
+    <strong style="
+      font-size:15px;
+      color:#222;
+    ">
+      ${product.name}
+    </strong>
+
+    <p style="
+      font-size:13px;
+      color:#666;
+      margin:4px 0;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+    ">
+      ${product.description || "Produit disponible"}
+    </p>
+
+    <span style="
+      font-size:12px;
+      color:#1B8F3A;
+      font-weight:600;
+    ">
+      Voir le produit →
+    </span>
+
+  </div>
+`;
+    div.onmouseenter = () => {
+  div.style.transform = "translateY(-4px)";
+  div.style.boxShadow = "0 8px 20px rgba(0,0,0,0.12)";
+};
+
+div.onmouseleave = () => {
+  div.style.transform = "translateY(0)";
+  div.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+};
+
+    // Redirige vers index.html et ouvre le modal de la boutique du produit
+    div.onclick = () => {
+      window.location.href = `index.html?shopId=${product.shop_id}`;
+    };
+
+    favoritesProductsList.appendChild(div);
+  });
+    }
+
+// =====================
+// MES BOUTIQUES - SCRIPT
+// =====================
+const shopsBtn = document.getElementById("shopsBtn");
+const shopsModal = document.getElementById("shopsModal");
+const closeShops = document.getElementById("closeShops");
+const shopFullModal = document.getElementById("shopFullModal");
+const closeShopDetail = document.getElementById("closeShopDetail");
+
+let currentShop = null;
+
+// OUVRIR MODAL BOUTIQUES
+shopsBtn.onclick = async () => {
+  shopsModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  await loadSellerDashboard();
+  await loadMyShops();
+};
+
+// FERMER MODAL
+closeShops.onclick = () => {
+  shopsModal.classList.remove("active");
+  document.body.style.overflow = "auto";
+};
+
+// FERMER DETAIL BOUTIQUE
+closeShopDetail.onclick = () => {
+  shopFullModal.style.display = "none";
+  currentShop = null;
+};
+
+// CLICK OUTSIDE
+shopsModal.addEventListener("click", (e) => {
+  if (e.target === shopsModal) {
+    shopsModal.classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+});
+
+// DASHBOARD GLOBAL
+async function loadSellerDashboard() {
+  if (!currentUser) return;
+
+  const { count: products } = await supabase
+    .from("shop_products")
+    .select("*", { count: "exact", head: true })
+    .eq("owner_id", currentUser.id);
+
+  const { count: orders } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true })
+    .eq("seller_id", currentUser.id);
+
+  const { data } = await supabase
+    .from("orders")
+    .select("total_price")
+    .eq("seller_id", currentUser.id)
+    .eq("status", "completed");
+
+  const total = data?.reduce((acc, o) => acc + (o.total_price || 0), 0) || 0;
+
+  document.getElementById("shopProducts").innerText = products || 0;
+  document.getElementById("shopOrders").innerText = orders || 0;
+  document.getElementById("shopRevenue").innerText = total.toLocaleString("fr-FR") + " FCFA";
+}
+
+  // =====================
+// CHARGER LISTE BOUTIQUES
+// =====================
+async function loadMyShops() {
+  if (!currentUser) return;
+
+  const { data: shops, error } = await supabase
+    .from("shops")
+    .select("*")
+    .eq("owner_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  const container = document.getElementById("shopsList");
+  container.innerHTML = "";
+
+  if (error) {
+    console.error("❌ Erreur chargement boutiques :", error);
+    return container.innerHTML = "<p style='color:red;'>Erreur chargement boutiques</p>";
+  }
+
+  if (!shops || shops.length === 0) {
+    return container.innerHTML = "<p>Aucune boutique</p>";
+  }
+
+  shops.forEach(shop => {
+    const div = document.createElement("div");
+    div.className = "shopCard";
+
+    // Badge premium
+    let stars = "";
+    if (shop.premium_level === "premium1") stars = "⭐";
+    if (shop.premium_level === "premium2") stars = "⭐⭐";
+    if (shop.premium_level === "premium3") stars = "⭐⭐⭐";
+
+    div.innerHTML = `
+      ${shop.image_url ? `<img src="${shop.image_url}" alt="${shop.name}">` : ""}
+      <h4>${shop.name} <span class="premium">${stars}</span></h4>
+      <small>${shop.category || "Non catégorisé"}</small>
+      <div class="shopActions">
+        <button class="openShopBtn">📊 Gérer</button>
+        <button class="deleteShopBtn">🗑 Supprimer</button>
+      </div>
+    `;
+
+    // OUVRIR BOUTIQUE
+    div.querySelector(".openShopBtn").onclick = async () => {
+      currentShop = shop;
+      document.getElementById("shopProductsTitle").innerText = "Boutique : " + shop.name;
+      shopFullModal.style.display = "block";
+      await loadShopProducts(shop.id); // produits seront chargés ici
+    };
+
+    // SUPPRIMER BOUTIQUE
+    div.querySelector(".deleteShopBtn").onclick = async () => {
+      if (!confirm(`⚠️ Supprimer la boutique "${shop.name}" et tous ses produits ?`)) return;
+
+      try {
+        // Supprimer images produits
+        const { data: products } = await supabase
+          .from("shop_products")
+          .select("image_url")
+          .eq("shop_id", shop.id);
+
+        if (products?.length > 0) {
+          const productFiles = products
+            .filter(p => p.image_url)
+            .map(p => p.image_url.split("/").pop());
+          if (productFiles.length > 0) {
+            await supabase.storage.from("products").remove(productFiles);
+          }
+        }
+
+        // Supprimer image boutique
+        if (shop.image_url) {
+          const shopFile = shop.image_url.split("/").pop();
+          await supabase.storage.from("shops").remove([shopFile]);
+        }
+
+        // Supprimer boutique
+        const { error: deleteError } = await supabase
+          .from("shops")
+          .delete()
+          .eq("id", shop.id);
+
+        if (deleteError) throw deleteError;
+
+        // Notification
+        await supabase.from("notif_market").insert({
+          user_id: currentUser.id,
+          actor_id: currentUser.id,
+          type: "shop",
+          title: "🗑 Boutique supprimée",
+          message: `La boutique "${shop.name}" a été supprimée`,
+          target_id: shop.id,
+          link: "/shops",
+          is_read: false
+        });
+
+        alert("✅ Boutique supprimée avec succès");
+        await loadMyShops();
+        shopFullModal.style.display = "none";
+
+      } catch (err) {
+        console.error("Erreur suppression boutique :", err);
+        alert("Erreur inattendue lors de la suppression");
+      }
+    };
+
+    container.appendChild(div);
+  });
+}
+
+
+// =====================
+// CHARGER PRODUITS BOUTIQUE
+// =====================
+async function loadShopProducts(shopId) {
+  const productsContainer = document.getElementById("productsContainer");
+  productsContainer.innerHTML = "";
+  if (!shopId) return;
+
+  const { data: products, error } = await supabase
+    .from("shop_products")
+    .select("*")
+    .eq("shop_id", shopId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Erreur chargement produits :", error);
+    return productsContainer.innerHTML = "<p style='color:red;'>Erreur chargement produits</p>";
+  }
+
+  if (!products || products.length === 0) {
+    return productsContainer.innerHTML = "<p>Aucun produit disponible</p>";
+  }
+
+  products.forEach(product => {
+    const div = document.createElement("div");
+    div.className = "productCard";
+
+    div.innerHTML = `
+      ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}">` : ""}
+      <h4>${product.name}</h4>
+      <p>${product.description || ""}</p>
+      <strong>${product.price} FCFA</strong>
+      <button class="deleteProductBtn">🗑 Supprimer</button>
+    `;
+
+    // ===== SUPPRIMER PRODUIT =====
+    div.querySelector(".deleteProductBtn").onclick = async () => {
+      if (!confirm(`⚠️ Supprimer le produit "${product.name}" ?`)) return;
+
+      try {
+        // 1️⃣ Supprimer le produit dans la base
+        const { error: deleteError } = await supabase
+          .from("shop_products")
+          .delete()
+          .eq("id", product.id);
+
+        if (deleteError) throw deleteError;
+
+        // 2️⃣ Supprimer l'image du storage si elle existe
+        if (product.image_url) {
+          const fileName = product.image_url.split("/").pop();
+          await supabase.storage.from("products").remove([fileName]);
+        }
+
+        // 3️⃣ Ajouter notification
+        await supabase.from("notif_market").insert({
+          user_id: currentUser.id,
+          actor_id: currentUser.id,
+          type: "product",
+          title: "Produit supprimé",
+          message: `Le produit "${product.name}" a été supprimé de la boutique`,
+          link: `/shop?id=${shopId}`,
+          is_read: false
+        });
+
+        alert("✅ Produit supprimé avec succès");
+
+        // 4️⃣ Recharger la liste des produits
+        await loadShopProducts(shopId);
+
+      } catch (err) {
+        console.error("Erreur suppression produit :", err);
+        alert("Erreur inattendue lors de la suppression du produit");
+      }
+    };
+
+    productsContainer.appendChild(div);
+  });
+}
+  
 </script>
 
 </body>
