@@ -266,34 +266,50 @@ async function loadUser(){
 
 loadUser();
 
-
+  // =======================
+// MODAL NAME HANDLER
 // =======================
-// EDIT NAME
-// =======================
 
-  document.getElementById("editName").onclick = () => {
+// Ouvrir le modal
+document.getElementById("editName").onclick = () => {
   document.getElementById("modalName").style.display = "flex";
+
+  // Pré-remplir l'input avec le nom actuel si nécessaire
+  const currentName = currentUser?.full_name || "";
+  document.getElementById("inputName").value = currentName;
 };
 
-
-
-  function closeModal(){
+// Fermer le modal
+function closeModal() {
   document.getElementById("modalName").style.display = "none";
 }
 
-async function saveName(){
+// Sauvegarder le nom
+async function saveName() {
+  const name = document.getElementById("inputName").value.trim();
+  if (!name) {
+    alert("Le nom ne peut pas être vide !");
+    return;
+  }
 
-  const name = document.getElementById("inputName").value;
-
-  if(!name) return;
-
-  await supabase.from("profiles")
+  const { error } = await supabase.from("profiles")
     .update({ fullname: name })
     .eq("id", currentUser.id);
 
-  closeModal();
-  loadUser();
+  if (error) {
+    alert(error.message);
+  } else {
+    loadUser(); // recharge l'utilisateur avec le nouveau nom
+    closeModal();
+  }
 }
+
+// Optionnel : fermer le modal si clic en dehors
+window.addEventListener("click", (e) => {
+  const modal = document.getElementById("modalName");
+  if (e.target === modal) closeModal();
+});
+
   
 // =======================
 // EDIT PHONE
