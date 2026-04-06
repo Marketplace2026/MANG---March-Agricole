@@ -546,6 +546,48 @@ color:#666;
   cursor: pointer;
 }
 
+
+  /* 🔥 FULL SCREEN AVATAR */
+#avatarFullScreen{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+
+  background:rgba(0,0,0,0.9);
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  opacity:0;
+  visibility:hidden;
+
+  transition:0.3s ease;
+
+  z-index:9999;
+}
+
+/* image */
+#avatarFullScreen img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:12px;
+
+  transform:scale(0.8);
+  transition:0.3s ease;
+}
+
+/* 🔥 ACTIF */
+#avatarFullScreen.active{
+  opacity:1;
+  visibility:visible;
+}
+
+#avatarFullScreen.active img{
+  transform:scale(1);
+}
 /* CARTE PRODUIT */
 .productCard {
   flex: 0 0 180px;
@@ -780,6 +822,10 @@ color:#666;
 
   </div>
 </div>
+
+  <div id="avatarFullScreen">
+  <img id="avatarFullImg" src="">
+  </div>
 <script type="module">
 
 import { supabase } from './supabase.js';
@@ -912,6 +958,21 @@ badge.style.display="none";
 }
 
 }
+
+  const avatar = document.getElementById("avatarImg");
+const fullScreen = document.getElementById("avatarFullScreen");
+const fullImg = document.getElementById("avatarFullImg");
+
+// 🔥 OUVRIR
+avatar.addEventListener("click", () => {
+  fullImg.src = avatar.src;
+  fullScreen.classList.add("active");
+});
+
+// 🔥 FERMER (clic n'importe où)
+fullScreen.addEventListener("click", () => {
+  fullScreen.classList.remove("active");
+});
 
   async function loadUserLocation() {
 
