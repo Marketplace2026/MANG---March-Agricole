@@ -626,7 +626,7 @@ color:#666;
   <img id="avatarImg" src="">
 </div>
 
-<h3 id="displayName">Utilisateur</h3>
+
 
 <div class="email" id="userEmail"></div>
 
@@ -792,105 +792,109 @@ color:#666;
 
 import { supabase } from './supabase.js';
 
-let currentUser=null;
+let currentUser = null;
 
-async function loadProfile(){
+async function loadProfile() {
+  try {
 
-try{
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-const { data:{user}, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      window.location.href = "login.html";
+      return;
+    }
 
-if(error || !user){
+    currentUser = user;
 
-window.location.href="login.html";
-return;
+    // ======================
+    // 🔥 EMAIL
+    // ======================
+    document.getElementById("userEmail").innerText = user.email;
 
-}
+    // ======================
+    // 🔥 DATE INSCRIPTION
+    // ======================
+    document.getElementById("createdAt").innerText =
+      new Date(user.created_at).toLocaleDateString();
 
-currentUser=user;
+    // ======================
+    // 🔥 PROFILE DATA
+    // ======================
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", user.id)
+      .single();
 
-document.getElementById("userEmail").innerText=user.email;
+    if (profileError) {
+      console.error("Erreur profile:", profileError);
+    }
 
-document.getElementById("displayName").innerText=user.email.split("@")[0];
+    // ======================
+    // 🔥 AVATAR
+    // ======================
+    const avatar = document.getElementById("avatarImg");
 
-document.getElementById("initialLetter").innerText=user.email.charAt(0).toUpperCase();
+    if (profile?.avatar_url) {
+      avatar.src = profile.avatar_url;
+    } else {
+      avatar.src = "https://via.placeholder.com/100";
+    }
 
-document.getElementById("createdAt").innerText=new Date(user.created_at).toLocaleDateString();
+    // ======================
+    // 💰 WALLET
+    // ======================
+    const { data: wallet } = await supabase
+      .from("wallets")
+      .select("available_balance")
+      .eq("user_id", user.id)
+      .single();
 
-const { data:wallet } = await supabase
-.from("wallets")
-.select("available_balance")
-.eq("user_id",user.id)
-.single();
+    document.getElementById("walletBalance").innerText =
+      (wallet?.available_balance || 0).toLocaleString("fr-FR") + " FCFA";
 
-document.getElementById("walletBalance").innerText =
-(wallet?.available_balance || 0).toLocaleString("fr-FR") + " FCFA";
+    // ======================
+    // 📦 TRANSACTIONS
+    // ======================
+    const { count } = await supabase
+      .from("wallet_transactions")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
 
-const { count } = await supabase
-.from("wallet_transactions")
-.select("*",{count:"exact",head:true})
-.eq("user_id",user.id);
+    document.getElementById("totalTransactions").innerText = count || 0;
 
-document.getElementById("totalTransactions").innerText = count || 0;
+    // ======================
+    // 📦 COMMANDES
+    // ======================
+    await loadNewOrdersCount();
 
-await loadNewOrdersCount();
-
-}catch(err){
-
-console.error(err);
-
-}
-
+  } catch (err) {
+    console.error("Erreur loadProfile:", err);
+  }
 }
 
 loadProfile();
 
-window.goWallet=function(){
 
-window.location.href="dashboard.html";
+// =======================
+// NAVIGATION
+// =======================
+window.goWallet = function () {
+  window.location.href = "dashboard.html";
+};
 
-}
-
-document.getElementById("btnMesCommandes").addEventListener("click",()=>{
-
-window.location.href="commande.html";
-
+document.getElementById("btnMesCommandes").addEventListener("click", () => {
+  window.location.href = "commande.html";
 });
 
-window.goChangePassword=async function(){
 
-const btn=document.getElementById("changePassBtn");
-const msg=document.getElementById("msgBox");
-
-btn.disabled=true;
-btn.innerText="Envoi...";
-
-const { error } = await supabase.auth.resetPasswordForEmail(currentUser.email,{
-redirectTo:"https://marketplace2026.github.io/MANG---March-Agricole/reset-password.html"
-});
-
-if(error){
-
-msg.innerText="❌ Erreur lors de l'envoi";
-
-}else{
-
-msg.innerText="📩 Email envoyé. Vérifiez votre boîte mail";
-
-}
-
-btn.disabled=false;
-btn.innerText="🔒 Modifier mot de passe";
-
-}
-
-window.logout=async function(){
-
-await supabase.auth.signOut();
-
-window.location.href="login.html";
-
-}
+// =======================
+// LOGOUT
+// =======================
+window.logout = async function () {
+  await supabase.auth.signOut();
+  window.location.href = "login.html";
+};
 
 async function loadNewOrdersCount(){
 
