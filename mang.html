@@ -225,7 +225,7 @@ body{
 
   <div class="item" id="editUsername">
   <div>Nom d'utilisateur</div>
-  <div class="item-right" id="username">
+  <div class="item-right" id="usernameValue">
     --- <span class="arrow">›</span>
   </div>
   </div>
@@ -339,15 +339,16 @@ async function loadUser(){
     console.error("PROFILE ERROR:", profileError);
   }
 
-  const username = profile?.username || "Utilisateur";
-  const fullname = profile?.fullname || "Non défini";
-  const phone = profile?.phone || "Incomplet";
-  const email = user.email.replace(/(.{3}).+(@.+)/, "$1****$2");
+  const username = profile?.username || "---";
+const fullname = profile?.fullname || "Non défini";
+const phone = profile?.phone || "Incomplet";
+const email = user.email.replace(/(.{3}).+(@.+)/, "$1****$2");
 
-  document.getElementById("username").textContent = username;
-  document.getElementById("fullname").innerHTML = fullname + " ›";
-  document.getElementById("email").textContent = email;
-  document.getElementById("phone").innerHTML = phone + " ›";
+document.getElementById("username").textContent = username;
+document.getElementById("usernameValue").innerHTML = username + " ›"; // ✅ AJOUT ICI
+document.getElementById("fullname").innerHTML = fullname + " ›";
+document.getElementById("email").textContent = email;
+document.getElementById("phone").innerHTML = phone + " ›";
 
   const avatarImg = document.getElementById("avatarImg");
   avatarImg.src = profile?.avatar_url || "https://via.placeholder.com/100";
