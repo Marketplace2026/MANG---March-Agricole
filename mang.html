@@ -223,6 +223,13 @@ body{
     <div class="item-right" id="fullname">--- <span class="arrow">›</span></div>
   </div>
 
+  <div class="item" id="editUsername">
+  <div>Nom d'utilisateur</div>
+  <div class="item-right" id="usernameValue">
+    --- <span class="arrow">›</span>
+  </div>
+  </div>
+
   <div class="item">
     <div>E-mail</div>
     <div class="item-right" id="email">---</div>
@@ -252,6 +259,24 @@ body{
   </div>
 </div>
 
+<div id="modalUsername" class="modal">
+  <div class="modal-content">
+    <h3>Modifier le nom d'utilisateur</h3>
+
+    <input 
+      type="text" 
+      id="inputUsername" 
+      placeholder="Nouveau nom d'utilisateur"
+      autocomplete="off"
+    >
+
+    <div class="modal-actions">
+      <button onclick="closeUsernameModal()">Annuler</button>
+      <button onclick="saveUsername()">OK</button>
+    </div>
+  </div>
+</div>
+  
   <div id="modalPhone" class="modal">
   <div class="modal-content">
     <h3>Modifier le téléphone</h3>
@@ -364,6 +389,60 @@ window.addEventListener("click", (e) => {
   if(e.target === modal) closeModal();
 });
 
+
+  // =======================
+// MODAL USERNAME HANDLER
+// =======================
+
+// Ouvrir
+document.getElementById("editUsername").addEventListener("click", () => {
+
+  document.getElementById("modalUsername").style.display = "flex";
+
+  // pré-remplir avec username actuel
+  const current = document.getElementById("username").textContent;
+  document.getElementById("inputUsername").value = current;
+});
+
+
+// Fermer
+function closeUsernameModal() {
+  document.getElementById("modalUsername").style.display = "none";
+}
+
+
+// Sauvegarder
+async function saveUsername() {
+
+  const username = document.getElementById("inputUsername").value.trim();
+
+  if (!username || username.length < 3) {
+    alert("Nom d'utilisateur trop court !");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ username })
+    .eq("id", currentUser.id);
+
+  if (error) {
+    alert(error.message);
+  } else {
+    loadUser();
+    closeUsernameModal();
+  }
+}
+
+
+// Boutons
+const usernameModal = document.getElementById("modalUsername");
+
+usernameModal.querySelector("button:nth-child(1)")
+  .addEventListener("click", closeUsernameModal);
+
+usernameModal.querySelector("button:nth-child(2)")
+  .addEventListener("click", saveUsername);
 
 // =======================
 // MODAL PHONE HANDLER
