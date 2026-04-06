@@ -627,11 +627,10 @@ color:#666;
 <div class="profile-header">
 
 <span class="back-btn" onclick="window.location.href='index.html'">←</span>
-  
-<div class="avatar">
-  <img id="avatarImg" src="https://via.placeholder.com/100">
-</div>
 
+  <div class="avatar">
+  <img id="avatarImg" src="">
+  </div>
 
 
 <div class="email" id="userEmail"></div>
@@ -926,15 +925,27 @@ badge.style.display="none";
 
   async function loadUserProfile(){
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if(!user) return;
+  console.log("USER:", user); // 🔍 debug
 
-  const { data: profile } = await supabase
+  if(error || !user){
+    console.log("Pas connecté");
+    return;
+  }
+
+  const { data: profile, error: err2 } = await supabase
     .from("profiles")
     .select("username, avatar_url")
     .eq("id", user.id)
     .single();
+
+  console.log("PROFILE:", profile); // 🔍 debug
+
+  if(err2){
+    console.error(err2);
+    return;
+  }
 
   const username = profile?.username || "Utilisateur";
 
@@ -942,7 +953,12 @@ badge.style.display="none";
 
   const avatar = document.getElementById("avatarImg");
 
-  avatar.src = profile?.avatar_url || "https://via.placeholder.com/100";
+  if(profile?.avatar_url){
+    avatar.src = profile.avatar_url;
+  } else {
+    avatar.src = "https://via.placeholder.com/100";
+  }
+
 }
 
 loadUserProfile();
