@@ -623,8 +623,9 @@ color:#666;
 
 <span class="back-btn" onclick="window.location.href='index.html'">←</span>
 
-<div class="avatar" id="initialLetter">U</div>
-<h3 id="displayName">Utilisateur</h3>
+<div class="avatar">
+  <img id="avatarImg" src="">
+</div>
 
 <div class="email" id="userEmail"></div>
 
@@ -666,6 +667,13 @@ color:#666;
 <div class="card">
   <div class="menu">
 
+    <button id="btnMonProfil" class="menu-btn" onclick="location.href='mang.html'">
+  <div class="menu-left">
+    <span class="icon">👤</span>
+    <span>Mon profil</span>
+  </div>
+    </button>
+
     <button id="btnMesCommandes" class="menu-btn">
       <div class="menu-left">
         <span class="icon">📦</span>
@@ -702,14 +710,7 @@ color:#666;
       <span class="arrow">›</span>
     </button>
 
-    <button class="menu-btn" id="changePassBtn" onclick="goChangePassword()">
-      <div class="menu-left">
-        <span class="icon">🔒</span>
-        <span>Modifier mot de passe</span>
-      </div>
-      <span class="arrow">›</span>
-    </button>
-
+    
     <button class="menu-btn logout" onclick="logout()">
       <div class="menu-left">
         <span class="icon">🚪</span>
