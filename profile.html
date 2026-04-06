@@ -71,42 +71,34 @@ cursor:pointer;
 color:white;
 
 }
-
-
-/* avatar */
-
+/* avatar container */
 .avatar{
+  width:100px;
+  height:100px;
 
-width:100px;
-height:100px;
+  border-radius:50%;
+  overflow:hidden; /* 🔥 TRÈS IMPORTANT */
 
-border-radius:50%;
+  background:white;
 
-background:white;
-color:#1B8F3A;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-display:flex;
-align-items:center;
-justify-content:center;
+  margin:auto;
+  margin-bottom:10px;
 
-font-size:40px;
-font-weight:700;
-
-margin:auto;
-margin-bottom:10px;
-
-border:4px solid rgba(255,255,255,0.6);
-
-box-shadow:0 6px 18px rgba(0,0,0,0.2);
-
+  border:4px solid rgba(255,255,255,0.6);
+  box-shadow:0 6px 18px rgba(0,0,0,0.2);
 }
 
-/* nom utilisateur */
-
-#displayName{
-font-size:20px;
-margin-top:5px;
+/* image */
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
+
 
 /* email */
 
