@@ -252,6 +252,32 @@ body{
   </div>
 </div>
 
+  <div id="modalPhone" class="modal">
+  <div class="modal-content">
+    <h3>Modifier le téléphone</h3>
+
+    <input type="text" id="inputPhone" placeholder="Votre numéro">
+
+    <div class="modal-actions">
+      <button onclick="closePhoneModal()">Annuler</button>
+      <button onclick="savePhone()">OK</button>
+    </div>
+  </div>
+  </div>
+
+  <div id="modalPassword" class="modal">
+  <div class="modal-content">
+    <h3>Changer le mot de passe</h3>
+
+    <input type="password" id="inputPassword" placeholder="Nouveau mot de passe">
+
+    <div class="modal-actions">
+      <button onclick="closePasswordModal()">Annuler</button>
+      <button onclick="savePassword()">OK</button>
+    </div>
+  </div>
+  </div>
+
 <!-- Plein écran avatar -->
 <div id="avatarFullScreen">
   <span id="closeAvatarFull">&times;</span>
@@ -338,27 +364,76 @@ window.addEventListener("click", (e) => {
   if(e.target === modal) closeModal();
 });
 
+
+  // =======================
+// EDIT PHONE (OUVRIR MODAL)
 // =======================
-// EDIT PHONE
-// =======================
-document.getElementById("editPhone").onclick = async () => {
-  const phone = prompt("Votre numéro :");
-  if(!phone) return;
-  const { error } = await supabase.from("profiles").update({ phone }).eq("id", currentUser.id);
-  if(error){ alert(error.message); }
-  loadUser();
+document.getElementById("editPhone").onclick = () => {
+  document.getElementById("modalPhone").style.display = "flex";
 };
 
+
 // =======================
-// PASSWORD
+// PASSWORD (OUVRIR MODAL)
 // =======================
-document.getElementById("changePassword").onclick = async () => {
-  const pass = prompt("Nouveau mot de passe");
-  if(!pass) return;
-  const { error } = await supabase.auth.updateUser({ password: pass });
-  if(error){ alert(error.message); }
-  else{ alert("Mot de passe modifié ✅"); }
+document.getElementById("changePassword").onclick = () => {
+  document.getElementById("modalPassword").style.display = "flex";
 };
+
+
+// =======================
+// SAVE PHONE
+// =======================
+function closePhoneModal(){
+  document.getElementById("modalPhone").style.display = "none";
+}
+
+async function savePhone(){
+
+  const phone = document.getElementById("inputPhone").value;
+
+  if(!phone) return;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ phone })
+    .eq("id", currentUser.id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  closePhoneModal();
+  loadUser();
+}
+
+
+// =======================
+// SAVE PASSWORD
+// =======================
+function closePasswordModal(){
+  document.getElementById("modalPassword").style.display = "none";
+}
+
+async function savePassword(){
+
+  const pass = document.getElementById("inputPassword").value;
+
+  if(!pass) return;
+
+  const { error } = await supabase.auth.updateUser({
+    password: pass
+  });
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  alert("Mot de passe modifié ✅");
+  closePasswordModal();
+}
 
 // =======================
 // AVATAR HANDLER
