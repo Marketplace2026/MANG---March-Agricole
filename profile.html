@@ -622,9 +622,12 @@ color:#666;
 <div class="profile-header">
 
 <span class="back-btn" onclick="window.location.href='index.html'">←</span>
+  
+<div class="avatar">
+  <img id="avatarImg" src="https://via.placeholder.com/100">
+</div>
 
-<div class="avatar" id="initialLetter">U</div>
-<h3 id="displayName">Utilisateur</h3>
+
 
 <div class="email" id="userEmail"></div>
 
@@ -914,6 +917,30 @@ badge.style.display="none";
 }
 
 }
+
+
+  async function loadUserProfile(){
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if(!user) return;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username, avatar_url")
+    .eq("id", user.id)
+    .single();
+
+  const username = profile?.username || "Utilisateur";
+
+  document.getElementById("displayName").textContent = username;
+
+  const avatar = document.getElementById("avatarImg");
+
+  avatar.src = profile?.avatar_url || "https://via.placeholder.com/100";
+}
+
+loadUserProfile();
 
   async function loadUserLocation() {
 
