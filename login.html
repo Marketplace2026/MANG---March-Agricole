@@ -403,6 +403,39 @@ section h3{
   box-shadow:0 5px 20px rgba(0,0,0,0.3);
   cursor:pointer;
   }
+
+  #scrollTopBtn {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid red;
+  cursor: pointer;
+  z-index: 999;
+  transition: 0.3s;
+}
+
+#scrollTopBtn:hover {
+  transform: scale(1.1);
+}
+
+/* Animation footer */
+.footer {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: 0.6s ease;
+}
+
+.footer.show-footer {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
   
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -546,7 +579,7 @@ section h3{
   <div class="footer-section">
     <h3>Contacts</h3>
     <p><i class="fas fa-map-marker-alt"></i> Cotonou, Bénin</p>
-    <p><i class="fas fa-phone"></i> +229 61 74 01 17</p>
+    <p><i class="fas fa-phone"></i> +229 01 97 29 31 96</p>
     <p><i class="fas fa-envelope"></i> contact@mang.com</p>
   </div>
 
@@ -767,9 +800,116 @@ async function createWalletForUser(userId) {
   }
 }
 
-  document.getElementById("scrollTopBtn").onclick = () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  // ===============================
+// CONFIGURATION
+// ===============================
+const CONFIG = {
+  phone: "+2290197293196", // format WhatsApp
+  email: "contact@mang.com",
+  socials: {
+    facebook: "https://facebook.com/",
+    twitter: "https://twitter.com/",
+    instagram: "https://instagram.com/",
+    linkedin: "https://linkedin.com/"
+  }
 };
+
+// ===============================
+// BOUTON SCROLL TOP
+// ===============================
+const scrollBtn = document.getElementById("scrollTopBtn");
+
+// Afficher / cacher bouton
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    scrollBtn.style.display = "flex";
+  } else {
+    scrollBtn.style.display = "none";
+  }
+});
+
+// Scroll fluide vers le haut
+scrollBtn.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+});
+
+// ===============================
+// CONTACT ACTIONS
+// ===============================
+
+// Cliquer sur téléphone → WhatsApp
+const phoneElement = document.querySelector(".fa-phone")?.parentElement;
+
+if (phoneElement) {
+  phoneElement.style.cursor = "pointer";
+
+  phoneElement.addEventListener("click", () => {
+    const message = encodeURIComponent("Bonjour, je vous contacte depuis MANG.");
+    window.open(`https://wa.me/${CONFIG.phone}?text=${message}`, "_blank");
+  });
+}
+
+// Cliquer sur email → ouvrir mail
+const emailElement = document.querySelector(".fa-envelope")?.parentElement;
+
+if (emailElement) {
+  emailElement.style.cursor = "pointer";
+
+  emailElement.addEventListener("click", () => {
+    window.location.href = `mailto:${CONFIG.email}`;
+  });
+}
+
+// ===============================
+// RÉSEAUX SOCIAUX
+// ===============================
+const socialLinks = document.querySelectorAll(".socials a");
+
+if (socialLinks.length >= 4) {
+  socialLinks[0].href = CONFIG.socials.facebook;
+  socialLinks[1].href = CONFIG.socials.twitter;
+  socialLinks[2].href = CONFIG.socials.instagram;
+  socialLinks[3].href = CONFIG.socials.linkedin;
+
+  socialLinks.forEach(link => {
+    link.setAttribute("target", "_blank");
+  });
+}
+
+// ===============================
+// ANIMATION APPARITION FOOTER
+// ===============================
+const footer = document.querySelector(".footer");
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      footer.classList.add("show-footer");
+    }
+  });
+}, { threshold: 0.2 });
+
+if (footer) {
+  observer.observe(footer);
+}
+
+// ===============================
+// SÉCURITÉ BASIQUE (anti spam clic)
+// ===============================
+let lastClick = 0;
+
+document.querySelectorAll(".footer a").forEach(link => {
+  link.addEventListener("click", (e) => {
+    const now = Date.now();
+    if (now - lastClick < 500) {
+      e.preventDefault();
+    }
+    lastClick = now;
+  });
+});
 </script>
   
 </body>
