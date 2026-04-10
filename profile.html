@@ -745,6 +745,54 @@ color:#666;
       <span class="arrow">›</span>
     </button>
 
+    <!-- ===================== -->
+<!-- SECTION LÉGALE -->
+<!-- ===================== -->
+
+<div style="padding:10px 15px;color:#999;font-size:13px;">
+  Informations légales
+</div>
+
+<button class="menu-btn" onclick="openPage('legal.html')">
+  <div class="menu-left">
+    <span class="icon">📄</span>
+    <span>Mentions légales</span>
+  </div>
+  <span class="arrow">›</span>
+</button>
+
+<button class="menu-btn" onclick="openPage('privacy.html')">
+  <div class="menu-left">
+    <span class="icon">🔐</span>
+    <span>Confidentialité</span>
+  </div>
+  <span class="arrow">›</span>
+</button>
+
+<button class="menu-btn" onclick="openPage('cgu.html')">
+  <div class="menu-left">
+    <span class="icon">📜</span>
+    <span>Conditions d’utilisation</span>
+  </div>
+  <span class="arrow">›</span>
+</button>
+
+<button class="menu-btn" onclick="openPage('payments.html')">
+  <div class="menu-left">
+    <span class="icon">💳</span>
+    <span>Paiements</span>
+  </div>
+  <span class="arrow">›</span>
+</button>
+
+<button class="menu-btn" onclick="openPage('disputes.html')">
+  <div class="menu-left">
+    <span class="icon">⚖️</span>
+    <span>Litiges</span>
+  </div>
+  <span class="arrow">›</span>
+</button>
+
     
     <button class="menu-btn logout" onclick="logout()">
       <div class="menu-left">
@@ -925,6 +973,9 @@ document.getElementById("btnMesCommandes").addEventListener("click", () => {
   window.location.href = "commande.html";
 });
 
+  function openPage(page){
+  window.location.href = page;
+  }
 
 // =======================
 // LOGOUT
