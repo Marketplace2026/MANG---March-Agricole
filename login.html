@@ -318,7 +318,95 @@ section h3{
   .hero h2{font-size:2.2em}
   .image-section{grid-template-columns:1fr}
 }
+
+  /* ================= FOOTER ================= */
+.footer{
+  background:#000;
+  color:#fff;
+  padding:50px 20px;
+  margin-top:80px;
+}
+
+.footer-logo{
+  font-size:28px;
+  font-weight:900;
+  margin-bottom:25px;
+}
+
+/* Sections */
+.footer-section{
+  margin-bottom:25px;
+}
+
+.footer-section h3{
+  margin-bottom:10px;
+  font-size:20px;
+}
+
+.footer-section p{
+  margin:8px 0;
+  color:#ccc;
+  font-size:15px;
+}
+
+.footer-section i{
+  margin-right:10px;
+}
+
+/* Liens */
+.footer a{
+  color:#fff;
+  text-decoration:none;
+}
+
+.footer a:hover{
+  text-decoration:underline;
+}
+
+/* Réseaux sociaux */
+.socials{
+  margin-top:25px;
+  display:flex;
+  gap:15px;
+}
+
+.socials a{
+  width:50px;
+  height:50px;
+  background:#5b4b8a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#fff;
+  font-size:20px;
+  transition:0.3s;
+}
+
+.socials a:hover{
+  transform:scale(1.1);
+  background:#7c6ccf;
+}
+
+/* ================= BOUTON HAUT ================= */
+#scrollTopBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:55px;
+  height:55px;
+  border:none;
+  border-radius:50%;
+  background:#fff;
+  color:red;
+  font-size:22px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.3);
+  cursor:pointer;
+  }
 </style>
+  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
 </head>
 
 <body>
@@ -448,6 +536,42 @@ section h3{
   </p>
   <div class="error" id="errorMsg"></div>
 </div>
+
+  <!-- ================= FOOTER ================= -->
+<footer class="footer">
+
+  <h2 class="footer-logo">MANG</h2>
+
+  <!-- CONTACT -->
+  <div class="footer-section">
+    <h3>Contacts</h3>
+    <p><i class="fas fa-map-marker-alt"></i> Cotonou, Bénin</p>
+    <p><i class="fas fa-phone"></i> +229 61 74 01 17</p>
+    <p><i class="fas fa-envelope"></i> contact@mang.com</p>
+  </div>
+
+  <!-- LEGAL -->
+  <div class="footer-section">
+    <h3>Mentions Légales</h3>
+    <p><a href="#">Politique de confidentialité</a></p>
+    <p><a href="#">Conditions d'utilisation</a></p>
+  </div>
+
+  <!-- SOCIALS -->
+  <div class="socials">
+    <a href="#"><i class="fab fa-facebook-f"></i></a>
+    <a href="#"><i class="fab fa-twitter"></i></a>
+    <a href="#"><i class="fab fa-instagram"></i></a>
+    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+  </div>
+
+</footer>
+
+<!-- BOUTON RETOUR EN HAUT -->
+<button id="scrollTopBtn">
+  <i class="fas fa-arrow-up"></i>
+</button>
+  
 <script type="module">
 import { supabase } from './supabase.js';
 
@@ -642,6 +766,10 @@ async function createWalletForUser(userId) {
     throw err;
   }
 }
+
+  document.getElementById("scrollTopBtn").onclick = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 </script>
   
 </body>
