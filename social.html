@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Communauté MANG</title>
+
+<style>
+
+/* ===== GLOBAL ===== */
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f0f2f5;
+}
+
+/* ===== HEADER ===== */
+.header{
+  background:linear-gradient(135deg,#1B8F3A,#2ECC71);
+  color:white;
+  text-align:center;
+  padding:15px;
+  font-weight:700;
+  font-size:18px;
+}
+
+/* ===== CREATE POST ===== */
+.create-post{
+  background:white;
+  margin:10px;
+  padding:10px;
+  border-radius:12px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.create-post img{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.create-post input{
+  flex:1;
+  padding:10px;
+  border-radius:20px;
+  border:1px solid #ddd;
+  outline:none;
+}
+
+.create-post button{
+  background:#1B8F3A;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:20px;
+  cursor:pointer;
+}
+
+/* ===== POSTS ===== */
+#postsContainer{
+  padding:10px;
+}
+
+.post{
+  background:white;
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* top */
+.post-top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.post-top img{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.post-name{
+  font-weight:700;
+  font-size:14px;
+}
+
+.post-date{
+  font-size:11px;
+  color:#888;
+}
+
+/* content */
+.post-content{
+  margin-top:8px;
+  font-size:14px;
+}
+
+/* actions */
+.post-actions{
+  display:flex;
+  justify-content:space-around;
+  margin-top:10px;
+  border-top:1px solid #eee;
+  padding-top:8px;
+}
+
+.action-btn{
+  cursor:pointer;
+  font-size:13px;
+  color:#555;
+}
+
+/* loader */
+.loader{
+  text-align:center;
+  padding:20px;
+  color:#888;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">🌿 Communauté MANG</div>
+
+<!-- CREATE POST -->
+<div class="create-post">
+  <img id="myAvatar" src="https://via.placeholder.com/100">
+  <input type="text" id="postInput" placeholder="Exprimez-vous sur MANG...">
+  <button onclick="createPost()">Publier</button>
+</div>
+
+<!-- POSTS -->
+<div id="postsContainer">
+  <div class="loader">Chargement...</div>
+</div>
+
+<script type="module">
+
+import { supabase } from './supabase.js';
+
+let currentUser;
+
+// =======================
+// INIT
+// =======================
+async function init(){
+
+  const { data:{user} } = await supabase.auth.getUser();
+
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentUser = user;
+
+  loadMyAvatar();
+  loadPosts();
+}
+
+init();
+
+
+// =======================
+// LOAD MY AVATAR
+// =======================
+async function loadMyAvatar(){
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", currentUser.id)
+    .single();
+
+  document.getElementById("myAvatar").src =
+    profile?.avatar_url || "https://via.placeholder.com/100";
+}
+
+
+// =======================
+// CREATE POST
+// =======================
+window.createPost = async function(){
+
+  const input = document.getElementById("postInput");
+  const content = input.value.trim();
+
+  if(!content){
+    alert("Écris quelque chose !");
+    return;
+  }
+
+  const { error } = await supabase.from("posts").insert({
+    user_id: currentUser.id,
+    content: content
+  });
+
+  if(error){
+    alert("Erreur : " + error.message);
+    return;
+  }
+
+  input.value = "";
+  loadPosts();
+};
+
+
+// =======================
+// LOAD POSTS
+// =======================
+async function loadPosts(){
+
+  const container = document.getElementById("postsContainer");
+  container.innerHTML = "<div class='loader'>Chargement...</div>";
+
+  const { data: posts, error } = await supabase
+    .from("posts")
+    .select(`
+      id,
+      content,
+      created_at,
+      profiles(username, avatar_url)
+    `)
+    .order("created_at", { ascending:false });
+
+  if(error){
+    container.innerHTML = "Erreur chargement";
+    return;
+  }
+
+  container.innerHTML = "";
+
+  if(posts.length === 0){
+    container.innerHTML = "<div class='loader'>Aucun post pour le moment</div>";
+    return;
+  }
+
+  posts.forEach(post => {
+
+    const div = document.createElement("div");
+    div.className = "post";
+
+    const date = new Date(post.created_at).toLocaleString();
+
+    div.innerHTML = `
+      <div class="post-top">
+        <img src="${post.profiles?.avatar_url || 'https://via.placeholder.com/100'}">
+        <div>
+          <div class="post-name">${post.profiles?.username || "Utilisateur"}</div>
+          <div class="post-date">${date}</div>
+        </div>
+      </div>
+
+      <div class="post-content">${post.content}</div>
+
+      <div class="post-actions">
+        <div class="action-btn">👍 J'aime</div>
+        <div class="action-btn">💬 Commenter</div>
+        <div class="action-btn">↗ Partager</div>
+      </div>
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
