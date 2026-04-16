@@ -23,7 +23,30 @@ body{
   font-size:18px;
 }
 
-/* USERS SECTION */
+/* 🔥 TABS */
+.tabs{
+  display:flex;
+  background:white;
+  margin:10px;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.tab{
+  flex:1;
+  text-align:center;
+  padding:12px;
+  cursor:pointer;
+  font-weight:600;
+  color:#555;
+}
+
+.tab.active{
+  background:#1B8F3A;
+  color:white;
+}
+
+/* USERS */
 .users-section{
   background:white;
   margin:10px;
@@ -73,7 +96,6 @@ body{
   width:45px;
   height:45px;
   border-radius:50%;
-  object-fit:cover;
 }
 
 .create-post input{
@@ -148,25 +170,33 @@ body{
 
 <div class="header">🌿 Communauté MANG</div>
 
+<!-- 🔥 TABS -->
+<div class="tabs">
+  <div class="tab active" id="tabPosts">📢 Publications</div>
+  <div class="tab" id="tabUsers">👥 Membres MANG</div>
+</div>
+
 <!-- 👥 USERS -->
-<div class="users-section">
+<div class="users-section" id="usersSection" style="display:none;">
   <h3>👥 Membres MANG</h3>
 
   <input type="text" id="searchUser" placeholder="Rechercher un utilisateur...">
-
   <div id="usersContainer"></div>
 </div>
 
-<!-- CREATE POST -->
-<div class="create-post">
-  <img id="myAvatar" src="">
-  <input type="text" id="postInput" placeholder="Exprimez-vous sur MANG...">
-  <button onclick="createPost()">Publier</button>
-</div>
+<!-- 📢 POSTS -->
+<div id="postsSection">
 
-<!-- POSTS -->
-<div id="postsContainer">
-  <div class="loader">Chargement...</div>
+  <div class="create-post">
+    <img id="myAvatar" src="">
+    <input type="text" id="postInput" placeholder="Exprimez-vous sur MANG...">
+    <button onclick="createPost()">Publier</button>
+  </div>
+
+  <div id="postsContainer">
+    <div class="loader">Chargement...</div>
+  </div>
+
 </div>
 
 <script type="module">
@@ -175,11 +205,8 @@ import { supabase } from './supabase.js';
 
 let currentUser;
 
-// =======================
 // INIT
-// =======================
 async function init(){
-
   const { data:{user} } = await supabase.auth.getUser();
 
   if(!user){
@@ -191,12 +218,33 @@ async function init(){
 
   loadMyAvatar();
   loadPosts();
-  loadUsers(); // 🔥 IMPORTANT
-
+  loadUsers();
 }
 
 init();
 
+// =======================
+// 🔥 TABS LOGIC
+// =======================
+const tabPosts = document.getElementById("tabPosts");
+const tabUsers = document.getElementById("tabUsers");
+
+const postsSection = document.getElementById("postsSection");
+const usersSection = document.getElementById("usersSection");
+
+tabPosts.onclick = () => {
+  postsSection.style.display = "block";
+  usersSection.style.display = "none";
+  tabPosts.classList.add("active");
+  tabUsers.classList.remove("active");
+};
+
+tabUsers.onclick = () => {
+  postsSection.style.display = "none";
+  usersSection.style.display = "block";
+  tabUsers.classList.add("active");
+  tabPosts.classList.remove("active");
+};
 
 // =======================
 // AVATAR
@@ -212,32 +260,25 @@ async function loadMyAvatar(){
     data?.avatar_url || "https://via.placeholder.com/100";
 }
 
-
 // =======================
-// USERS (🔥 NOUVEAU)
+// USERS
 // =======================
 async function loadUsers(search=""){
 
   let query = supabase
     .from("profiles")
-    .select("id, username, avatar_url");
+    .select("username, avatar_url");
 
   if(search){
     query = query.ilike("username", `%${search}%`);
   }
 
-  const { data: users, error } = await query;
+  const { data: users } = await query;
 
   const container = document.getElementById("usersContainer");
   container.innerHTML = "";
 
-  if(error){
-    container.innerHTML = "Erreur chargement utilisateurs";
-    return;
-  }
-
   users.forEach(u => {
-
     const div = document.createElement("div");
     div.className = "user-card";
 
@@ -247,16 +288,13 @@ async function loadUsers(search=""){
     `;
 
     container.appendChild(div);
-
   });
 
 }
 
-// 🔍 recherche
 document.getElementById("searchUser").addEventListener("input", (e)=>{
   loadUsers(e.target.value);
 });
-
 
 // =======================
 // CREATE POST
@@ -280,16 +318,15 @@ window.createPost = async function(){
   loadPosts();
 };
 
-
 // =======================
-// LOAD POSTS
+// POSTS
 // =======================
 async function loadPosts(){
 
   const container = document.getElementById("postsContainer");
   container.innerHTML = "<div class='loader'>Chargement...</div>";
 
-  const { data: posts, error } = await supabase
+  const { data: posts } = await supabase
     .from("posts")
     .select(`
       content,
@@ -297,11 +334,6 @@ async function loadPosts(){
       profiles(username, avatar_url)
     `)
     .order("created_at", { ascending:false });
-
-  if(error){
-    container.innerHTML = "Erreur chargement";
-    return;
-  }
 
   container.innerHTML = "";
 
