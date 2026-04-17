@@ -452,15 +452,30 @@ window.toggleLike = async function(postId){
   loadPosts();
 };
 
-
 // =======================
 // COMMENTS
 // =======================
+
+let currentPostId = null;
+
+// 🔥 OUVRIR MODAL
 window.openComments = async function(postId){
   currentPostId = postId;
-  document.getElementById("commentModal").style.display = "flex";
+
+  const modal = document.getElementById("commentModal");
+  modal.style.display = "flex";
+
   loadComments();
 };
+
+
+// 🔥 FERMER MODAL
+window.closeComments = function(){
+  document.getElementById("commentModal").style.display = "none";
+};
+
+
+// 🔥 CHARGER COMMENTAIRES
 async function loadComments(){
 
   const box = document.getElementById("commentsList");
@@ -473,8 +488,8 @@ async function loadComments(){
     .order("created_at", { ascending: true });
 
   if(error){
-    console.error(error);
-    box.innerHTML = "Erreur chargement";
+    console.error("Erreur commentaires:", error);
+    box.innerHTML = "Erreur de chargement";
     return;
   }
 
@@ -485,19 +500,30 @@ async function loadComments(){
 
   box.innerHTML = "";
 
-  // 🔥 chargement manuel des profils
-  for (let c of data){
+  // 🔥 Charger les profils en parallèle (PLUS RAPIDE)
+  const profilesMap = {};
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("username, avatar_url")
-      .eq("id", c.user_id)
-      .single();
+  const userIds = [...new Set(data.map(c => c.user_id))];
+
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username, avatar_url")
+    .in("id", userIds);
+
+  profiles?.forEach(p => {
+    profilesMap[p.id] = p;
+  });
+
+  // 🔥 AFFICHAGE
+  data.forEach(c => {
+
+    const profile = profilesMap[c.user_id];
 
     box.innerHTML += `
       <div style="display:flex;gap:8px;margin-bottom:10px;">
         <img src="${profile?.avatar_url || 'https://via.placeholder.com/40'}"
-             style="width:30px;height:30px;border-radius:50%">
+             style="width:30px;height:30px;border-radius:50%;object-fit:cover">
+
         <div>
           <b>${profile?.username || "Utilisateur"}</b><br>
           <small>${c.content}</small>
@@ -508,21 +534,30 @@ async function loadComments(){
   });
 }
 
-// SEND COMMENT
+
+// =======================
+// 🔥 ENVOYER COMMENTAIRE
+// =======================
 window.sendComment = async function(){
 
   const input = document.getElementById("commentInput");
   const content = input.value.trim();
 
-  if(!content) return;
+  if(!content){
+    alert("Écris un commentaire !");
+    return;
+  }
 
-  const { error } = await supabase.from("comments").insert({
-    user_id: currentUser.id,
-    post_id: currentPostId,
-    content
-  });
+  const { error } = await supabase
+    .from("comments")
+    .insert({
+      user_id: currentUser.id,
+      post_id: currentPostId,
+      content
+    });
 
   if(error){
+    console.error("Erreur insert:", error);
     alert(error.message);
     return;
   }
@@ -531,6 +566,16 @@ window.sendComment = async function(){
   loadComments();
 };
 
+
+// =======================
+// 🔥 FERMER SI CLIC DEHORS
+// =======================
+window.addEventListener("click", (e) => {
+  const modal = document.getElementById("commentModal");
+  if(e.target === modal){
+    closeComments();
+  }
+});
 
 // =======================
 // POSTS
