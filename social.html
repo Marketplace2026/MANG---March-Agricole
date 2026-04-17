@@ -461,7 +461,6 @@ window.openComments = async function(postId){
   document.getElementById("commentModal").style.display = "flex";
   loadComments();
 };
-
 async function loadComments(){
 
   const box = document.getElementById("commentsList");
@@ -469,37 +468,43 @@ async function loadComments(){
 
   const { data, error } = await supabase
     .from("comments")
-    .select(`
-      content,
-      created_at,
-      profiles(username, avatar_url)
-    `)
+    .select("content, created_at, user_id")
     .eq("post_id", currentPostId)
     .order("created_at", { ascending: true });
 
   if(error){
+    console.error(error);
     box.innerHTML = "Erreur chargement";
     return;
   }
 
-  if(data.length === 0){
+  if(!data || data.length === 0){
     box.innerHTML = "<p>Aucun commentaire</p>";
     return;
   }
 
   box.innerHTML = "";
 
-  data.forEach(c=>{
+  // 🔥 chargement manuel des profils
+  for (let c of data){
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", c.user_id)
+      .single();
+
     box.innerHTML += `
       <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <img src="${c.profiles?.avatar_url || 'https://via.placeholder.com/40'}"
+        <img src="${profile?.avatar_url || 'https://via.placeholder.com/40'}"
              style="width:30px;height:30px;border-radius:50%">
         <div>
-          <b>${c.profiles?.username || "Utilisateur"}</b><br>
+          <b>${profile?.username || "Utilisateur"}</b><br>
           <small>${c.content}</small>
         </div>
       </div>
     `;
+
   });
 }
 
