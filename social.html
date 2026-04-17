@@ -254,22 +254,18 @@ body{
 
 </div>
 
-  <!-- 💬 MODAL COMMENT -->
+<!-- 💬 MODAL COMMENT -->
 <div id="commentModal" class="modal">
   <div class="modal-content">
     <h3>💬 Commentaires</h3>
 
-    <div id="commentsList" style="max-height:200px;overflow-y:auto;"></div>
+    <div id="commentsList"></div>
 
     <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
 
-    <div style="margin-top:10px;display:flex;gap:10px;">
-      <button onclick="closeComments()">Fermer</button>
-      <button onclick="sendComment()">Envoyer</button>
-    </div>
+    <button onclick="sendComment()">Envoyer</button>
   </div>
 </div>
-
 
   <script type="module">
 
@@ -282,9 +278,9 @@ let currentPostId = null;
 // INIT
 // =======================
 async function init(){
-  const { data:{user} } = await supabase.auth.getUser();
+  const { data:{user}, error } = await supabase.auth.getUser();
 
-  if(!user){
+  if(error || !user){
     window.location.href = "login.html";
     return;
   }
@@ -351,10 +347,15 @@ async function loadUsers(search=""){
     query = query.ilike("username", `%${search}%`);
   }
 
-  const { data: users } = await query;
+  const { data: users, error } = await query;
 
   const container = document.getElementById("usersContainer");
   container.innerHTML = "";
+
+  if(error){
+    container.innerHTML = "Erreur chargement";
+    return;
+  }
 
   users.forEach(u => {
 
@@ -371,7 +372,7 @@ async function loadUsers(search=""){
   });
 }
 
-// 🔍 recherche
+// 🔍 SEARCH
 document.getElementById("searchUser").addEventListener("input", (e)=>{
   loadUsers(e.target.value);
 });
@@ -384,7 +385,7 @@ window.toggleFollow = async function(userId){
     .select("id")
     .eq("follower_id", currentUser.id)
     .eq("following_id", userId)
-    .single();
+    .maybeSingle();
 
   if(data){
     await supabase.from("follows").delete().eq("id", data.id);
@@ -412,10 +413,15 @@ window.createPost = async function(){
     return;
   }
 
-  await supabase.from("posts").insert({
+  const { error } = await supabase.from("posts").insert({
     user_id: currentUser.id,
     content
   });
+
+  if(error){
+    alert(error.message);
+    return;
+  }
 
   input.value = "";
   loadPosts();
@@ -432,7 +438,7 @@ window.toggleLike = async function(postId){
     .select("id")
     .eq("post_id", postId)
     .eq("user_id", currentUser.id)
-    .single();
+    .maybeSingle();
 
   if(data){
     await supabase.from("likes").delete().eq("id", data.id);
@@ -446,30 +452,16 @@ window.toggleLike = async function(postId){
   loadPosts();
 };
 
-let currentPostId = null;
 
 // =======================
-// OUVRIR COMMENTAIRES
+// COMMENTS
 // =======================
 window.openComments = async function(postId){
-
   currentPostId = postId;
-
   document.getElementById("commentModal").style.display = "flex";
-
   loadComments();
 };
 
-// =======================
-// FERMER
-// =======================
-window.closeComments = function(){
-  document.getElementById("commentModal").style.display = "none";
-};
-
-// =======================
-// CHARGER COMMENTAIRES
-// =======================
 async function loadComments(){
 
   const box = document.getElementById("commentsList");
@@ -497,31 +489,21 @@ async function loadComments(){
 
   box.innerHTML = "";
 
-  data.forEach(c => {
-
-    const div = document.createElement("div");
-
-    div.style.display = "flex";
-    div.style.gap = "8px";
-    div.style.marginBottom = "10px";
-
-    div.innerHTML = `
-      <img src="${c.profiles?.avatar_url || 'https://via.placeholder.com/40'}"
-           style="width:30px;height:30px;border-radius:50%">
-      <div>
-        <strong>${c.profiles?.username || "Utilisateur"}</strong><br>
-        <small>${c.content}</small>
+  data.forEach(c=>{
+    box.innerHTML += `
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <img src="${c.profiles?.avatar_url || 'https://via.placeholder.com/40'}"
+             style="width:30px;height:30px;border-radius:50%">
+        <div>
+          <b>${c.profiles?.username || "Utilisateur"}</b><br>
+          <small>${c.content}</small>
+        </div>
       </div>
     `;
-
-    box.appendChild(div);
-
   });
 }
 
-// =======================
-// ENVOYER COMMENTAIRE
-// =======================
+// SEND COMMENT
 window.sendComment = async function(){
 
   const input = document.getElementById("commentInput");
@@ -544,15 +526,6 @@ window.sendComment = async function(){
   loadComments();
 };
 
-// =======================
-// FERMER SI CLIQUE DEHORS
-// =======================
-window.addEventListener("click", (e)=>{
-  const modal = document.getElementById("commentModal");
-  if(e.target === modal){
-    modal.style.display = "none";
-  }
-});
 
 // =======================
 // POSTS
@@ -562,7 +535,7 @@ async function loadPosts(){
   const container = document.getElementById("postsContainer");
   container.innerHTML = "<div class='loader'>Chargement...</div>";
 
-  const { data: posts } = await supabase
+  const { data: posts, error } = await supabase
     .from("posts")
     .select(`
       id,
@@ -571,6 +544,11 @@ async function loadPosts(){
       profiles(username, avatar_url)
     `)
     .order("created_at", { ascending:false });
+
+  if(error){
+    container.innerHTML = "Erreur chargement";
+    return;
+  }
 
   container.innerHTML = "";
 
@@ -594,7 +572,7 @@ async function loadPosts(){
 
       <div class="post-actions">
         <div onclick="toggleLike('${post.id}')">👍 J'aime</div>
-        <div onclick="openComment('${post.id}')">💬 Commenter</div>
+        <div onclick="openComments('${post.id}')">💬 Commenter</div>
         <div>↗ Partager</div>
       </div>
     `;
@@ -604,7 +582,7 @@ async function loadPosts(){
 
 }
 
-  </script>
+    </script>
 
 </body>
 </html>
