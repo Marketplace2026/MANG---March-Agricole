@@ -218,6 +218,142 @@ body{
   cursor:pointer;
 }
 
+  /* ========================= */
+/* 💬 MODAL COMMENTAIRES */
+/* ========================= */
+
+.modal{
+  display:none;
+  position:fixed;
+  z-index:999;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+
+  justify-content:center;
+  align-items:flex-end;
+}
+
+/* BOX */
+.modal-content{
+  background:white;
+  width:100%;
+  max-height:80%;
+  border-radius:20px 20px 0 0;
+  padding:15px;
+
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+.comment-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:700;
+  font-size:16px;
+  margin-bottom:10px;
+}
+
+.close-btn{
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* LIST */
+.comments-list{
+  flex:1;
+  overflow-y:auto;
+  margin-bottom:10px;
+}
+
+/* COMMENT */
+.comment{
+  background:#f5f5f5;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+/* TOP */
+.comment-top{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+}
+
+.comment-user{
+  font-weight:700;
+}
+
+.comment-date{
+  color:#888;
+  font-size:11px;
+}
+
+/* CONTENT */
+.comment-content{
+  margin-top:5px;
+  font-size:14px;
+}
+
+/* ACTIONS */
+.comment-actions{
+  display:flex;
+  gap:15px;
+  margin-top:8px;
+  font-size:13px;
+}
+
+.comment-actions span{
+  cursor:pointer;
+  color:#555;
+}
+
+.comment-actions span:hover{
+  color:#1B8F3A;
+}
+
+/* INPUT */
+.comment-input-box{
+  display:flex;
+  gap:10px;
+  border-top:1px solid #eee;
+  padding-top:10px;
+}
+
+.comment-input-box input{
+  flex:1;
+  padding:10px;
+  border-radius:20px;
+  border:1px solid #ddd;
+  outline:none;
+}
+
+.comment-input-box button{
+  background:#1B8F3A;
+  color:white;
+  border:none;
+  border-radius:50%;
+  width:40px;
+  height:40px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+/* SCROLL STYLE */
+.comments-list::-webkit-scrollbar{
+  width:4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb{
+  background:#ccc;
+  border-radius:10px;
+}
+
 </style>
 </head>
 
@@ -254,17 +390,34 @@ body{
 
 </div>
 
-<!-- 💬 MODAL COMMENT -->
+  <!-- 💬 MODAL COMMENTAIRES -->
 <div id="commentModal" class="modal">
+
   <div class="modal-content">
-    <h3>💬 Commentaires</h3>
 
-    <div id="commentsList"></div>
+    <!-- HEADER -->
+    <div class="comment-header">
+      <span>💬 Commentaires</span>
+      <span class="close-btn" onclick="closeComments()">✖</span>
+    </div>
 
-    <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
+    <!-- LISTE -->
+    <div id="commentsList" class="comments-list">
+      Chargement...
+    </div>
 
-    <button onclick="sendComment()">Envoyer</button>
+    <!-- INPUT -->
+    <div class="comment-input-box">
+      <input 
+        type="text" 
+        id="commentInput" 
+        placeholder="Écrire un commentaire..."
+      >
+      <button onclick="sendComment()">➤</button>
+    </div>
+
   </div>
+
 </div>
 
   <script type="module">
@@ -454,10 +607,10 @@ window.toggleLike = async function(postId){
   loadPosts();
 };
 
+    // =======================
+// 💬 COMMENTS SYSTEM FULL
+// =======================
 
-// =======================
-// COMMENTS (FIXED 🔥)
-// =======================
 window.openComments = async function(postId){
   currentPostId = postId;
   document.getElementById("commentModal").style.display = "flex";
@@ -468,6 +621,10 @@ window.closeComments = function(){
   document.getElementById("commentModal").style.display = "none";
 };
 
+
+// =======================
+// 📥 LOAD COMMENTS
+// =======================
 async function loadComments(){
 
   const box = document.getElementById("commentsList");
@@ -475,7 +632,7 @@ async function loadComments(){
 
   const { data: comments, error } = await supabase
     .from("comments")
-    .select("content, user_id")
+    .select("id, content, user_id, created_at")
     .eq("post_id", currentPostId)
     .order("created_at", { ascending: true });
 
@@ -485,37 +642,73 @@ async function loadComments(){
     return;
   }
 
-  if(!comments.length){
+  if(!comments || comments.length === 0){
     box.innerHTML = "<p>Aucun commentaire</p>";
     return;
   }
 
   box.innerHTML = "";
 
-  // 🔥 charger profils manuellement
+  // 🔥 boucle commentaires
   for (let c of comments){
 
+    // 👤 profil
     const { data: profile } = await supabase
       .from("profiles")
       .select("username, avatar_url")
       .eq("id", c.user_id)
       .single();
 
+    // 👍 nombre de likes
+    const { count } = await supabase
+      .from("likes_comment")
+      .select("*", { count: "exact", head: true })
+      .eq("comment_id", c.id);
+
+    // ❤️ vérifier si moi j'ai liké
+    const { data: myLike } = await supabase
+      .from("likes_comment")
+      .select("id")
+      .eq("comment_id", c.id)
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
     box.innerHTML += `
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <img src="${profile?.avatar_url || 'https://via.placeholder.com/40'}"
-             style="width:30px;height:30px;border-radius:50%">
-        <div>
-          <b>${profile?.username || "Utilisateur"}</b><br>
-          <small>${c.content}</small>
-        </div>
-      </div>
-    `;
+  <div class="comment">
+
+    <div class="comment-top">
+      <span class="comment-user">${profile?.username || "Utilisateur"}</span>
+      <span class="comment-date">${new Date(c.created_at).toLocaleString()}</span>
+    </div>
+
+    <div class="comment-content">
+      ${c.content}
+    </div>
+
+    <div class="comment-actions">
+      <span onclick="toggleLikeComment('${c.id}')">👍 ${count || 0}</span>
+      <span onclick="replyComment('${c.id}')">💬 Répondre</span>
+
+      ${
+        c.user_id === currentUser.id
+        ? `
+          <span onclick="editComment('${c.id}', \`${c.content}\`)">✏ Modifier</span>
+          <span onclick="deleteComment('${c.id}')">🗑 Supprimer</span>
+        `
+        : ""
+      }
+    </div>
+
+  </div>
+`;
+    
   }
 }
 
 
-// SEND COMMENT
+// =======================
+// ✍️ SEND COMMENT
+// =======================
 window.sendComment = async function(){
 
   const input = document.getElementById("commentInput");
@@ -526,11 +719,13 @@ window.sendComment = async function(){
     return;
   }
 
-  const { error } = await supabase.from("comments").insert({
-    user_id: currentUser.id,
-    post_id: currentPostId,
-    content
-  });
+  const { error } = await supabase
+    .from("comments")
+    .insert({
+      user_id: currentUser.id,
+      post_id: currentPostId,
+      content
+    });
 
   if(error){
     alert(error.message);
@@ -539,6 +734,90 @@ window.sendComment = async function(){
 
   input.value = "";
   loadComments();
+};
+
+
+// =======================
+// 👍 LIKE COMMENT
+// =======================
+window.toggleLikeComment = async function(commentId){
+
+  const { data } = await supabase
+    .from("likes_comment")
+    .select("id")
+    .eq("comment_id", commentId)
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+
+  if(data){
+    await supabase
+      .from("likes_comment")
+      .delete()
+      .eq("id", data.id);
+  }else{
+    await supabase
+      .from("likes_comment")
+      .insert({
+        user_id: currentUser.id,
+        comment_id: commentId
+      });
+  }
+
+  loadComments();
+};
+
+
+// =======================
+// 🗑 DELETE COMMENT
+// =======================
+window.deleteComment = async function(id){
+
+  if(!confirm("Supprimer ce commentaire ?")) return;
+
+  await supabase
+    .from("comments")
+    .delete()
+    .eq("id", id);
+
+  loadComments();
+};
+
+
+// =======================
+// ✏ EDIT COMMENT
+// =======================
+window.editComment = async function(id, oldContent){
+
+  const newContent = prompt("Modifier ton commentaire :", oldContent);
+
+  if(!newContent) return;
+
+  await supabase
+    .from("comments")
+    .update({ content: newContent })
+    .eq("id", id);
+
+  loadComments();
+};
+
+
+// =======================
+// 💬 REPLY COMMENT
+// =======================
+window.replyComment = function(commentId){
+
+  const text = prompt("Répondre à ce commentaire");
+
+  if(!text) return;
+
+  supabase.from("comments").insert({
+    user_id: currentUser.id,
+    post_id: currentPostId,
+    content: text,
+    parent_id: commentId
+  }).then(()=>{
+    loadComments();
+  });
 };
 
 
