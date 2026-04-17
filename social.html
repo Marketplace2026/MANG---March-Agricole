@@ -23,13 +23,11 @@ body{
   font-size:18px;
 }
 
-/* 🔥 TABS */
+/* TABS */
 .tabs{
   display:flex;
   background:white;
-  margin:10px;
-  border-radius:12px;
-  overflow:hidden;
+  border-bottom:1px solid #ddd;
 }
 
 .tab{
@@ -38,12 +36,11 @@ body{
   padding:12px;
   cursor:pointer;
   font-weight:600;
-  color:#555;
 }
 
 .tab.active{
-  background:#1B8F3A;
-  color:white;
+  color:#1B8F3A;
+  border-bottom:3px solid #1B8F3A;
 }
 
 /* USERS */
@@ -74,11 +71,20 @@ body{
   width:45px;
   height:45px;
   border-radius:50%;
-  object-fit:cover;
 }
 
 .user-name{
   font-weight:600;
+}
+
+.user-card button{
+  margin-left:auto;
+  background:#1B8F3A;
+  color:white;
+  border:none;
+  padding:5px 10px;
+  border-radius:10px;
+  cursor:pointer;
 }
 
 /* CREATE POST */
@@ -111,6 +117,7 @@ body{
   border:none;
   padding:8px 14px;
   border-radius:20px;
+  cursor:pointer;
 }
 
 /* POSTS */
@@ -155,12 +162,60 @@ body{
   margin-top:10px;
   border-top:1px solid #eee;
   padding-top:8px;
+  font-size:13px;
+  cursor:pointer;
 }
 
+/* LOADER */
 .loader{
   text-align:center;
   padding:20px;
   color:#888;
+}
+
+/* MODAL COMMENT */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+
+.modal-content{
+  background:white;
+  width:90%;
+  max-width:400px;
+  border-radius:12px;
+  padding:15px;
+}
+
+#commentsList{
+  max-height:200px;
+  overflow-y:auto;
+  margin-bottom:10px;
+}
+
+#commentInput{
+  width:100%;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  margin-bottom:10px;
+}
+
+.modal-content button{
+  background:#1B8F3A;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
 }
 
 </style>
@@ -188,7 +243,7 @@ body{
 <div id="postsSection">
 
   <div class="create-post">
-    <img id="myAvatar" src="">
+    <img id="myAvatar" src="https://via.placeholder.com/100">
     <input type="text" id="postInput" placeholder="Exprimez-vous sur MANG...">
     <button onclick="createPost()">Publier</button>
   </div>
@@ -197,6 +252,19 @@ body{
     <div class="loader">Chargement...</div>
   </div>
 
+</div>
+
+<!-- 💬 MODAL COMMENT -->
+<div id="commentModal" class="modal">
+  <div class="modal-content">
+    <h3>💬 Commentaires</h3>
+
+    <div id="commentsList"></div>
+
+    <input type="text" id="commentInput" placeholder="Écrire un commentaire...">
+
+    <button onclick="sendComment()">Envoyer</button>
+  </div>
 </div>
 
 
